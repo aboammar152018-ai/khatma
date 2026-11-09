@@ -1,3 +1,10 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1c4f7c">
+<meta name="description" content="ختمة: تطبيق لإدارة ختمة القرآن الكريم للمجموعات">
 <title>ختمة المجموعة</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -171,8 +178,36 @@ input[type=password]{width:100%;background:var(--bg);border:1px solid var(--line
 input:focus{border-color:var(--lapis);outline:none;box-shadow:0 0 0 3px var(--lapis-soft)}
 .info{color:var(--ok);background:var(--ok-soft);border-radius:10px;padding:8px 12px;margin:14px 0 0;font-size:14px}
 .err{color:var(--warn);background:var(--warn-soft);border-radius:10px;padding:8px 12px;margin:14px 0 0;font-size:14px}
+
+/* standalone page base */
+html{-webkit-text-size-adjust:100%;color-scheme:light}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;min-height:100vh;min-height:100dvh}
+[hidden]{display:none!important} img{max-width:100%}
+input,select{font-size:16px}
+.pw{position:relative}
+.pw input{padding-left:72px}
+.eye{position:absolute;left:6px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--lapis);font-size:13px;padding:8px 10px;border-radius:8px}
+.otp{font-size:26px!important;letter-spacing:.35em;text-align:center;padding:12px!important;font-variant-numeric:tabular-nums}
+.back[disabled]{color:var(--muted);text-decoration:none;cursor:default}
+@media (max-width:480px){
+  body{font-size:16px}
+  .brand{font-size:24px}
+  .card{padding:16px 14px}
+  .btn{padding:14px 18px;font-size:16px}
+  .rolecard{padding:18px 16px}
+  .wird .range{font-size:22px}
+  .opts button{padding:10px 2px;font-size:14px}
+}
+@media (min-width:900px){
+  .wrap{max-width:640px}
+  .top-in{max-width:640px}
+  main{padding-block:28px 56px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
+</head>
+<body>
 
 <header class="top"><div class="top-in">
   <div class="brand">ختمة<small id="gname">ختمة العائلة</small></div>
@@ -460,11 +495,27 @@ async function finish(){
 
 /* ---------- AUTH ---------- */
 let AU={role:null,tab:'login',err:'',info:''}, busy=false;
+const pwField=(id,label,ac,hint)=>`<div class="field"><label for="${id}">${label}</label><div class="pw"><input type="password" id="${id}" autocomplete="${ac}" dir="ltr"><button type="button" class="eye" data-eye="${id}" aria-label="إظهار كلمة المرور">إظهار</button></div>${hint?`<span class="sub">${hint}</span>`:''}</div>`;
+const msgs=()=>`${AU.err?`<p class="err" role="alert">${esc(AU.err)}</p>`:''}${AU.info?`<p class="info" role="status">${esc(AU.info)}</p>`:''}`;
+function verifyView(){
+  const signup=AU.kind==='signup';
+  return `<button class="back" id="back">› رجوع</button>
+  <div class="card auth"><h2>${signup?'تفعيل الحساب':'رمز الدخول'}</h2>
+    <p class="sub" style="margin:0">أرسلنا رمز تأكيد إلى <b dir="ltr" style="color:var(--ink)">${esc(AU.email)}</b>. اكتبه هنا، أو اضغط الرابط الموجود في الرسالة.</p>
+    <form id="otpform" novalidate>
+      <div class="field"><label for="f-otp">رمز التأكيد</label>
+        <input type="text" id="f-otp" class="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="10" dir="ltr" placeholder="••••••"></div>
+      ${msgs()}
+      <button class="btn btn-main" type="submit" id="otpbtn" style="width:100%;margin-top:16px">تأكيد</button>
+      <button class="back" type="button" id="resend" style="margin-top:14px"></button>
+      <p class="sub" style="margin:10px 0 0">لم تصلك الرسالة؟ افحص مجلد الرسائل غير المرغوب فيها (Spam).</p>
+    </form></div>`;
+}
 function authView(){
   if(recovery) return `<div class="card auth"><h2>كلمة مرور جديدة</h2>
-    <form id="recform" novalidate><div class="field"><label for="f-np">كلمة المرور الجديدة</label><input type="password" id="f-np" autocomplete="new-password" dir="ltr"></div>
-    ${AU.err?`<p class="err" role="alert">${esc(AU.err)}</p>`:''}
-    <button class="btn btn-main" type="submit" style="width:100%;margin-top:16px">حفظ كلمة المرور</button></form></div>`;
+    <form id="recform" novalidate>${pwField('f-np','كلمة المرور الجديدة','new-password','6 أحرف على الأقل')}${pwField('f-np2','تأكيد كلمة المرور','new-password')}
+    ${msgs()}<button class="btn btn-main" type="submit" style="width:100%;margin-top:16px">حفظ كلمة المرور</button></form></div>`;
+  if(AU.stage==='verify')return verifyView();
   if(!AU.role) return `
   <div class="hero"><div class="logo">ختمة</div><p class="sub">ختمة القرآن الكريم مع أهلك وأصحابك: وِرد يصلك، تقرؤه، وتسجّل إتمامه.</p></div>
   <button class="rolecard" data-role="admin"><span class="ri">۞</span><span class="grow"><b>المشرف</b><span class="sub">أنشئ مجموعة، انشر الورد، وتابع الأعضاء</span></span><span class="go">‹</span></button>
@@ -478,13 +529,13 @@ function authView(){
     <form id="authform" novalidate>
       ${reg?`<div class="field"><label for="f-name">الاسم</label><input type="text" id="f-name" autocomplete="name" placeholder="الاسم الذي سيظهر للمجموعة"></div>`:''}
       <div class="field"><label for="f-user">البريد الإلكتروني</label><input type="email" id="f-user" autocomplete="email" inputmode="email" dir="ltr" autocapitalize="none" placeholder="name@example.com"></div>
-      <div class="field"><label for="f-pass">كلمة المرور</label><input type="password" id="f-pass" autocomplete="${reg?'new-password':'current-password'}" dir="ltr">${reg?'<span class="sub">6 أحرف على الأقل</span>':''}</div>
+      ${pwField('f-pass','كلمة المرور',reg?'new-password':'current-password',reg?'6 أحرف على الأقل':'')}
+      ${reg?pwField('f-pass2','تأكيد كلمة المرور','new-password'):''}
       ${reg&&adm?`<div class="field"><label for="f-group">اسم المجموعة</label><input type="text" id="f-group" placeholder="مثلاً: ختمة العائلة"></div>`:''}
       ${reg&&!adm?`<div class="field"><label for="f-code">كود المجموعة</label><input type="text" id="f-code" dir="ltr" autocapitalize="characters" placeholder="KH-4821"><span class="sub">اطلبه من مشرف مجموعتك</span></div>`:''}
-      ${AU.err?`<p class="err" role="alert">${esc(AU.err)}</p>`:''}
-      ${AU.info?`<p class="info" role="status">${esc(AU.info)}</p>`:''}
-      <button class="btn btn-main" type="submit" id="authbtn" style="width:100%;margin-top:16px">${reg?(adm?'إنشاء المجموعة':'إنشاء الحساب والانضمام'):'دخول'}</button>
-      ${reg?'':'<button class="back" type="button" id="forgot" style="margin-top:12px">نسيت كلمة المرور؟</button>'}
+      ${msgs()}
+      <button class="btn btn-main" type="submit" id="authbtn" style="width:100%;margin-top:16px">${reg?(adm?'إنشاء المجموعة':'إنشاء الحساب والانضمام'):'متابعة'}</button>
+      ${reg?'':'<p class="sub" style="margin:10px 0 0">سيصلك رمز تأكيد على بريدك لإتمام الدخول.</p><button class="back" type="button" id="forgot" style="margin-top:12px">نسيت كلمة المرور؟</button>'}
     </form>
   </div>`;
 }
@@ -502,53 +553,86 @@ function bindNoGroup(){
   const jn=$('#jn');if(jn)jn.onclick=async()=>{jn.disabled=true;const {error}=await sb.rpc('join_group',{p_code:$('#f-code').value.trim()});
     if(error){jn.disabled=false;return toast(errMsg(error))}await refresh();toast('انضممت إلى '+(G?G.group:'المجموعة'))};
 }
+function toVerify(kind,email,info){busy=false;AU={...AU,stage:'verify',kind,email,err:'',info:info||'',cool:Date.now()+60000};render();
+  setTimeout(()=>{const o=$('#f-otp');if(o)o.focus()},60)}
+function tickResend(){const b=$('#resend');if(!b)return;const s=Math.ceil(((AU.cool||0)-Date.now())/1000);
+  b.disabled=s>0;b.textContent=s>0?`إعادة إرسال الرمز بعد ${AR(s)} ث`:'إعادة إرسال الرمز'}
+setInterval(tickResend,1000);
 function bindAuth(){
+  document.querySelectorAll('[data-eye]').forEach(b=>b.onclick=()=>{const i=$('#'+b.dataset.eye),show=i.type==='password';
+    i.type=show?'text':'password';b.textContent=show?'إخفاء':'إظهار';b.setAttribute('aria-label',show?'إخفاء كلمة المرور':'إظهار كلمة المرور')});
   document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{AU={role:b.dataset.role,tab:'login',err:'',info:''};render()});
-  const bk=$('#back');if(bk&&bk.id==='back')bk.onclick=()=>{AU={role:null,tab:'login',err:'',info:''};render()};
+  const bk=$('#back');if(bk)bk.onclick=()=>{if(AU.stage==='verify'){AU={role:AU.role,tab:AU.tab,err:'',info:''}}else AU={role:null,tab:'login',err:'',info:''};render()};
   document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{AU.tab=b.dataset.tab;AU.err='';AU.info='';render()});
+  tickResend();
   const rf=$('#recform');if(rf)rf.onsubmit=async e=>{e.preventDefault();const np=$('#f-np').value;
     if(np.length<6){AU.err='كلمة المرور 6 أحرف على الأقل.';return render()}
+    if(np!==$('#f-np2').value){AU.err='كلمتا المرور غير متطابقتين.';return render()}
     const {error}=await sb.auth.updateUser({password:np});if(error){AU.err=errMsg(error);return render()}
     recovery=false;AU.err='';history.replaceState(null,'',location.pathname);await refresh();toast('تم حفظ كلمة المرور الجديدة')};
   const fg=$('#forgot');if(fg)fg.onclick=async()=>{const email=$('#f-user').value.trim().toLowerCase();
     if(!email){AU.err='اكتب بريدك الإلكتروني أولاً، ثم اضغط «نسيت كلمة المرور».';AU.info='';return render()}
     const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
     AU.err=error?errMsg(error):'';AU.info=error?'':'أرسلنا رابط تغيير كلمة المرور إلى بريدك.';render();$('#f-user').value=email};
+  const of=$('#otpform');if(of)of.onsubmit=async e=>{e.preventDefault();if(busy)return;
+    const token=$('#f-otp').value.replace(/\D/g,'');
+    if(token.length<6){AU.err='اكتب الرمز كاملاً كما وصلك.';AU.info='';render();return}
+    busy=true;const btn=$('#otpbtn');btn.disabled=true;btn.textContent='جارٍ التحقق…';
+    let {error}=await sb.auth.verifyOtp({email:AU.email,token,type:'email'});
+    if(error&&AU.kind==='signup'){const r=await sb.auth.verifyOtp({email:AU.email,token,type:'signup'});error=r.error}
+    busy=false;
+    if(error){AU.err=/expired|invalid|not found/i.test(error.message)?'الرمز غير صحيح أو انتهت صلاحيته. اطلب رمزاً جديداً.':errMsg(error);AU.info='';render();$('#f-otp').value=token;return}
+    const kind=AU.kind;AU={role:null,tab:'login',err:'',info:''};comp={mode:'continue',pick:null};showNotes=false;
+    loading=true;render();await refresh();scrollTo(0,0);
+    toast(kind==='signup'?(A&&A.role==='admin'&&G?`تم تفعيل حسابك. كود المجموعة: ${G.code}`:'تم تفعيل حسابك، أهلاً بك'):`أهلاً ${A?A.name:''}`)};
+  const rs=$('#resend');if(rs)rs.onclick=async()=>{if(Date.now()<(AU.cool||0))return;rs.disabled=true;
+    const {error}=AU.kind==='signup'
+      ?await sb.auth.resend({type:'signup',email:AU.email,options:{emailRedirectTo:location.origin+location.pathname}})
+      :await sb.auth.signInWithOtp({email:AU.email,options:{shouldCreateUser:false}});
+    AU.cool=Date.now()+60000;AU.err=error?errMsg(error):'';AU.info=error?'':'أرسلنا رمزاً جديداً إلى بريدك.';render()};
   const f=$('#authform');if(!f)return;
   f.onsubmit=async e=>{e.preventDefault();if(busy)return;
     const val=id=>{const el=$(id);return el?el.value.trim():''};
-    const email=val('#f-user').toLowerCase(), p=$('#f-pass').value;
+    const email=val('#f-user').toLowerCase(), p=$('#f-pass').value, p2=$('#f-pass2')?$('#f-pass2').value:'';
     const keep={name:val('#f-name'),group:val('#f-group'),code:val('#f-code')};
     const fail=m=>{busy=false;AU.err=m;AU.info='';render();
-      $('#f-user').value=email;$('#f-pass').value=p;[['#f-name','name'],['#f-group','group'],['#f-code','code']].forEach(([s,k])=>{const el=$(s);if(el)el.value=keep[k]})};
+      $('#f-user').value=email;$('#f-pass').value=p;if($('#f-pass2'))$('#f-pass2').value=p2;
+      [['#f-name','name'],['#f-group','group'],['#f-code','code']].forEach(([s,k])=>{const el=$(s);if(el)el.value=keep[k]})};
     if(!email||!p)return fail('اكتب البريد الإلكتروني وكلمة المرور.');
     if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))return fail('اكتب بريداً إلكترونياً صحيحاً، مثل name@example.com');
-    busy=true;const btn=$('#authbtn');btn.disabled=true;btn.textContent='لحظة…';
     if(AU.tab==='login'){
+      busy=true;const btn=$('#authbtn');btn.disabled=true;btn.textContent='لحظة…';
       const {data,error}=await sb.auth.signInWithPassword({email,password:p});
-      if(error)return fail(errMsg(error));
+      if(error){
+        if(/not confirmed/i.test(error.message)){await sb.auth.resend({type:'signup',email,options:{emailRedirectTo:location.origin+location.pathname}});
+          return toVerify('signup',email,'حسابك غير مفعّل بعد. أرسلنا لك رمز التفعيل.')}
+        return fail(errMsg(error));
+      }
       const {data:prof}=await sb.from('profiles').select('role').eq('id',data.user.id).maybeSingle();
-      if(prof&&prof.role!==AU.role){await sb.auth.signOut();return fail(prof.role==='admin'?'هذا حساب مشرف. ادخل من خانة المشرف.':'هذا حساب عضو. ادخل من خانة العضو.')}
-      busy=false;AU={role:null,tab:'login',err:'',info:''};comp={mode:'continue',pick:null};showNotes=false;
-      loading=true;render();await refresh();scrollTo(0,0);return toast(`أهلاً ${A?A.name:''}`);
+      await sb.auth.signOut({scope:'local'});
+      if(prof&&prof.role!==AU.role)return fail(prof.role==='admin'?'هذا حساب مشرف. ادخل من خانة المشرف.':'هذا حساب عضو. ادخل من خانة العضو.');
+      const r=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:false}});
+      if(r.error)return fail(errMsg(r.error));
+      return toVerify('login',email);
     }
     if(!keep.name)return fail('اكتب اسمك.');
     if(p.length<6)return fail('كلمة المرور 6 أحرف على الأقل.');
-    let gname='';
-    if(AU.role==='admin'){if(!keep.group)return fail('اكتب اسم المجموعة.')}
-    else{
+    if(p!==p2)return fail('كلمتا المرور غير متطابقتين.');
+    if(AU.role==='admin'&&!keep.group)return fail('اكتب اسم المجموعة.');
+    busy=true;const btn=$('#authbtn');btn.disabled=true;btn.textContent='لحظة…';
+    if(AU.role==='member'){
       if(!keep.code)return fail('اكتب كود المجموعة.');
       const {data,error}=await sb.rpc('check_group_code',{p_code:keep.code});
-      if(error)return fail(errMsg(error));if(!data)return fail('كود المجموعة غير صحيح. تأكد منه مع المشرف.');gname=data;
+      if(error)return fail(errMsg(error));if(!data)return fail('كود المجموعة غير صحيح. تأكد منه مع المشرف.');
     }
     const {data,error}=await sb.auth.signUp({email,password:p,options:{emailRedirectTo:location.origin+location.pathname,
       data:{name:keep.name,role:AU.role,group_name:keep.group,group_code:keep.code.toUpperCase()}}});
     if(error)return fail(errMsg(error));
     if(data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0)return fail('هذا البريد مسجّل بالفعل. ادخل من تبويب «دخول».');
     busy=false;
-    if(!data.session){AU.tab='login';AU.err='';AU.info='تم إنشاء الحساب. افتح الرابط الذي أرسلناه إلى بريدك لتأكيده، ثم ادخل.';render();$('#f-user').value=email;return}
+    if(!data.session)return toVerify('signup',email);
     AU={role:null,tab:'login',err:'',info:''};loading=true;render();await refresh();scrollTo(0,0);
-    toast(AU.role==='admin'||A&&A.role==='admin'?`أُنشئت المجموعة. كود الدعوة: ${G?G.code:''}`:`انضممت إلى ${gname}`);
+    toast(A&&A.role==='admin'&&G?`أُنشئت المجموعة. كود الدعوة: ${G.code}`:'أهلاً بك في المجموعة');
   };
 }
 
@@ -570,3 +654,5 @@ setInterval(()=>{if(A&&G&&!R&&!busy&&document.visibilityState==='visible')refres
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&A&&!R)refresh()});
 })();
 </script>
+</body>
+</html>

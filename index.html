@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1c4f7c">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ختمة">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="description" content="ختمة: تطبيق لإدارة ختمة القرآن الكريم للمجموعات">
 <script>try{var t=localStorage.getItem('khatma-theme');if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <title>ختمة المجموعة</title>
@@ -208,6 +215,18 @@ input,select{font-size:16px}
 .themebtn{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;height:36px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;font-size:13px}
 .themebtn b{font-size:16px;font-weight:400;line-height:1}
 @media (max-width:480px){.themebtn span{display:none}.themebtn{width:36px;padding:0;justify-content:center}}
+.row .btn.sm{flex:0 0 auto;padding:8px 14px;font-size:14px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.appcard .grow{font-size:14px;min-width:0}
+.mseg button{padding:5px 10px;font-size:12px}
+.mushaf.md{padding:14px 10px 10px;max-width:min(620px,calc((100dvh - 190px) * 0.64))}
+.m4{direction:rtl;color:var(--ink);line-height:1.9;user-select:none;-webkit-user-select:none;overflow:hidden}
+.l4{display:flex;white-space:nowrap;align-items:baseline}
+.l4.just{justify-content:space-between}
+.l4.cen{justify-content:center}
+.l4 span{display:inline-block}
+.l4 .out,.l4.out{opacity:.28}
+.l4.hd{color:var(--gold);margin:2px 0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -334,6 +353,7 @@ function adminView(){
     <div class="meta"><span>صفحات ${AR(w.p1)}–${AR(w.p2)}</span><span>${left(w)}</span></div>
     <div style="margin-top:14px" class="bar"><i style="width:${pct}%"></i></div>
     <div class="meta" style="margin-top:6px"><span class="num">قرأ ${AR(done.length)} من ${AR(G.members.length)}</span></div>
+    <div class="row" style="margin-top:14px"><button class="btn btn-light" id="preview">معاينة الورد في المصحف</button></div>
   </div>
 
   <div class="card">
@@ -384,6 +404,7 @@ function adminView(){
   </div>`;
 }
 function bindAdmin(){
+  const pv=$('#preview');if(pv)pv.onclick=()=>openReader(cur());
   document.querySelectorAll('[data-unit]').forEach(b=>b.onclick=()=>{G.unit=+b.dataset.unit;render()});
   document.querySelectorAll('input[name=mode]').forEach(r=>r.onchange=()=>{comp.mode=r.value;if(r.value==='pick'&&!comp.pick)comp.pick=G.nextRub;render()});
   const pk=$('#pick');if(pk)pk.onchange=()=>{comp.pick=+pk.value;render()};
@@ -464,24 +485,103 @@ function pageHTML(p,w){
   }
   return out;
 }
-function openReader(w){R={w,p:w.p1};drawReader()}
+/* ---------- MADINAH MUSHAF (QCF4) ---------- */
+const QCF='https://cdn.jsdelivr.net/npm/quran-qcf4@1.1.0';
+const QP4=[1,8,13,24,32,37,45,56,65,69,77,84,91,96,101,109,113,120,127,134,142,149,153,161,171,177,184,189,194,198,204,210,218,223,227,232,238,241,245,253,256,260,264,267,272,277,282,289,290,294,303,309,316,323,331,339,346,355,364,371,377,385,394,402,409,415,426,434,442,447,451,459,467,474,480,488,494,500,505,508,513,517,520,527,531,538,545,553,559,568,573,580,585,588,595,599,607,615,621,628,634,641,648,656,664,669,672,675,679,683,687,693,701,706,711,715,720,727,734,740,747,753,760,765,773,778,783,790,798,808,817,825,834,842,849,858,863,871,880,884,891,900,908,914,920,927,932,936,941,947,955,966,977,985,992,998,1006,1012,1022,1028,1036,1042,1050,1059,1075,1085,1092,1098,1104,1110,1114,1118,1125,1133,1142,1150,1161,1169,1177,1186,1194,1201,1206,1213,1222,1230,1236,1242,1249,1256,1262,1267,1272,1276,1283,1290,1297,1304,1308,1315,1322,1329,1335,1342,1347,1353,1358,1365,1371,1379,1385,1390,1398,1407,1418,1426,1435,1443,1453,1462,1471,1479,1486,1493,1502,1511,1519,1527,1536,1545,1555,1562,1571,1582,1591,1601,1611,1619,1627,1634,1640,1649,1660,1666,1675,1683,1692,1700,1708,1713,1721,1726,1736,1742,1750,1756,1761,1769,1775,1784,1793,1803,1818,1834,1854,1873,1893,1908,1916,1928,1936,1944,1956,1966,1974,1981,1989,1995,2004,2012,2020,2030,2037,2047,2057,2068,2079,2088,2096,2105,2116,2126,2134,2145,2156,2161,2168,2175,2186,2194,2202,2215,2224,2238,2251,2262,2276,2289,2302,2315,2327,2346,2361,2386,2400,2413,2425,2436,2447,2462,2474,2484,2494,2508,2519,2528,2541,2556,2565,2574,2585,2596,2601,2611,2619,2626,2634,2642,2651,2660,2668,2674,2691,2701,2716,2733,2748,2763,2778,2792,2802,2812,2819,2823,2828,2835,2845,2850,2853,2858,2867,2876,2888,2899,2911,2923,2933,2952,2972,2993,3016,3044,3069,3092,3116,3139,3160,3173,3182,3195,3204,3215,3223,3236,3248,3258,3266,3274,3281,3288,3296,3303,3312,3323,3330,3337,3347,3355,3364,3371,3379,3386,3393,3404,3415,3425,3434,3442,3451,3460,3470,3481,3489,3498,3504,3515,3524,3534,3540,3549,3556,3564,3569,3577,3584,3588,3596,3607,3614,3621,3629,3638,3646,3655,3664,3672,3679,3691,3699,3705,3718,3733,3746,3760,3776,3789,3813,3840,3865,3891,3915,3942,3971,3987,3997,4013,4032,4054,4064,4069,4080,4090,4099,4106,4115,4126,4133,4141,4150,4159,4167,4174,4183,4192,4200,4211,4219,4230,4239,4248,4257,4265,4273,4283,4288,4295,4304,4317,4324,4336,4348,4359,4373,4386,4399,4415,4433,4454,4474,4487,4496,4506,4516,4525,4531,4539,4546,4557,4565,4575,4584,4593,4599,4607,4612,4617,4624,4631,4646,4666,4682,4706,4727,4750,4767,4785,4811,4829,4853,4874,4896,4920,4943,4971,4996,5030,5056,5079,5087,5094,5100,5105,5111,5116,5126,5130,5136,5143,5151,5156,5162,5169,5178,5186,5193,5200,5209,5218,5223,5230,5237,5242,5254,5268,5288,5314,5332,5359,5386,5416,5430,5448,5461,5476,5495,5514,5543,5571,5597,5617,5642,5673,5703,5729,5759,5799,5830,5853,5882,5909,5932,5959,5990,6016,6042,6068,6093,6119,6136,6152,6177,6194,6208,6222];
+const pageOf4=id=>bs(QP4,id,x=>x)+1;
+let mushaf='madinah';try{mushaf=localStorage.getItem('khatma-mushaf')||'madinah'}catch(e){}
+const pageCache={},fontCache={};
+function loadFont(name){
+  if(!fontCache[name]){
+    const file=name==='QCF4_QBSML'?'QCF4_QBSML.woff2':name+'_W.woff2';
+    const f=new FontFace(name,`url(${QCF}/fonts-woff2/${file}) format("woff2")`);
+    fontCache[name]=f.load().then(x=>{document.fonts.add(x);return x}).catch(e=>{delete fontCache[name];throw e});
+  }
+  return fontCache[name];
+}
+function loadPage4(p){
+  if(!pageCache[p]){
+    pageCache[p]=fetch(`${QCF}/pages/${String(p).padStart(3,'0')}.json`)
+      .then(r=>{if(!r.ok)throw new Error('http '+r.status);return r.json()})
+      .then(async d=>{const fonts=new Set();d.lines.forEach(l=>l.words.forEach(w=>fonts.add(w.font)));await Promise.all([...fonts].map(loadFont));return d})
+      .catch(e=>{delete pageCache[p];throw e});
+  }
+  return pageCache[p];
+}
+const vkId=k=>{const [s,a]=k.split(':').map(Number);return Q.s[s-1][1]+a-1};
+function page4HTML(d,w){
+  const inR=id=>id>=w.start&&id<=w.end;
+  return d.lines.map(l=>{
+    const ws=l.words,t=ws[0]&&ws[0].type;
+    if(t==='surah_header'||t==='bismillah'){
+      const ok=inR(Q.s[ws[0].sura-1][1]);
+      return `<div class="l4 ${t==='surah_header'?'hd':'bs'} ${ok?'':'out'}">${ws.map(x=>`<span style="font-family:${x.font}">${x.char}</span>`).join('')}</div>`;
+    }
+    return `<div class="l4">${ws.map(x=>{const ok=!x.verse_key||inR(vkId(x.verse_key));
+      return `<span class="${ok?'':'out'}" style="font-family:${x.font}">${x.char}</span>`}).join('')}</div>`;
+  }).join('');
+}
+let RATIO=0;
+function fit4(){
+  const box=$('#m4');if(!box||!box.querySelector('.l4'))return;
+  const W=box.clientWidth, lines=[...box.querySelectorAll('.l4')], B=40;
+  box.style.fontSize=B+'px';lines.forEach(l=>{l.classList.remove('just','cen');l.style.fontSize=''});
+  const nat=lines.map(l=>{let s=0;for(const c of l.children)s+=c.getBoundingClientRect().width;return s});
+  const body=nat.filter((_,i)=>!lines[i].classList.contains('hd')&&!lines[i].classList.contains('bs'));
+  const max=Math.max(...body,1);
+  let fs=B*W/max*0.985;
+  const special=R&&R.list[R.i]<=2;
+  if(special&&RATIO)fs=W/RATIO; else if(special)fs=W/17; else RATIO=W/fs;
+  box.style.fontSize=fs+'px';
+  lines.forEach((l,i)=>{
+    const hb=l.classList.contains('hd')||l.classList.contains('bs');
+    l.classList.add(!hb&&!special&&nat[i]>max*0.8?'just':'cen');
+    if(hb){const wd=nat[i]*fs/B;if(wd>W*0.98)l.style.fontSize=(fs*W*0.98/wd)+'px'}
+  });
+}
+window.addEventListener('resize',()=>{if(R&&R.mode==='madinah')fit4()});
+function readerPages(w,mode){const a=mode==='madinah'?pageOf4(w.start):w.p1,b=mode==='madinah'?pageOf4(w.end):w.p2,o=[];for(let p=a;p<=b;p++)o.push(p);return o}
+function openReader(w){R={w,mode:mushaf,list:readerPages(w,mushaf),i:0};drawReader()}
 function drawReader(){
-  const {w,p}=R, total=w.p2-w.p1+1, i=p-w.p1+1, last=p===w.p2, done=!!w.done[A.mid];
+  const {w,list,i,mode}=R, p=list[i], total=list.length, last=i===total-1, done=!!w.done[A.mid], md=mode==='madinah';
   $('#layer').innerHTML=`<div class="reader" role="dialog" aria-label="المصحف">
     <div class="r-head"><div class="r-in"><button class="x" id="rclose" aria-label="إغلاق">✕</button>
-      <div class="r-title"><b>${ref(w.start)} ← ${ref(w.end)}</b><span class="sub num">صفحة ${AR(i)} من ${AR(total)}</span></div></div>
-      <div class="r-in" style="margin-top:8px"><div class="bar" style="flex:1"><i style="width:${100*i/total}%"></i></div></div></div>
-    <div class="r-body" id="rbody"><div class="mushaf"><div class="txt">${pageHTML(p,w)}</div><div class="pg num">${AR(p)}</div></div></div>
+      <div class="r-title"><b>${ref(w.start)} ← ${ref(w.end)}</b><span class="sub num">صفحة ${AR(i+1)} من ${AR(total)}</span></div>
+      <div class="seg mseg" role="group" aria-label="نوع المصحف"><button data-m="madinah" aria-pressed="${md}">المدينة</button><button data-m="text" aria-pressed="${!md}">نص</button></div></div>
+      <div class="r-in" style="margin-top:8px"><div class="bar" style="flex:1"><i style="width:${100*(i+1)/total}%"></i></div></div></div>
+    <div class="r-body" id="rbody"><div class="mushaf ${md?'md':''}">
+      ${md?`<div class="m4" id="m4"><p class="sub" style="text-align:center;padding:48px 0;font-size:15px">جارٍ تحميل الصفحة…</p></div>`:`<div class="txt">${pageHTML(p,w)}</div>`}
+      <div class="pg num">${AR(p)}</div></div></div>
     <div class="r-foot"><div class="r-in">
-      <button class="btn btn-ghost" id="prev" ${p===w.p1?'disabled':''}>السابقة</button>
-      ${last?`<button class="btn btn-ok" id="done" style="flex:1" ${done?'disabled':''}>${done?'تم تسجيل قراءتك ✓':'تم بحمد الله'}</button>`
+      <button class="btn btn-ghost" id="prev" ${i===0?'disabled':''}>السابقة</button>
+      ${last?(A.role==='member'?`<button class="btn btn-ok" id="done" style="flex:1" ${done?'disabled':''}>${done?'تم تسجيل قراءتك ✓':'تم بحمد الله'}</button>`:`<button class="btn btn-ghost" id="rclose2" style="flex:1">إغلاق</button>`)
             :`<button class="btn btn-main" id="next" style="flex:1">الصفحة التالية</button>`}
     </div></div></div>`;
   $('#rbody').scrollTop=0;
-  $('#rclose').onclick=()=>{$('#layer').innerHTML='';R=null;render()};
-  $('#prev').onclick=()=>{R.p--;drawReader()};
-  const nx=$('#next');if(nx)nx.onclick=()=>{R.p++;drawReader()};
+  const close=()=>{$('#layer').innerHTML='';R=null;render()};
+  $('#rclose').onclick=close;const c2=$('#rclose2');if(c2)c2.onclick=close;
+  $('#prev').onclick=()=>{R.i--;drawReader()};
+  const nx=$('#next');if(nx)nx.onclick=()=>{R.i++;drawReader()};
   const dn=$('#done');if(dn)dn.onclick=finish;
+  document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
+    const m=b.dataset.m;if(m===R.mode)return;
+    const firstId=Math.max(w.start,md?QP4[p-1]:Q.p[p-1]);
+    mushaf=m;try{localStorage.setItem('khatma-mushaf',m)}catch(e){}
+    const nl=readerPages(w,m),np=m==='madinah'?pageOf4(firstId):pageOf(firstId);
+    R={w,mode:m,list:nl,i:Math.max(0,nl.indexOf(np))};drawReader();
+  });
+  if(md){
+    loadPage4(p).then(d=>{
+      if(!R||R.mode!=='madinah'||R.list[R.i]!==p)return;
+      $('#m4').innerHTML=page4HTML(d,w);fit4();
+      if(i<total-1)loadPage4(list[i+1]).catch(()=>{});
+    }).catch(()=>{
+      if(!R||R.list[R.i]!==p)return;
+      $('#m4').innerHTML=`<div style="text-align:center;padding:32px 0"><p class="err">تعذّر تحميل صفحة مصحف المدينة. تأكد من الإنترنت، أو اختر «نص» من الأعلى.</p>
+        <button class="btn btn-ghost" id="retry" style="margin-top:12px">إعادة المحاولة</button></div>`;
+      $('#retry').onclick=drawReader;
+    });
+  }
 }
 async function finish(){
   const w=R.w, btn=$('#done');btn.disabled=true;btn.textContent='جارٍ التسجيل…';
@@ -496,6 +596,66 @@ async function finish(){
     <div class="sub">وصل للمشرف أنك أتممت الورد.</div>
     <button class="btn btn-main" id="ok">الحمد لله</button></div></div>`;
   $('#ok').onclick=()=>{$('#layer').innerHTML='';R=null;refresh()};
+}
+
+/* ---------- INSTALL & PUSH ---------- */
+const VAPID_PUBLIC='BKzvo8cyfSJ_xs3CHTTZa4pahxYbFIzRP-HEQTcvH8p2cj-lcmKZbi5HGiGY3DyjqKNupdpaqXhA8Q4m2Q3nsv8';
+const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const pushOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
+let installEvt=null,pushState='unknown',swReg=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;if(A&&!R)render()});
+window.addEventListener('appinstalled',()=>{installEvt=null;toast('تم تثبيت التطبيق');if(A&&!R)render()});
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').then(r=>{swReg=r;checkPush()}).catch(()=>{pushState='unsupported'});
+  navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='refresh'&&A&&!R)refresh()});
+}else pushState='unsupported';
+function b64u(s){const b=atob((s+'='.repeat((4-s.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,c=>c.charCodeAt(0))}
+async function checkPush(){
+  if(!pushOK()||!swReg){pushState='unsupported';return}
+  try{
+    if(Notification.permission==='denied')pushState='denied';
+    else{const s=await swReg.pushManager.getSubscription();pushState=s?'on':'off';if(s&&A)savePush(s)}
+  }catch(e){pushState='off'}
+  if(A&&!R)render();
+}
+async function savePush(s){const j=s.toJSON();
+  const {error}=await sb.rpc('save_push_subscription',{p_endpoint:j.endpoint,p_p256dh:j.keys.p256dh,p_auth:j.keys.auth});
+  if(error)console.error(error);return !error}
+async function enablePush(btn){
+  if(btn){btn.disabled=true;btn.textContent='لحظة…'}
+  try{
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){pushState=perm==='denied'?'denied':'off';render();return toast('لم يتم السماح بالإشعارات')}
+    const reg=swReg||await navigator.serviceWorker.ready;
+    let s=await reg.pushManager.getSubscription();
+    if(!s)s=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID_PUBLIC)});
+    const ok=await savePush(s);pushState='on';render();
+    toast(ok?'تم تفعيل الإشعارات ✓':'فُعّلت على الجهاز لكن تعذّر حفظها. حدّث الصفحة وحاول مرة أخرى.');
+  }catch(e){console.error(e);pushState='off';render();toast('تعذّر تفعيل الإشعارات على هذا الجهاز.')}
+}
+async function disablePush(){
+  try{const reg=swReg||(navigator.serviceWorker&&await navigator.serviceWorker.ready);const s=reg&&await reg.pushManager.getSubscription();
+    if(s){await sb.rpc('delete_push_subscription',{p_endpoint:s.endpoint});await s.unsubscribe()}}catch(e){}
+  if(pushState==='on')pushState='off';
+}
+function appCard(){
+  const member=A&&A.role==='member', iosBrowser=isIOS&&!standalone(), parts=[];
+  if(!standalone()){
+    if(installEvt)parts.push(`<div class="row"><span class="grow">ثبّت ختمة على شاشتك الرئيسية لتفتحه كتطبيق.</span><button class="btn btn-ghost sm" id="install">تثبيت</button></div>`);
+    else if(isIOS)parts.push(`<p class="sub" style="margin:0">لتثبيت التطبيق${member?' وتلقّي الإشعارات':''} على الآيفون: افتح الموقع في <b>Safari</b>، اضغط زر المشاركة <b>⬆︎</b>، ثم <b>«إضافة إلى الشاشة الرئيسية»</b>، وافتح التطبيق من الأيقونة.</p>`);
+  }
+  if(member&&!iosBrowser){
+    if(pushState==='off')parts.push(`<div class="row"><span class="grow">فعّل الإشعارات ليصلك الورد الجديد والتذكير حتى والتطبيق مغلق.</span><button class="btn btn-main sm" id="pushon">تفعيل الإشعارات</button></div>`);
+    else if(pushState==='denied')parts.push(`<p class="sub" style="margin:0">الإشعارات محظورة لهذا الموقع. فعّلها من إعدادات المتصفح ← إعدادات الموقع ← الإشعارات، ثم حدّث الصفحة.</p>`);
+    else if(pushState==='on')parts.push(`<div class="row"><span class="grow sub">🔔 الإشعارات مفعّلة على هذا الجهاز</span><button class="back" id="pushoff">إيقاف</button></div>`);
+  }
+  return parts.length?`<div class="card appcard"><p class="h"><span>التطبيق والإشعارات</span></p><div class="stack">${parts.join('')}</div></div>`:'';
+}
+function bindAppCard(){
+  const i=$('#install');if(i)i.onclick=async()=>{if(!installEvt)return;installEvt.prompt();try{await installEvt.userChoice}catch(e){}installEvt=null;render()};
+  const on=$('#pushon');if(on)on.onclick=()=>enablePush(on);
+  const off=$('#pushoff');if(off)off.onclick=async()=>{await disablePush();render();toast('أُوقفت الإشعارات على هذا الجهاز')};
 }
 
 /* ---------- AUTH ---------- */
@@ -645,13 +805,13 @@ function bindAuth(){
 function render(){
   $('#gname').textContent=G?G.group:'ختمة القرآن الكريم';
   $('#hdr').innerHTML=A?`<span class="userchip"><b>${esc(A.name)}</b><span class="sub">${A.role==='admin'?'مشرف':'عضو'}</span></span><button class="btn btn-ghost out" id="logout">خروج</button>`:'';
-  const lo=$('#logout');if(lo)lo.onclick=async()=>{await sb.auth.signOut();A=null;G=null;USER=null;AU={role:null,tab:'login',err:'',info:''};render();scrollTo(0,0)};
+  const lo=$('#logout');if(lo)lo.onclick=async()=>{await disablePush();await sb.auth.signOut();A=null;G=null;USER=null;AU={role:null,tab:'login',err:'',info:''};render();scrollTo(0,0)};
   const err=netErr?`<p class="err" role="alert">${esc(netErr)}</p>`:'';
   if(loading){$('#view').innerHTML=`<div class="hero"><div class="logo">ختمة</div><p class="sub">جارٍ التحميل…</p></div>`;return}
   if(recovery||!A){$('#view').innerHTML=err+authView();bindAuth();return}
   if(!G){$('#view').innerHTML=err+noGroupView();bindNoGroup();return}
-  $('#view').innerHTML=err+(A.role==='admin'?adminView():memberView());
-  A.role==='admin'?bindAdmin():bindMember();
+  $('#view').innerHTML=err+(A.role==='admin'?adminView():memberView())+appCard();
+  A.role==='admin'?bindAdmin():bindMember();bindAppCard();
 }
 const THEMES=[{k:'auto',i:'◐',t:'تلقائي'},{k:'light',i:'☀',t:'فاتح'},{k:'dark',i:'☾',t:'داكن'}];
 let theme='auto';try{theme=localStorage.getItem('khatma-theme')||'auto'}catch(e){}

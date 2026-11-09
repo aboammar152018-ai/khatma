@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1c4f7c">
 <meta name="description" content="ختمة: تطبيق لإدارة ختمة القرآن الكريم للمجموعات">
+<script>try{var t=localStorage.getItem('khatma-theme');if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <title>ختمة المجموعة</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -204,6 +205,9 @@ input,select{font-size:16px}
   .top-in{max-width:640px}
   main{padding-block:28px 56px}
 }
+.themebtn{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;height:36px;padding:0 12px;display:inline-flex;align-items:center;gap:6px;font-size:13px}
+.themebtn b{font-size:16px;font-weight:400;line-height:1}
+@media (max-width:480px){.themebtn span{display:none}.themebtn{width:36px;padding:0;justify-content:center}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -212,6 +216,7 @@ input,select{font-size:16px}
 <header class="top"><div class="top-in">
   <div class="brand">ختمة<small id="gname">ختمة العائلة</small></div>
   <div class="hdr" id="hdr"></div>
+  <button class="themebtn" id="theme" type="button"></button>
 </div></header>
 
 <main><div class="wrap" id="view"></div></main>
@@ -648,6 +653,17 @@ function render(){
   $('#view').innerHTML=err+(A.role==='admin'?adminView():memberView());
   A.role==='admin'?bindAdmin():bindMember();
 }
+const THEMES=[{k:'auto',i:'◐',t:'تلقائي'},{k:'light',i:'☀',t:'فاتح'},{k:'dark',i:'☾',t:'داكن'}];
+let theme='auto';try{theme=localStorage.getItem('khatma-theme')||'auto'}catch(e){}
+function applyTheme(){const r=document.documentElement;if(theme==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',theme);
+  const c=THEMES.find(x=>x.k===theme)||THEMES[0],b=$('#theme');b.innerHTML=`<b aria-hidden="true">${c.i}</b><span>${c.t}</span>`;
+  b.setAttribute('aria-label','المظهر: '+c.t+'. اضغط للتغيير');b.title='المظهر: '+c.t;
+  const dark=theme==='dark'||(theme==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=dark?'#162027':'#1c4f7c'}
+$('#theme').onclick=()=>{const i=THEMES.findIndex(x=>x.k===theme);theme=THEMES[(i+1)%3].k;
+  try{localStorage.setItem('khatma-theme',theme)}catch(e){}applyTheme();toast('المظهر: '+THEMES.find(x=>x.k===theme).t)};
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme)}catch(e){}
+applyTheme();
 sb.auth.onAuthStateChange(ev=>{if(ev==='PASSWORD_RECOVERY'){recovery=true;loading=false;setTimeout(render,0)}});
 render();refresh();
 setInterval(()=>{if(A&&G&&!R&&!busy&&document.visibilityState==='visible')refresh()},60000);

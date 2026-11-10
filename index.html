@@ -345,7 +345,7 @@ async function load(){
   applyQueue();
 }
 async function refresh(){
-  try{await flushQueue();await load();netErr='';OFF=null;lastLoadAt=Date.now();saveCache();resolvePJ()}
+  try{await flushQueue();await load();netErr='';OFF=null;lastLoadAt=Date.now();saveCache();if(A)markTrusted(A.u);resolvePJ()}
   catch(e){console.error(e);if(restoreCache())netErr='';else netErr='تعذّر تحميل البيانات. تأكد من الإنترنت ثم حدّث الصفحة.'}
   loading=false;render();
 }
@@ -869,7 +869,7 @@ function groupBar(){
   ${gAdd?`<div class="card"><h2 style="font-size:16px">${adm?'مجموعة جديدة':'انضمام لمجموعة أخرى'}</h2>
     <p class="sub" style="margin:4px 0 0">${adm?'كل مجموعة لها أعضاؤها وكودها ووردها الخاص.':'اكتب الكود الذي أرسله لك مشرف المجموعة.'}</p>
     <div class="field"><label for="g-in">${adm?'اسم المجموعة':'كود المجموعة'}</label>
-      <input type="text" id="g-in" ${adm?'placeholder="مثلاً: ختمة الأصدقاء"':'dir="ltr" autocapitalize="characters" placeholder="KH-4821"'}></div>
+      <input type="text" id="g-in" ${adm?'placeholder="مثلاً: ختمة الأصدقاء"':'dir="ltr" autocapitalize="characters" placeholder="KH-ABCD-1234"'}></div>
     <button class="btn btn-main" id="g-ok" style="width:100%;margin-top:14px">${adm?'إنشاء المجموعة':'انضمام'}</button></div>`:''}`;
 }
 function bindGroupBar(){
@@ -878,7 +878,8 @@ function bindGroupBar(){
   const ok=$('#g-ok');if(ok)ok.onclick=async()=>{const v=$('#g-in').value.trim();if(!v)return $('#g-in').focus();
     ok.disabled=true;const adm=A.role==='admin';
     const {data,error}=adm?await sb.rpc('create_group',{p_name:v}):await sb.rpc('join_group',{p_code:v});
-    if(error){ok.disabled=false;return toast(/too many/i.test(error.message)?'وصلت للحد الأقصى (٢٠ مجموعة).':errMsg(error))}
+    if(error){ok.disabled=false;return toast(adm&&/too many groups/i.test(error.message)?'وصلت للحد الأقصى (٢٠ مجموعة).':errMsg(error))}
+    if(!data){ok.disabled=false;return toast('كود المجموعة غير صحيح. تأكد منه مع المشرف.')}
     setSelGroup(data);gAdd=false;comp={mode:'continue',pick:null};await refresh();scrollTo(0,0);
     toast(adm?`أُنشئت «${G.group}». كود الدعوة: ${G.code}`:`انضممت إلى «${G.group}»`)};
 }
@@ -960,7 +961,8 @@ function bindJoinCard(){
   const no=$('#pj-no');if(no)no.onclick=()=>{clearPJ();render()};
   const yes=$('#pj-yes');if(yes)yes.onclick=async()=>{yes.disabled=true;yes.textContent='لحظة…';
     const {data,error}=await sb.rpc('join_group',{p_code:PJ.code});
-    if(error){if(/invalid code/i.test(error.message)){PJ.bad=true;return render()}yes.disabled=false;yes.textContent='انضمام';return toast(errMsg(error))}
+    if(error){yes.disabled=false;yes.textContent='انضمام';return toast(errMsg(error))}
+    if(!data){PJ.bad=true;return render()}
     const name=PJ.name;clearPJ();setMode('member');setSelGroup(data);comp={mode:'continue',pick:null};showNotes=false;gAdd=false;
     loading=true;render();await refresh();scrollTo(0,0);toast(`انضممت إلى «${name||G.group}»`)};
 }
@@ -975,6 +977,9 @@ function confirmRow(text,okId,okLabel,noId){
 
 // ---- البقاء داخل + نسخة محفوظة من البيانات ----
 const remember=()=>lsGet('khatma-remember')!=='0';
+const trustedList=()=>{try{return JSON.parse(lsGet('khatma-trusted')||'[]')}catch(e){return []}};
+const isTrusted=e=>!!e&&trustedList().includes(e.toLowerCase());
+function markTrusted(e){if(!e||!remember())return;const l=trustedList();if(!l.includes(e.toLowerCase())){l.push(e.toLowerCase());lsSet('khatma-trusted',JSON.stringify(l.slice(-5)))}}
 function saveCache(){if(!A||!remember())return;
   try{localStorage.setItem('khatma-cache-'+A.role,JSON.stringify({uid:A.mid,A,GROUPS,G,NOTES,at:lastLoadAt||Date.now()}))}catch(e){}}
 function restoreCache(){
@@ -1044,11 +1049,11 @@ function authView(){
       ${pwField('f-pass','كلمة المرور',reg?'new-password':'current-password',reg?'6 أحرف على الأقل':'')}
       ${reg?pwField('f-pass2','تأكيد كلمة المرور','new-password'):''}
       ${reg&&adm?`<div class="field"><label for="f-group">اسم المجموعة</label><input type="text" id="f-group" placeholder="مثلاً: ختمة العائلة"></div>`:''}
-      ${reg&&!adm?`<div class="field"><label for="f-code">كود المجموعة</label><input type="text" id="f-code" dir="ltr" autocapitalize="characters" placeholder="KH-4821"><span class="sub">اطلبه من مشرف مجموعتك</span></div>`:''}
-      <label class="check"><input type="checkbox" id="f-remember" ${remember()?'checked':''}> تذكرني على هذا الجهاز</label>
+      ${reg&&!adm?`<div class="field"><label for="f-code">كود المجموعة</label><input type="text" id="f-code" dir="ltr" autocapitalize="characters" placeholder="KH-ABCD-1234"><span class="sub">اطلبه من مشرف مجموعتك</span></div>`:''}
+      <label class="check"><input type="checkbox" id="f-remember" ${remember()?'checked':''}> تذكرني على هذا الجهاز (جهازي الشخصي)</label>
       ${msgs()}
       <button class="btn btn-main" type="submit" id="authbtn" style="width:100%;margin-top:16px">${reg?(adm?'إنشاء المجموعة':'إنشاء الحساب والانضمام'):'متابعة'}</button>
-      ${reg?'':'<p class="sub" style="margin:10px 0 0">سيصلك رمز تأكيد على بريدك لإتمام الدخول.</p><button class="back" type="button" id="forgot" style="margin-top:12px">نسيت كلمة المرور؟</button>'}
+      ${reg?'':'<p class="sub" style="margin:10px 0 0">أول دخول من هذا الجهاز يحتاج رمزاً يصلك على بريدك، وبعدها يكفي البريد وكلمة المرور.</p><button class="back" type="button" id="forgot" style="margin-top:12px">نسيت كلمة المرور؟</button>'}
     </form>
   </div>`;
 }
@@ -1057,14 +1062,14 @@ function noGroupView(){
     <div class="field"><label for="f-group">اسم المجموعة</label><input type="text" id="f-group" placeholder="مثلاً: ختمة العائلة"></div>
     <button class="btn btn-main" id="mk" style="width:100%;margin-top:16px">إنشاء المجموعة</button></div>`
   :`<div class="card auth"><h2>انضم لمجموعة</h2><p class="sub">لم تنضم لأي مجموعة بعد. اكتب الكود الذي أرسله لك المشرف.</p>
-    <div class="field"><label for="f-code">كود المجموعة</label><input type="text" id="f-code" dir="ltr" autocapitalize="characters" placeholder="KH-4821"></div>
+    <div class="field"><label for="f-code">كود المجموعة</label><input type="text" id="f-code" dir="ltr" autocapitalize="characters" placeholder="KH-ABCD-1234"></div>
     <button class="btn btn-main" id="jn" style="width:100%;margin-top:16px">انضمام</button></div>`;
 }
 function bindNoGroup(){
   const mk=$('#mk');if(mk)mk.onclick=async()=>{mk.disabled=true;const {data,error}=await sb.rpc('create_group',{p_name:$('#f-group').value.trim()});
     if(error){mk.disabled=false;return toast(errMsg(error))}setSelGroup(data);await refresh();toast(G?`أُنشئت المجموعة. كود الدعوة: ${G.code}`:'أُنشئت المجموعة')};
   const jn=$('#jn');if(jn)jn.onclick=async()=>{jn.disabled=true;const {data,error}=await sb.rpc('join_group',{p_code:$('#f-code').value.trim()});
-    if(error){jn.disabled=false;return toast(errMsg(error))}setSelGroup(data);await refresh();toast('انضممت إلى '+(G?G.group:'المجموعة'))};
+    if(error){jn.disabled=false;return toast(errMsg(error))}if(!data){jn.disabled=false;return toast('كود المجموعة غير صحيح. تأكد منه مع المشرف.')}setSelGroup(data);await refresh();toast('انضممت إلى '+(G?G.group:'المجموعة'))};
   bindModeCard();
 }
 function toVerify(kind,email,info){busy=false;AU={...AU,stage:'verify',kind,email,err:'',info:info||'',cool:Date.now()+60000};render();
@@ -1123,6 +1128,10 @@ function bindAuth(){
         if(/not confirmed/i.test(error.message)){await sb.auth.resend({type:'signup',email,options:{emailRedirectTo:location.origin+location.pathname}});
           return toVerify('signup',email,'حسابك غير مفعّل بعد. أرسلنا لك رمز التفعيل.')}
         return fail(errMsg(error));
+      }
+      if(isTrusted(email)&&remember()){
+        setMode(AU.role);busy=false;AU={role:null,tab:'login',err:'',info:''};comp={mode:'continue',pick:null};showNotes=false;
+        loading=true;render();await refresh();scrollTo(0,0);return toast(`أهلاً ${A?A.name:''}`);
       }
       await sb.auth.signOut({scope:'local'});
       const r=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:false}});

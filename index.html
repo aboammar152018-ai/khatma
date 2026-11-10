@@ -227,6 +227,26 @@ input,select{font-size:16px}
 .l4 span{display:inline-block}
 .l4 .out,.l4.out{opacity:.28}
 .l4.hd{color:var(--gold);margin:2px 0}
+.gbar{display:flex;justify-content:space-between;align-items:center;gap:8px 12px;flex-wrap:wrap}
+.gsel{display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 220px}
+.gsel select{flex:1;min-width:0;padding:8px 10px;font-weight:500}
+.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.days button{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 0;font-size:14px}
+.days button[aria-pressed="true"]{border-color:var(--lapis);background:var(--lapis-soft);color:var(--lapis);font-weight:600}
+input[type=time]{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.check{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:14px;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--lapis)}
+.offbar{margin:0;background:var(--gold-soft);color:var(--ink);border-radius:10px;padding:8px 12px;font-size:13px}
+.offnote{margin:6px 0 0;font-size:12px;color:var(--warn)}
+.rm{border:0;background:none;color:var(--muted);width:32px;height:32px;border-radius:8px;font-size:14px;flex:none}
+.rm:hover{background:var(--warn-soft);color:var(--warn)}
+.confirm{width:100%;display:flex;flex-direction:column;gap:8px}
+.confirm p{margin:0;font-size:14px}
+.btn-danger{background:var(--warn);color:var(--surface)}
+.back.danger{color:var(--warn)}
+.invite{border-color:var(--gold);background:var(--gold-soft)}
+.linkbox{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:ui-monospace,Menlo,monospace;font-size:13px;overflow-wrap:anywhere;user-select:all;-webkit-user-select:all}
+a.btn{text-decoration:none}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -269,25 +289,34 @@ function makeWird(startRub,count,hours,at){
 function unitName(c){const u=UNITS.find(u=>u.n===c);return u?u.t:AR(c)+' أرباع'}
 
 const SB_URL='https://yiumqwysldbrszadizjo.supabase.co', SB_KEY='sb_publishable_ljPLlGOLaq0eX78i0134dw_gIEm9klO';
-const sb=window.supabase.createClient(SB_URL,SB_KEY);
-let G=null,A=null,USER=null,loading=true,recovery=false,netErr='';
+if(!window.supabase){document.getElementById('view').innerHTML='<div class="hero"><div class="logo">ختمة</div><p class="sub">تعذّر تشغيل التطبيق بدون إنترنت هذه المرة. اتصل بالإنترنت وافتحه مرة واحدة، وبعدها يعمل بدون اتصال.</p></div>';return}
+const authStore={getItem:k=>{try{return sessionStorage.getItem(k)??localStorage.getItem(k)}catch(e){return null}},
+  setItem:(k,v)=>{try{if(localStorage.getItem('khatma-remember')!=='0'){localStorage.setItem(k,v);sessionStorage.removeItem(k)}else{sessionStorage.setItem(k,v);localStorage.removeItem(k)}}catch(e){}},
+  removeItem:k=>{try{localStorage.removeItem(k);sessionStorage.removeItem(k)}catch(e){}}};
+const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{storage:authStore,persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+let GROUPS=[],G=null,A=null,USER=null,loading=true,recovery=false,netErr='';
 const save=()=>{};
 async function load(){
-  const {data:{session}}=await sb.auth.getSession();
+  const {data:{session},error:se}=await sb.auth.getSession();
+  if(!session&&(se||!navigator.onLine))throw se||new Error('offline');
   USER=session?session.user:null;
-  if(!USER){A=null;G=null;return}
+  if(!USER){A=null;G=null;GROUPS=[];return}
   const {data:prof,error:pe}=await sb.from('profiles').select('*').eq('id',USER.id).maybeSingle();
   if(pe)throw pe;
   if(!prof){A=null;G=null;return}
-  A={u:prof.email,name:prof.name,role:prof.role,mid:USER.id};
-  let grp=null;
-  if(prof.role==='admin'){
-    const r=await sb.from('groups').select('*').eq('admin_id',USER.id).order('created_at').limit(1);if(r.error)throw r.error;grp=r.data[0]||null;
+  if(!getMode())setMode(prof.role);
+  A={u:prof.email,name:prof.name,role:getMode(),mid:USER.id};
+  let list=[];
+  if(A.role==='admin'){
+    const r=await sb.from('groups').select('*').eq('admin_id',USER.id).order('created_at');if(r.error)throw r.error;list=r.data;
   }else{
-    const r=await sb.from('memberships').select('group_id').eq('user_id',USER.id).order('joined_at',{ascending:false}).limit(1);if(r.error)throw r.error;
-    if(r.data.length){const g=await sb.from('groups').select('*').eq('id',r.data[0].group_id).limit(1);if(g.error)throw g.error;grp=g.data[0]||null}
+    const r=await sb.from('memberships').select('group_id,joined_at').eq('user_id',USER.id).order('joined_at');if(r.error)throw r.error;
+    if(r.data.length){const order=r.data.map(m=>m.group_id);const g=await sb.from('groups').select('*').in('id',order);if(g.error)throw g.error;
+      list=g.data.sort((x,y)=>order.indexOf(x.id)-order.indexOf(y.id))}
   }
-  if(!grp){G=null;return}
+  GROUPS=list.map(g=>({id:g.id,name:g.name}));
+  if(!list.length){G=null;return}
+  const want=getSelGroup(), grp=list.find(g=>g.id===want)||list[list.length-1];
   const [mem,wr,nt]=await Promise.all([
     sb.from('memberships').select('user_id,joined_at').eq('group_id',grp.id).order('joined_at'),
     sb.from('wirds').select('*').eq('group_id',grp.id).order('created_at',{ascending:false}).limit(100),
@@ -304,10 +333,14 @@ async function load(){
   const keep=G&&G.id===grp.id;
   G={id:grp.id,group:grp.name,code:grp.code,members:ids.map(id=>({id,name:nameOf[id]||'عضو'})),wirds,nextRub:grp.next_rub,
      unit:keep?G.unit:grp.unit,hours:keep?G.hours:grp.hours,khatmas:grp.khatmas,showBoard:grp.show_board,
+     auto:{enabled:!!grp.auto_enabled,time:String(grp.auto_time||'08:00').slice(0,5),days:grp.auto_days||[0,1,2,3,4,5,6],
+       unit:grp.auto_unit||2,hours:grp.auto_hours||24,tz:grp.tz||'Asia/Riyadh',last:grp.auto_last||null},
      notes:{[USER.id]:nt.data.map(n=>({id:n.id,t:Date.parse(n.created_at),text:n.text,read:n.read}))}};
+  applyQueue();
 }
 async function refresh(){
-  try{await load();netErr=''}catch(e){console.error(e);netErr='تعذّر تحميل البيانات. تأكد من الإنترنت ثم حدّث الصفحة.'}
+  try{await flushQueue();await load();netErr='';OFF=null;lastLoadAt=Date.now();saveCache();resolvePJ()}
+  catch(e){console.error(e);if(restoreCache())netErr='';else netErr='تعذّر تحميل البيانات. تأكد من الإنترنت ثم حدّث الصفحة.'}
   loading=false;render();
 }
 function errMsg(e){const m=(e&&e.message||'').toLowerCase();
@@ -389,21 +422,30 @@ function adminView(){
     <div class="row" style="margin-top:14px"><button class="btn btn-main" id="publish">نشر الورد وإشعار ${AR(G.members.length)} أعضاء</button></div>
   </div>
 
+  ${autoCard()}
+
   <div class="card">
     <p class="h"><span>الأعضاء والنقاط</span><span>ختمات المجموعة: ${AR(G.khatmas)}</span></p>
-    ${memberList}<ul class="list">${board.map(m=>`<li><span class="av">${initials(m.name)}</span>
+    ${memberList}<ul class="list">${board.map(m=>rmId===m.id?`<li>${confirmRow(`حذف <b>${esc(m.name)}</b> من المجموعة؟ قراءاته السابقة تبقى في الإحصائيات.`,'rm-ok','حذف','rm-no')}</li>`:`<li><span class="av">${initials(m.name)}</span>
       <span class="grow"><span class="name">${esc(m.name)}</span><br><span class="sub num">التزام ${AR(commit(m.id))}٪ · ${AR(streak(m.id))} أوراد متتالية</span></span>
-      <span class="pts num">${AR(pointsFor(m.id))} نقطة</span></li>`).join('')}</ul>
+      <span class="pts num">${AR(pointsFor(m.id))} نقطة</span><button class="rm" data-rm="${m.id}" aria-label="حذف ${esc(m.name)}" title="حذف من المجموعة">✕</button></li>`).join('')}</ul>
   </div>
 
   <div class="card">
-    <p class="h"><span>دعوة الأعضاء</span></p>
-    <div class="row" style="justify-content:space-between"><span class="code">${esc(G.code)}</span><button class="btn btn-ghost" id="copy" style="flex:0 0 auto;padding:8px 14px">نسخ رسالة الدعوة</button></div>
-    <p class="sub" style="margin:8px 0 0">انسخ رسالة الدعوة وأرسلها في جروب الواتساب. فيها رابط الموقع والكود.</p>
+    <p class="h"><span>دعوة الأعضاء</span><span>الكود: <b class="code" style="font-size:14px">${esc(G.code)}</b></span></p>
+    <div class="linkbox" dir="ltr">${esc(inviteLink())}</div>
+    <div class="row" style="margin-top:10px">
+      <a class="btn btn-main" id="wa" href="https://wa.me/?text=${encodeURIComponent(inviteMsg())}" target="_blank" rel="noopener" style="flex:1">مشاركة على واتساب</a>
+      <button class="btn btn-ghost sm" id="copy">نسخ الرابط</button>
+      ${navigator.share?'<button class="btn btn-ghost sm" id="share">مشاركة…</button>':''}</div>
+    <p class="sub" style="margin:8px 0 0">من يفتح الرابط ينضم للمجموعة مباشرة بعد التسجيل أو الدخول.</p>
+    ${regen?confirmRow('تغيير الكود يوقف الرابط والكود الحاليين. الأعضاء الحاليون لن يتأثروا، والأعضاء الجدد يحتاجون الرابط الجديد.','rg-ok','تغيير الكود','rg-no')
+      :'<button class="back" id="regen" style="margin-top:10px">تغيير كود الدعوة</button>'}
     <div class="switch" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><label for="board">إظهار ترتيب النقاط للأعضاء</label><input type="checkbox" id="board" ${G.showBoard?'checked':''}></div>
   </div>`;
 }
 function bindAdmin(){
+  bindAuto();
   const pv=$('#preview');if(pv)pv.onclick=()=>openReader(cur());
   document.querySelectorAll('[data-unit]').forEach(b=>b.onclick=()=>{G.unit=+b.dataset.unit;render()});
   document.querySelectorAll('input[name=mode]').forEach(r=>r.onchange=()=>{comp.mode=r.value;if(r.value==='pick'&&!comp.pick)comp.pick=G.nextRub;render()});
@@ -414,17 +456,27 @@ function bindAdmin(){
     const start=comp.mode==='continue'?G.nextRub:(comp.pick||1);
     const w=makeWird(start,G.unit,G.hours,Date.now());
     const {error}=await sb.rpc('publish_wird',{p_group:G.id,p_start_rub:w.startRub,p_end_rub:w.endRub,p_count:w.count,
-      p_start:w.start,p_end:w.end,p_p1:w.p1,p_p2:w.p2,p_hours:G.hours,p_text:`نزل الورد الجديد: من ${ref(w.start)} إلى ${ref(w.end)}`});
+      p_start:w.start,p_end:w.end,p_p1:w.p1,p_p2:w.p2,p_hours:G.hours,p_text:`«${G.group}»: نزل الورد الجديد: من ${ref(w.start)} إلى ${ref(w.end)}`});
     if(error){toast(errMsg(error));render();return}
     comp={mode:'continue',pick:null};await refresh();scrollTo({top:0,behavior:'smooth'});
     toast(`نُشر الورد ووصل إشعار إلى ${AR(G.members.length)} ${G.members.length>2?'أعضاء':'عضو'}`)};
   const rb=$('#remind');if(rb)rb.onclick=async()=>{const w=cur();rb.disabled=true;
-    const {data,error}=await sb.rpc('remind_pending',{p_wird:w.id,p_text:`تذكير لطيف: ورد اليوم في انتظارك (${ref(w.start)} ← ${ref(w.end)}). ${left(w)}`});
+    const {data,error}=await sb.rpc('remind_pending',{p_wird:w.id,p_text:`«${G.group}»: تذكير لطيف، ورد اليوم في انتظارك (${ref(w.start)} ← ${ref(w.end)}). ${left(w)}`});
     rb.disabled=false;if(error){toast(errMsg(error));return}
     toast(`أُرسل التذكير إلى ${AR(data||0)} ${data>2?'أعضاء':'عضو'}`)};
-  const invite=()=>`السلام عليكم 🌿\nانضم لختمة «${G.group}»\n١. افتح: ${location.origin}\n٢. اختر «العضو» ثم «حساب جديد»\n٣. اكتب كود المجموعة: ${G.code}`;
-  $('#copy').onclick=()=>{const t=invite(),p=navigator.clipboard&&navigator.clipboard.writeText(t);
-    if(p)p.then(()=>toast('نُسخت رسالة الدعوة، الصقها في واتساب'),()=>toast('انسخ الكود يدوياً: '+G.code));else toast('انسخ الكود يدوياً: '+G.code)};
+  $('#copy').onclick=()=>{const t=inviteLink(),p=navigator.clipboard&&navigator.clipboard.writeText(t);
+    const sel=()=>{const r=document.createRange();r.selectNodeContents($('.linkbox'));const s=getSelection();s.removeAllRanges();s.addRange(r);toast('حدّد الرابط وانسخه يدوياً')};
+    if(p)p.then(()=>toast('نُسخ رابط الدعوة'),sel);else sel()};
+  const sh=$('#share');if(sh)sh.onclick=()=>navigator.share({title:'ختمة «'+G.group+'»',text:inviteMsg()}).catch(()=>{});
+  const rg=$('#regen');if(rg)rg.onclick=()=>{regen=true;render()};
+  const rgn=$('#rg-no');if(rgn)rgn.onclick=()=>{regen=false;render()};
+  const rgo=$('#rg-ok');if(rgo)rgo.onclick=async()=>{rgo.disabled=true;const {error}=await sb.rpc('regenerate_code',{p_group:G.id});
+    regen=false;if(error){render();return toast(errMsg(error))}await refresh();toast('تم تغيير الكود. الرابط الجديد: '+G.code)};
+  document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{rmId=b.dataset.rm;render()});
+  const rmn=$('#rm-no');if(rmn)rmn.onclick=()=>{rmId=null;render()};
+  const rmo=$('#rm-ok');if(rmo)rmo.onclick=async()=>{rmo.disabled=true;const who=(G.members.find(m=>m.id===rmId)||{}).name||'العضو';
+    const {error}=await sb.rpc('remove_member',{p_group:G.id,p_user:rmId});rmId=null;
+    if(error){render();return toast(errMsg(error))}await refresh();toast(`حُذف ${who} من المجموعة`)};
   $('#board').onchange=async e=>{const v=e.target.checked;
     const {error}=await sb.from('groups').update({show_board:v}).eq('id',G.id);
     if(error){e.target.checked=!v;toast(errMsg(error));return}
@@ -447,7 +499,7 @@ function memberView(){
   ${w?`<div class="card wird">
     <p class="h"><span>${isDone?'وردك لهذه المرة':'الورد الجديد'} · ${unitName(w.count)}</span><span>${ago(w.at)}</span></p>
     <div class="range">${ref(w.start)} ← ${ref(w.end)}</div>
-    <div class="meta"><span>${AR(w.p2-w.p1+1)} صفحات</span><span>${isDone?'أتممته '+ago(w.done[me.id]):left(w)}</span></div>
+    <div class="meta"><span>${AR(w.p2-w.p1+1)} صفحات</span><span>${isDone?(isQueued(w)?'أتممته · في انتظار الاتصال':'أتممته '+ago(w.done[me.id])):left(w)}</span></div>
     <div class="row" style="margin-top:16px"><button class="btn btn-light" id="read">${isDone?'إعادة القراءة':'ابدأ القراءة'}</button></div>
   </div>`:`<div class="card wird"><p class="h"><span>الورد</span></p>
     <div class="range">لم يُنشر ورد بعد</div><div class="meta"><span>سيصلك إشعار عندما ينشر المشرف الورد الأول.</span></div></div>`}
@@ -464,12 +516,18 @@ function memberView(){
 
   <div class="card"><p class="h"><span>الأوراد السابقة</span></p><ul class="list">${G.wirds.slice(0,-1).reverse().slice(0,5).map(x=>`<li>
     <span class="grow"><span class="name">${ref(x.start)} ← ${ref(x.end)}</span><br><span class="sub">${ago(x.at)}</span></span>
-    <span class="chip ${x.done[me.id]?'ok':'wait'}">${x.done[me.id]?'تم ✓':'فاتني'}</span></li>`).join('')||'<li class="empty">لا يوجد</li>'}</ul></div>`;
+    <span class="chip ${x.done[me.id]?'ok':'wait'}">${x.done[me.id]?'تم ✓':'فاتني'}</span></li>`).join('')||'<li class="empty">لا يوجد</li>'}</ul></div>
+  ${leaving?`<div class="card">${confirmRow(`الخروج من «${esc(G.group)}»؟ لن يصلك وردها بعد ذلك، ويمكنك العودة بكود المجموعة.`,'lv-ok','خروج من المجموعة','lv-no')}</div>`
+    :'<button class="back danger" id="leave" style="align-self:center">الخروج من هذه المجموعة</button>'}`;
 }
 function bindMember(){
   $('#bell').onclick=()=>{showNotes=!showNotes;render();const ns=G.notes[A.mid]||[];
     if(showNotes&&ns.some(n=>!n.read)){ns.forEach(n=>n.read=true);sb.from('notifications').update({read:true}).eq('user_id',A.mid).eq('read',false).then(()=>{})}};
   const rd=$('#read');if(rd)rd.onclick=()=>openReader(cur());
+  const lv=$('#leave');if(lv)lv.onclick=()=>{leaving=true;render()};
+  const lvn=$('#lv-no');if(lvn)lvn.onclick=()=>{leaving=false;render()};
+  const lvo=$('#lv-ok');if(lvo)lvo.onclick=async()=>{lvo.disabled=true;const name=G.group;const {error}=await sb.rpc('leave_group',{p_group:G.id});
+    leaving=false;if(error){render();return toast(errMsg(error))}setSelGroup('');await refresh();scrollTo(0,0);toast(`خرجت من «${name}»`)};
 }
 
 /* ---------- READER ---------- */
@@ -541,14 +599,20 @@ function fit4(){
 }
 window.addEventListener('resize',()=>{if(R&&R.mode==='madinah')fit4()});
 function readerPages(w,mode){const a=mode==='madinah'?pageOf4(w.start):w.p1,b=mode==='madinah'?pageOf4(w.end):w.p2,o=[];for(let p=a;p<=b;p++)o.push(p);return o}
-function openReader(w){R={w,mode:mushaf,list:readerPages(w,mushaf),i:0};drawReader()}
+function openReader(w){const m=mushaf==='madinah'&&!navigator.onLine?'text':mushaf;R={w,mode:m,list:readerPages(w,m),i:0,offText:m!==mushaf};drawReader()}
+function switchMode(m,persist){const {w,list,i,mode}=R,p=list[i];
+  const firstId=Math.max(w.start,mode==='madinah'?QP4[p-1]:Q.p[p-1]);
+  if(persist){mushaf=m;try{localStorage.setItem('khatma-mushaf',m)}catch(e){}}
+  const nl=readerPages(w,m),np=m==='madinah'?pageOf4(firstId):pageOf(firstId);
+  R={w,mode:m,list:nl,i:Math.max(0,nl.indexOf(np)),offText:!persist&&m==='text'};drawReader()}
 function drawReader(){
   const {w,list,i,mode}=R, p=list[i], total=list.length, last=i===total-1, done=!!w.done[A.mid], md=mode==='madinah';
   $('#layer').innerHTML=`<div class="reader" role="dialog" aria-label="المصحف">
     <div class="r-head"><div class="r-in"><button class="x" id="rclose" aria-label="إغلاق">✕</button>
       <div class="r-title"><b>${ref(w.start)} ← ${ref(w.end)}</b><span class="sub num">صفحة ${AR(i+1)} من ${AR(total)}</span></div>
       <div class="seg mseg" role="group" aria-label="نوع المصحف"><button data-m="madinah" aria-pressed="${md}">المدينة</button><button data-m="text" aria-pressed="${!md}">نص</button></div></div>
-      <div class="r-in" style="margin-top:8px"><div class="bar" style="flex:1"><i style="width:${100*(i+1)/total}%"></i></div></div></div>
+      <div class="r-in" style="margin-top:8px"><div class="bar" style="flex:1"><i style="width:${100*(i+1)/total}%"></i></div></div>
+      ${R.offText?'<div class="r-in"><p class="sub offnote">غير متصل بالإنترنت: يُعرض النص، ويعود مصحف المدينة مع الاتصال.</p></div>':''}</div>
     <div class="r-body" id="rbody"><div class="mushaf ${md?'md':''}">
       ${md?`<div class="m4" id="m4"><p class="sub" style="text-align:center;padding:48px 0;font-size:15px">جارٍ تحميل الصفحة…</p></div>`:`<div class="txt">${pageHTML(p,w)}</div>`}
       <div class="pg num">${AR(p)}</div></div></div>
@@ -565,10 +629,8 @@ function drawReader(){
   const dn=$('#done');if(dn)dn.onclick=finish;
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
     const m=b.dataset.m;if(m===R.mode)return;
-    const firstId=Math.max(w.start,md?QP4[p-1]:Q.p[p-1]);
-    mushaf=m;try{localStorage.setItem('khatma-mushaf',m)}catch(e){}
-    const nl=readerPages(w,m),np=m==='madinah'?pageOf4(firstId):pageOf(firstId);
-    R={w,mode:m,list:nl,i:Math.max(0,nl.indexOf(np))};drawReader();
+    if(m==='madinah'&&!navigator.onLine)return toast('مصحف المدينة يحتاج اتصالاً بالإنترنت. اقرأ من النص الآن.');
+    switchMode(m,true);
   });
   if(md){
     loadPage4(p).then(d=>{
@@ -577,6 +639,7 @@ function drawReader(){
       if(i<total-1)loadPage4(list[i+1]).catch(()=>{});
     }).catch(()=>{
       if(!R||R.list[R.i]!==p)return;
+      if(!navigator.onLine)return switchMode('text',false);
       $('#m4').innerHTML=`<div style="text-align:center;padding:32px 0"><p class="err">تعذّر تحميل صفحة مصحف المدينة. تأكد من الإنترنت، أو اختر «نص» من الأعلى.</p>
         <button class="btn btn-ghost" id="retry" style="margin-top:12px">إعادة المحاولة</button></div>`;
       $('#retry').onclick=drawReader;
@@ -585,15 +648,20 @@ function drawReader(){
 }
 async function finish(){
   const w=R.w, btn=$('#done');btn.disabled=true;btn.textContent='جارٍ التسجيل…';
-  const {error}=await sb.from('completions').insert({wird_id:w.id,user_id:A.mid});
-  if(error&&error.code!=='23505'){btn.disabled=false;btn.textContent='تم بحمد الله';return toast(errMsg(error))}
-  const t=Date.now();w.done[A.mid]=w.done[A.mid]||t;
+  const t=Date.now(), item={wird_id:w.id,user_id:A.mid,done_at:new Date(t).toISOString()};
+  let queued=false;
+  if(!navigator.onLine){setQ([...getQ(),item]);queued=true}
+  else{const {error}=await sb.from('completions').insert(item);
+    if(error&&error.code!=='23505'){
+      if(isNetErr(error)){setQ([...getQ(),item]);queued=true}
+      else{btn.disabled=false;btn.textContent='تم بحمد الله';return toast(errMsg(error))}}}
+  w.done[A.mid]=w.done[A.mid]||t;saveCache();
   const pts=t<=deadline(w)?10:5, khatm=w.endRub===240;
   $('#layer').innerHTML=`<div class="modal"><div class="dlg">
     <div class="big">${khatm?'ختمت القرآن':'تقبّل الله منك'}</div>
     ${khatm?'<div class="q">اللَّهُمَّ ارْحَمْنِي بِالقُرْآنِ، وَاجْعَلْهُ لِي إِمَامًا وَنُورًا وَهُدًى وَرَحْمَةً</div>':''}
     <div>أُضيفت <b class="num">${AR(pts)}</b> نقاط · ${AR(streak(A.mid))} أوراد متتالية</div>
-    <div class="sub">وصل للمشرف أنك أتممت الورد.</div>
+    <div class="sub">${queued?'سُجّلت قراءتك على جهازك، وتصل للمشرف تلقائياً عند الاتصال بالإنترنت.':'وصل للمشرف أنك أتممت الورد.'}</div>
     <button class="btn btn-main" id="ok">الحمد لله</button></div></div>`;
   $('#ok').onclick=()=>{$('#layer').innerHTML='';R=null;refresh()};
 }
@@ -610,6 +678,7 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/sw.js').then(r=>{swReg=r;checkPush()}).catch(()=>{pushState='unsupported'});
   navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='refresh'&&A&&!R)refresh()});
 }else pushState='unsupported';
+const getReg=()=>swReg?Promise.resolve(swReg):('serviceWorker' in navigator?Promise.race([navigator.serviceWorker.ready,new Promise(r=>setTimeout(()=>r(null),3000))]):Promise.resolve(null));
 function b64u(s){const b=atob((s+'='.repeat((4-s.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,c=>c.charCodeAt(0))}
 async function checkPush(){
   if(!pushOK()||!swReg){pushState='unsupported';return}
@@ -627,7 +696,7 @@ async function enablePush(btn){
   try{
     const perm=await Notification.requestPermission();
     if(perm!=='granted'){pushState=perm==='denied'?'denied':'off';render();return toast('لم يتم السماح بالإشعارات')}
-    const reg=swReg||await navigator.serviceWorker.ready;
+    const reg=await getReg();if(!reg)throw new Error('no service worker');
     let s=await reg.pushManager.getSubscription();
     if(!s)s=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(VAPID_PUBLIC)});
     const ok=await savePush(s);pushState='on';render();
@@ -635,7 +704,7 @@ async function enablePush(btn){
   }catch(e){console.error(e);pushState='off';render();toast('تعذّر تفعيل الإشعارات على هذا الجهاز.')}
 }
 async function disablePush(){
-  try{const reg=swReg||(navigator.serviceWorker&&await navigator.serviceWorker.ready);const s=reg&&await reg.pushManager.getSubscription();
+  try{const reg=swReg;const s=reg&&reg.pushManager&&await reg.pushManager.getSubscription();
     if(s){await sb.rpc('delete_push_subscription',{p_endpoint:s.endpoint});await s.unsubscribe()}}catch(e){}
   if(pushState==='on')pushState='off';
 }
@@ -657,6 +726,155 @@ function bindAppCard(){
   const on=$('#pushon');if(on)on.onclick=()=>enablePush(on);
   const off=$('#pushoff');if(off)off.onclick=async()=>{await disablePush();render();toast('أُوقفت الإشعارات على هذا الجهاز')};
 }
+
+/* ---------- GROUPS & AUTO PUBLISH ---------- */
+let gAdd=false, selGroupMem=null;
+const gKey=()=>'khatma-group-'+(USER?USER.id:'')+'-'+(getMode()||'');
+function getSelGroup(){try{return localStorage.getItem(gKey())||selGroupMem}catch(e){return selGroupMem}}
+function setSelGroup(id){selGroupMem=id;try{localStorage.setItem(gKey(),id)}catch(e){}}
+function groupBar(){
+  const adm=A.role==='admin', many=GROUPS.length>1;
+  return `<div class="gbar">
+    ${many?`<label class="gsel" for="gsel"><span class="sub">المجموعة</span><select id="gsel">${GROUPS.map(g=>`<option value="${g.id}" ${g.id===G.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label>`
+          :`<span class="sub">المجموعة: <b style="color:var(--ink)">${esc(G.group)}</b></span>`}
+    <button class="back" id="gadd" type="button">${gAdd?'إلغاء':(adm?'+ مجموعة جديدة':'+ انضمام لمجموعة أخرى')}</button>
+  </div>
+  ${gAdd?`<div class="card"><h2 style="font-size:16px">${adm?'مجموعة جديدة':'انضمام لمجموعة أخرى'}</h2>
+    <p class="sub" style="margin:4px 0 0">${adm?'كل مجموعة لها أعضاؤها وكودها ووردها الخاص.':'اكتب الكود الذي أرسله لك مشرف المجموعة.'}</p>
+    <div class="field"><label for="g-in">${adm?'اسم المجموعة':'كود المجموعة'}</label>
+      <input type="text" id="g-in" ${adm?'placeholder="مثلاً: ختمة الأصدقاء"':'dir="ltr" autocapitalize="characters" placeholder="KH-4821"'}></div>
+    <button class="btn btn-main" id="g-ok" style="width:100%;margin-top:14px">${adm?'إنشاء المجموعة':'انضمام'}</button></div>`:''}`;
+}
+function bindGroupBar(){
+  const s=$('#gsel');if(s)s.onchange=async()=>{setSelGroup(s.value);comp={mode:'continue',pick:null};showNotes=false;gAdd=false;loading=true;render();await refresh();scrollTo(0,0)};
+  $('#gadd').onclick=()=>{gAdd=!gAdd;render();const i=$('#g-in');if(i)i.focus()};
+  const ok=$('#g-ok');if(ok)ok.onclick=async()=>{const v=$('#g-in').value.trim();if(!v)return $('#g-in').focus();
+    ok.disabled=true;const adm=A.role==='admin';
+    const {data,error}=adm?await sb.rpc('create_group',{p_name:v}):await sb.rpc('join_group',{p_code:v});
+    if(error){ok.disabled=false;return toast(/too many/i.test(error.message)?'وصلت للحد الأقصى (٢٠ مجموعة).':errMsg(error))}
+    setSelGroup(data);gAdd=false;comp={mode:'continue',pick:null};await refresh();scrollTo(0,0);
+    toast(adm?`أُنشئت «${G.group}». كود الدعوة: ${G.code}`:`انضممت إلى «${G.group}»`)};
+}
+const DAYS=[['ح','الأحد'],['ن','الإثنين'],['ث','الثلاثاء'],['ر','الأربعاء'],['خ','الخميس'],['ج','الجمعة'],['س','السبت']];
+function fmtTime(t){const [h,m]=t.split(':').map(Number);const pm=h>=12,hh=h%12||12;return `${AR(hh)}:${AR(String(m).padStart(2,'0'))} ${pm?'م':'ص'}`}
+function nowIn(tz){const d=new Date();
+  try{return {date:d.toLocaleDateString('en-CA',{timeZone:tz}),time:d.toLocaleTimeString('en-GB',{timeZone:tz,hour12:false}).slice(0,5),dow:new Date(d.toLocaleString('en-US',{timeZone:tz})).getDay()}}
+  catch(e){return {date:d.toISOString().slice(0,10),time:d.toTimeString().slice(0,5),dow:d.getDay()}}}
+function nextRunText(a){
+  if(!a.enabled)return 'متوقف';
+  if(!a.days.length)return 'اختر يوماً واحداً على الأقل';
+  const n=nowIn(a.tz), today=a.days.includes(n.dow)&&n.time<a.time&&!(a.last&&a.last>=n.date);
+  if(today)return `اليوم ${fmtTime(a.time)}`;
+  for(let k=1;k<=7;k++){const d=(n.dow+k)%7;if(a.days.includes(d))return `${k===1?'غداً':'يوم '+DAYS[d][1]} ${fmtTime(a.time)}`}
+  return '';
+}
+function autoCard(){
+  const a=G.auto, r=G.nextRub, e=Math.min(240,r+a.unit-1);
+  return `<div class="card" id="autocard">
+    <p class="h"><span>النشر التلقائي</span><span class="chip ${a.enabled?'ok':'wait'}">${a.enabled?'مفعّل':'متوقف'}</span></p>
+    <div class="switch"><label for="au-on">ينشر التطبيق الورد بنفسه في موعده</label><input type="checkbox" id="au-on" ${a.enabled?'checked':''}></div>
+    <div class="field"><label for="au-time">الساعة</label><input type="time" id="au-time" value="${a.time}"></div>
+    <div class="field"><span class="lbl">الأيام</span><div class="days">${DAYS.map((d,i)=>`<button type="button" data-day="${i}" aria-pressed="${a.days.includes(i)}" aria-label="${d[1]}" title="${d[1]}">${d[0]}</button>`).join('')}</div></div>
+    <div class="field"><span class="lbl">مقدار الورد</span><div class="opts">${UNITS.map(u=>`<button type="button" data-aunit="${u.n}" aria-pressed="${a.unit===u.n}">${u.t}<small>${u.s}</small></button>`).join('')}</div></div>
+    <div class="field"><label for="au-hours">مدة القراءة</label><select id="au-hours">${[12,24,48,72].map(h=>`<option value="${h}" ${a.hours===h?'selected':''}>${AR(h)} ساعة</option>`).join('')}</select></div>
+    <div class="preview"><div class="sub">الورد التلقائي القادم: <b>${nextRunText(a)}</b></div>
+      <div class="q" style="font-size:18px">من ${ref(rubStart(r))} إلى ${ref(rubEnd(e))}</div>
+      <div class="sub">يكمل من حيث توقفت المجموعة، ويصل إشعار لكل الأعضاء.</div></div>
+    <button class="btn btn-main" id="au-save" style="width:100%;margin-top:14px">حفظ النشر التلقائي</button>
+  </div>`;
+}
+function bindAuto(){
+  if(!$('#autocard'))return;
+  const a=G.auto;
+  $('#au-on').onchange=e=>{a.enabled=e.target.checked;render()};
+  $('#au-time').onchange=e=>{if(e.target.value){a.time=e.target.value.slice(0,5);render()}};
+  document.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{const d=+b.dataset.day;a.days=a.days.includes(d)?a.days.filter(x=>x!==d):[...a.days,d].sort();render()});
+  document.querySelectorAll('[data-aunit]').forEach(b=>b.onclick=()=>{a.unit=+b.dataset.aunit;render()});
+  $('#au-hours').onchange=e=>{a.hours=+e.target.value;render()};
+  $('#au-save').onclick=async e=>{
+    if(a.enabled&&!a.days.length)return toast('اختر يوماً واحداً على الأقل.');
+    const btn=e.currentTarget;btn.disabled=true;btn.textContent='جارٍ الحفظ…';
+    const tz=(()=>{try{return Intl.DateTimeFormat().resolvedOptions().timeZone||'Asia/Riyadh'}catch(_){return 'Asia/Riyadh'}})();
+    a.tz=tz;const n=nowIn(tz);
+    // لو وقت اليوم فات، يبدأ النشر التلقائي من الموعد القادم ولا ينشر فوراً
+    if(a.enabled&&n.time>=a.time&&!(a.last&&a.last>=n.date))a.last=n.date;
+    const {error}=await sb.from('groups').update({auto_enabled:a.enabled,auto_time:a.time,auto_days:a.days,auto_unit:a.unit,auto_hours:a.hours,tz,auto_last:a.last||null}).eq('id',G.id);
+    if(error){btn.disabled=false;btn.textContent='حفظ النشر التلقائي';return toast(errMsg(error))}
+    await refresh();toast(a.enabled?`تم الحفظ. الورد القادم: ${nextRunText(G.auto)}`:'أُوقف النشر التلقائي');
+  };
+}
+
+/* ---------- MODE, INVITES, OFFLINE ---------- */
+let MODE_MEM=null, OFF=null, lastLoadAt=0, rmId=null, leaving=false, regen=false, PJ=null;
+const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const lsSet=(k,v)=>{try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){}};
+function getMode(){return lsGet('khatma-mode')||MODE_MEM}
+function setMode(m){MODE_MEM=m;lsSet('khatma-mode',m)}
+// دعوة من رابط ?join=CODE
+(()=>{try{const c=new URLSearchParams(location.search).get('join');
+  if(c){lsSet('khatma-join',c.trim().toUpperCase());history.replaceState(null,'',location.pathname+location.hash)}}catch(e){}
+  const c=lsGet('khatma-join');if(c)PJ={code:c,name:''};})();
+function clearPJ(){PJ=null;lsSet('khatma-join',null)}
+async function resolvePJ(){if(!PJ||PJ.name||PJ.bad||!navigator.onLine)return;
+  const {data,error}=await sb.rpc('check_group_code',{p_code:PJ.code});
+  if(error)return;if(data)PJ.name=data;else PJ.bad=true;render()}
+const inviteLink=()=>`${location.origin}/?join=${encodeURIComponent(G.code)}`;
+const inviteMsg=()=>`السلام عليكم 🌿\nانضم معنا لختمة «${G.group}» في تطبيق ختمة:\n${inviteLink()}\n\nأو افتح ${location.origin} واكتب كود المجموعة: ${G.code}`;
+function joinCard(){
+  if(!PJ||!A)return '';
+  if(PJ.bad)return `<div class="card invite"><p style="margin:0">رابط الدعوة غير صالح أو تم تغييره. اطلب رابطاً جديداً من المشرف.</p>
+    <div class="row" style="margin-top:12px"><button class="btn btn-ghost sm" id="pj-no">حسناً</button></div></div>`;
+  return `<div class="card invite"><p class="h" style="margin:0 0 4px"><span>دعوة للانضمام</span></p>
+    <h2 style="font-size:18px">${PJ.name?`«${esc(PJ.name)}»`:'مجموعة ختمة'}</h2>
+    <p class="sub" style="margin:4px 0 0">ستنضم كعضو، ويصلك وردها وإشعاراتها.</p>
+    <div class="row" style="margin-top:12px"><button class="btn btn-main" id="pj-yes" style="flex:1">انضمام</button><button class="btn btn-ghost sm" id="pj-no">ليس الآن</button></div></div>`;
+}
+function bindJoinCard(){
+  const no=$('#pj-no');if(no)no.onclick=()=>{clearPJ();render()};
+  const yes=$('#pj-yes');if(yes)yes.onclick=async()=>{yes.disabled=true;yes.textContent='لحظة…';
+    const {data,error}=await sb.rpc('join_group',{p_code:PJ.code});
+    if(error){if(/invalid code/i.test(error.message)){PJ.bad=true;return render()}yes.disabled=false;yes.textContent='انضمام';return toast(errMsg(error))}
+    const name=PJ.name;clearPJ();setMode('member');setSelGroup(data);comp={mode:'continue',pick:null};showNotes=false;gAdd=false;
+    loading=true;render();await refresh();scrollTo(0,0);toast(`انضممت إلى «${name||G.group}»`)};
+}
+function modeCard(){const adm=A.role==='admin';
+  return `<div class="card"><p class="h"><span>الحساب</span></p><div class="row"><span class="grow sub">أنت الآن في <b style="color:var(--ink)">وضع ${adm?'المشرف':'العضو'}</b>. نفس حسابك يعمل كمشرف وكعضو.</span>
+    <button class="btn btn-ghost sm" id="swmode">التبديل لوضع ${adm?'العضو':'المشرف'}</button></div></div>`}
+function bindModeCard(){const b=$('#swmode');if(b)b.onclick=async()=>{const to=A.role==='admin'?'member':'admin';
+  setMode(to);comp={mode:'continue',pick:null};showNotes=false;gAdd=false;rmId=null;leaving=false;regen=false;
+  loading=true;render();await refresh();scrollTo(0,0);toast(to==='admin'?'أنت الآن في وضع المشرف':'أنت الآن في وضع العضو')}}
+function confirmRow(text,okId,okLabel,noId){
+  return `<div class="confirm"><p>${text}</p><div class="row"><button class="btn btn-danger sm" id="${okId}">${okLabel}</button><button class="btn btn-ghost sm" id="${noId}">إلغاء</button></div></div>`}
+
+// ---- البقاء داخل + نسخة محفوظة من البيانات ----
+const remember=()=>lsGet('khatma-remember')!=='0';
+function saveCache(){if(!A||!remember())return;
+  try{localStorage.setItem('khatma-cache-'+A.role,JSON.stringify({uid:A.mid,A,GROUPS,G,at:lastLoadAt||Date.now()}))}catch(e){}}
+function restoreCache(){
+  const mode=getMode();let c=null;
+  try{c=JSON.parse(localStorage.getItem('khatma-cache-'+(mode||'member'))||'null')}catch(e){}
+  if(!c||!c.A||(A&&A.mid!==c.uid))return false;
+  A=c.A;GROUPS=c.GROUPS||[];G=c.G;USER=USER||{id:c.uid};applyQueue();OFF=c.at||Date.now();return true;
+}
+function clearLocal(){['khatma-cache-admin','khatma-cache-member','khatma-queue'].forEach(k=>lsSet(k,null))}
+
+// ---- تسجيل «تم» بدون إنترنت ----
+const getQ=()=>{try{return JSON.parse(lsGet('khatma-queue')||'[]')}catch(e){return []}};
+const setQ=q=>lsSet('khatma-queue',q.length?JSON.stringify(q):null);
+const isNetErr=e=>!navigator.onLine||/fetch|network|failed to|load failed/i.test((e&&e.message)||'');
+function applyQueue(){if(!G||!A)return;const q=getQ();
+  G.wirds.forEach(w=>{const it=q.find(x=>x.wird_id===w.id&&x.user_id===A.mid);if(it&&!w.done[A.mid])w.done[A.mid]=Date.parse(it.done_at)})}
+const isQueued=w=>getQ().some(x=>x.wird_id===w.id&&A&&x.user_id===A.mid);
+async function flushQueue(){
+  const q=getQ();if(!q.length||!navigator.onLine)return 0;
+  const keep=[];let sent=0;
+  for(const it of q){const {error}=await sb.from('completions').insert(it);
+    if(!error||error.code==='23505')sent++;else if(isNetErr(error))keep.push(it);}
+  setQ(keep);return sent;
+}
+window.addEventListener('online',async()=>{if(!A)return;const n=await flushQueue();await refresh();
+  toast(n?`عاد الاتصال، وأُرسلت ${AR(n)} ${n>2?'قراءات':'قراءة'} للمشرف`:'عاد الاتصال بالإنترنت')});
+window.addEventListener('offline',()=>{if(!A)return;OFF=lastLoadAt||Date.now();if(!R)render()});
 
 /* ---------- AUTH ---------- */
 let AU={role:null,tab:'login',err:'',info:''}, busy=false;
@@ -688,6 +906,8 @@ function authView(){
   const adm=AU.role==='admin', reg=AU.tab==='register';
   return `
   <button class="back" id="back">› رجوع</button>
+  ${PJ&&!adm?`<div class="card invite"><p class="h" style="margin:0 0 4px"><span>دعوة للانضمام</span></p><h2 style="font-size:18px">${PJ.name?`«${esc(PJ.name)}»`:'مجموعة ختمة'}</h2>
+    <p class="sub" style="margin:4px 0 0">${reg?'أنشئ حسابك وستنضم للمجموعة مباشرة.':'ادخل بحسابك، وبعدها تنضم للمجموعة بضغطة.'}</p></div>`:''}
   <div class="card auth">
     <h2>${adm?'المشرف':'العضو'}</h2>
     <div class="seg tabs" role="group"><button data-tab="login" aria-pressed="${!reg}">دخول</button><button data-tab="register" aria-pressed="${reg}">حساب جديد</button></div>
@@ -698,6 +918,7 @@ function authView(){
       ${reg?pwField('f-pass2','تأكيد كلمة المرور','new-password'):''}
       ${reg&&adm?`<div class="field"><label for="f-group">اسم المجموعة</label><input type="text" id="f-group" placeholder="مثلاً: ختمة العائلة"></div>`:''}
       ${reg&&!adm?`<div class="field"><label for="f-code">كود المجموعة</label><input type="text" id="f-code" dir="ltr" autocapitalize="characters" placeholder="KH-4821"><span class="sub">اطلبه من مشرف مجموعتك</span></div>`:''}
+      <label class="check"><input type="checkbox" id="f-remember" ${remember()?'checked':''}> تذكرني على هذا الجهاز</label>
       ${msgs()}
       <button class="btn btn-main" type="submit" id="authbtn" style="width:100%;margin-top:16px">${reg?(adm?'إنشاء المجموعة':'إنشاء الحساب والانضمام'):'متابعة'}</button>
       ${reg?'':'<p class="sub" style="margin:10px 0 0">سيصلك رمز تأكيد على بريدك لإتمام الدخول.</p><button class="back" type="button" id="forgot" style="margin-top:12px">نسيت كلمة المرور؟</button>'}
@@ -713,10 +934,11 @@ function noGroupView(){
     <button class="btn btn-main" id="jn" style="width:100%;margin-top:16px">انضمام</button></div>`;
 }
 function bindNoGroup(){
-  const mk=$('#mk');if(mk)mk.onclick=async()=>{mk.disabled=true;const {error}=await sb.rpc('create_group',{p_name:$('#f-group').value.trim()});
-    if(error){mk.disabled=false;return toast(errMsg(error))}await refresh();toast('أُنشئت المجموعة')};
-  const jn=$('#jn');if(jn)jn.onclick=async()=>{jn.disabled=true;const {error}=await sb.rpc('join_group',{p_code:$('#f-code').value.trim()});
-    if(error){jn.disabled=false;return toast(errMsg(error))}await refresh();toast('انضممت إلى '+(G?G.group:'المجموعة'))};
+  const mk=$('#mk');if(mk)mk.onclick=async()=>{mk.disabled=true;const {data,error}=await sb.rpc('create_group',{p_name:$('#f-group').value.trim()});
+    if(error){mk.disabled=false;return toast(errMsg(error))}setSelGroup(data);await refresh();toast(G?`أُنشئت المجموعة. كود الدعوة: ${G.code}`:'أُنشئت المجموعة')};
+  const jn=$('#jn');if(jn)jn.onclick=async()=>{jn.disabled=true;const {data,error}=await sb.rpc('join_group',{p_code:$('#f-code').value.trim()});
+    if(error){jn.disabled=false;return toast(errMsg(error))}setSelGroup(data);await refresh();toast('انضممت إلى '+(G?G.group:'المجموعة'))};
+  bindModeCard();
 }
 function toVerify(kind,email,info){busy=false;AU={...AU,stage:'verify',kind,email,err:'',info:info||'',cool:Date.now()+60000};render();
   setTimeout(()=>{const o=$('#f-otp');if(o)o.focus()},60)}
@@ -730,6 +952,7 @@ function bindAuth(){
   const bk=$('#back');if(bk)bk.onclick=()=>{if(AU.stage==='verify'){AU={role:AU.role,tab:AU.tab,err:'',info:''}}else AU={role:null,tab:'login',err:'',info:''};render()};
   document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{AU.tab=b.dataset.tab;AU.err='';AU.info='';render()});
   tickResend();
+  const fc=$('#f-code');if(fc&&PJ&&!fc.value)fc.value=PJ.code;
   const rf=$('#recform');if(rf)rf.onsubmit=async e=>{e.preventDefault();const np=$('#f-np').value;
     if(np.length<6){AU.err='كلمة المرور 6 أحرف على الأقل.';return render()}
     if(np!==$('#f-np2').value){AU.err='كلمتا المرور غير متطابقتين.';return render()}
@@ -747,7 +970,7 @@ function bindAuth(){
     if(error&&AU.kind==='signup'){const r=await sb.auth.verifyOtp({email:AU.email,token,type:'signup'});error=r.error}
     busy=false;
     if(error){AU.err=/expired|invalid|not found/i.test(error.message)?'الرمز غير صحيح أو انتهت صلاحيته. اطلب رمزاً جديداً.':errMsg(error);AU.info='';render();$('#f-otp').value=token;return}
-    const kind=AU.kind;AU={role:null,tab:'login',err:'',info:''};comp={mode:'continue',pick:null};showNotes=false;
+    const kind=AU.kind;if(AU.role)setMode(AU.role);AU={role:null,tab:'login',err:'',info:''};comp={mode:'continue',pick:null};showNotes=false;
     loading=true;render();await refresh();scrollTo(0,0);
     toast(kind==='signup'?(A&&A.role==='admin'&&G?`تم تفعيل حسابك. كود المجموعة: ${G.code}`:'تم تفعيل حسابك، أهلاً بك'):`أهلاً ${A?A.name:''}`)};
   const rs=$('#resend');if(rs)rs.onclick=async()=>{if(Date.now()<(AU.cool||0))return;rs.disabled=true;
@@ -759,6 +982,7 @@ function bindAuth(){
   f.onsubmit=async e=>{e.preventDefault();if(busy)return;
     const val=id=>{const el=$(id);return el?el.value.trim():''};
     const email=val('#f-user').toLowerCase(), p=$('#f-pass').value, p2=$('#f-pass2')?$('#f-pass2').value:'';
+    const rem=$('#f-remember')?$('#f-remember').checked:true;lsSet('khatma-remember',rem?'1':'0');if(!rem)clearLocal();
     const keep={name:val('#f-name'),group:val('#f-group'),code:val('#f-code')};
     const fail=m=>{busy=false;AU.err=m;AU.info='';render();
       $('#f-user').value=email;$('#f-pass').value=p;if($('#f-pass2'))$('#f-pass2').value=p2;
@@ -773,11 +997,10 @@ function bindAuth(){
           return toVerify('signup',email,'حسابك غير مفعّل بعد. أرسلنا لك رمز التفعيل.')}
         return fail(errMsg(error));
       }
-      const {data:prof}=await sb.from('profiles').select('role').eq('id',data.user.id).maybeSingle();
       await sb.auth.signOut({scope:'local'});
-      if(prof&&prof.role!==AU.role)return fail(prof.role==='admin'?'هذا حساب مشرف. ادخل من خانة المشرف.':'هذا حساب عضو. ادخل من خانة العضو.');
       const r=await sb.auth.signInWithOtp({email,options:{shouldCreateUser:false}});
       if(r.error)return fail(errMsg(r.error));
+      setMode(AU.role);
       return toVerify('login',email);
     }
     if(!keep.name)return fail('اكتب اسمك.');
@@ -793,8 +1016,10 @@ function bindAuth(){
     const {data,error}=await sb.auth.signUp({email,password:p,options:{emailRedirectTo:location.origin+location.pathname,
       data:{name:keep.name,role:AU.role,group_name:keep.group,group_code:keep.code.toUpperCase()}}});
     if(error)return fail(errMsg(error));
-    if(data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0)return fail('هذا البريد مسجّل بالفعل. ادخل من تبويب «دخول».');
-    busy=false;
+    if(data.user&&Array.isArray(data.user.identities)&&data.user.identities.length===0)
+      return fail(`هذا البريد مسجّل بالفعل. ادخل من تبويب «دخول» بنفس كلمة المرور، وبعدها ${AU.role==='admin'?'أنشئ مجموعتك':'انضم بالكود'}.`);
+    busy=false;setMode(AU.role);
+    if(PJ&&keep.code.toUpperCase()===PJ.code)clearPJ();
     if(!data.session)return toVerify('signup',email);
     AU={role:null,tab:'login',err:'',info:''};loading=true;render();await refresh();scrollTo(0,0);
     toast(A&&A.role==='admin'&&G?`أُنشئت المجموعة. كود الدعوة: ${G.code}`:'أهلاً بك في المجموعة');
@@ -805,13 +1030,16 @@ function bindAuth(){
 function render(){
   $('#gname').textContent=G?G.group:'ختمة القرآن الكريم';
   $('#hdr').innerHTML=A?`<span class="userchip"><b>${esc(A.name)}</b><span class="sub">${A.role==='admin'?'مشرف':'عضو'}</span></span><button class="btn btn-ghost out" id="logout">خروج</button>`:'';
-  const lo=$('#logout');if(lo)lo.onclick=async()=>{await disablePush();await sb.auth.signOut();A=null;G=null;USER=null;AU={role:null,tab:'login',err:'',info:''};render();scrollTo(0,0)};
-  const err=netErr?`<p class="err" role="alert">${esc(netErr)}</p>`:'';
+  const lo=$('#logout');if(lo)lo.onclick=async()=>{
+    if(getQ().length&&!navigator.onLine)return toast('عندك قراءات لم تُرسل بعد. اتصل بالإنترنت أولاً ثم اخرج.');
+    await flushQueue();await disablePush();await sb.auth.signOut();clearLocal();A=null;G=null;USER=null;GROUPS=[];gAdd=false;OFF=null;AU={role:null,tab:'login',err:'',info:''};render();scrollTo(0,0)};
+  const qn=getQ().length;
+  const err=(netErr?`<p class="err" role="alert">${esc(netErr)}</p>`:'')+(A&&OFF?`<p class="offbar" role="status">غير متصل بالإنترنت · آخر تحديث ${ago(OFF)}${qn?` · ${AR(qn)} ${qn>2?'قراءات':'قراءة'} في انتظار الإرسال`:''}</p>`:'');
   if(loading){$('#view').innerHTML=`<div class="hero"><div class="logo">ختمة</div><p class="sub">جارٍ التحميل…</p></div>`;return}
   if(recovery||!A){$('#view').innerHTML=err+authView();bindAuth();return}
-  if(!G){$('#view').innerHTML=err+noGroupView();bindNoGroup();return}
-  $('#view').innerHTML=err+(A.role==='admin'?adminView():memberView())+appCard();
-  A.role==='admin'?bindAdmin():bindMember();bindAppCard();
+  if(!G){$('#view').innerHTML=err+joinCard()+noGroupView()+modeCard();bindJoinCard();bindNoGroup();return}
+  $('#view').innerHTML=err+joinCard()+groupBar()+(A.role==='admin'?adminView():memberView())+appCard()+modeCard();
+  bindJoinCard();bindGroupBar();A.role==='admin'?bindAdmin():bindMember();bindAppCard();bindModeCard();
 }
 const THEMES=[{k:'auto',i:'◐',t:'تلقائي'},{k:'light',i:'☀',t:'فاتح'},{k:'dark',i:'☾',t:'داكن'}];
 let theme='auto';try{theme=localStorage.getItem('khatma-theme')||'auto'}catch(e){}
@@ -825,7 +1053,8 @@ $('#theme').onclick=()=>{const i=THEMES.findIndex(x=>x.k===theme);theme=THEMES[(
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme)}catch(e){}
 applyTheme();
 sb.auth.onAuthStateChange(ev=>{if(ev==='PASSWORD_RECOVERY'){recovery=true;loading=false;setTimeout(render,0)}});
-render();refresh();
+if(PJ&&!lsGet('sb-yiumqwysldbrszadizjo-auth-token'))AU={role:'member',tab:'register',err:'',info:''};
+render();refresh();resolvePJ();
 setInterval(()=>{if(A&&G&&!R&&!busy&&document.visibilityState==='visible')refresh()},60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&A&&!R)refresh()});
 })();

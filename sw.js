@@ -1,9 +1,13 @@
-// ختمة: عامل الخدمة (التثبيت + الإشعارات)
-const CACHE = 'khatma-v1';
+// ختمة: عامل الخدمة (التثبيت + العمل بدون إنترنت + الإشعارات)
+const CACHE = 'khatma-v2';
+const SB_LIB = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/', '/manifest.json', '/icon-192.png'])).catch(() => {}));
+  e.waitUntil(caches.open(CACHE).then(async (c) => {
+    await c.addAll(['/', '/manifest.json', '/icon-192.png', '/badge-96.png']).catch(() => {});
+    await c.add(new Request(SB_LIB, { mode: 'cors' })).catch(() => {});
+  }));
 });
 
 self.addEventListener('activate', (e) => {
@@ -13,17 +17,35 @@ self.addEventListener('activate', (e) => {
   })());
 });
 
-// الصفحة من الإنترنت أولاً، ومن النسخة المحفوظة لو مفيش إنترنت
+// مكتبة الاتصال والخطوط: من النسخة المحفوظة أولاً (تكفي للعمل بدون إنترنت)
+const isAsset = (u) => u.href === SB_LIB || u.host === 'fonts.googleapis.com' || u.host === 'fonts.gstatic.com';
+
 self.addEventListener('fetch', (e) => {
   const r = e.request;
-  if (r.method !== 'GET' || r.mode !== 'navigate' || new URL(r.url).origin !== location.origin) return;
-  e.respondWith(
-    fetch(r).then((res) => {
-      const copy = res.clone();
-      caches.open(CACHE).then((c) => c.put('/', copy));
+  if (r.method !== 'GET') return;
+  const u = new URL(r.url);
+
+  if (isAsset(u)) {
+    e.respondWith(caches.open(CACHE).then(async (c) => {
+      const hit = await c.match(r);
+      if (hit) return hit;
+      const res = await fetch(r);
+      if (res.ok || res.type === 'opaque') c.put(r, res.clone());
       return res;
-    }).catch(() => caches.match('/'))
-  );
+    }));
+    return;
+  }
+
+  // الصفحة: من الإنترنت أولاً، ومن النسخة المحفوظة لو مفيش إنترنت
+  if (r.mode === 'navigate' && u.origin === location.origin) {
+    e.respondWith(
+      fetch(r).then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put('/', copy));
+        return res;
+      }).catch(() => caches.match('/'))
+    );
+  }
 });
 
 self.addEventListener('push', (e) => {

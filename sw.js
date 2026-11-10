@@ -1,6 +1,7 @@
-// ختمة: عامل الخدمة (التثبيت + العمل بدون إنترنت + الإشعارات)
-const CACHE = 'khatma-v2';
+// ختمة: عامل الخدمة (فتح سريع + العمل بدون إنترنت + الإشعارات)
+const CACHE = 'khatma-v3';
 const SB_LIB = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
+const TEXT = '/quran-text-v1.js';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
@@ -17,15 +18,16 @@ self.addEventListener('activate', (e) => {
   })());
 });
 
-// مكتبة الاتصال والخطوط: من النسخة المحفوظة أولاً (تكفي للعمل بدون إنترنت)
-const isAsset = (u) => u.href === SB_LIB || u.host === 'fonts.googleapis.com' || u.host === 'fonts.gstatic.com';
+// ملفات لا تتغير (المكتبة، الخطوط، نص المصحف): من النسخة المحفوظة دائماً
+const isStatic = (u) => u.href === SB_LIB || u.host === 'fonts.googleapis.com' || u.host === 'fonts.gstatic.com'
+  || (u.origin === location.origin && u.pathname === TEXT);
 
 self.addEventListener('fetch', (e) => {
   const r = e.request;
   if (r.method !== 'GET') return;
   const u = new URL(r.url);
 
-  if (isAsset(u)) {
+  if (isStatic(u)) {
     e.respondWith(caches.open(CACHE).then(async (c) => {
       const hit = await c.match(r);
       if (hit) return hit;
@@ -36,15 +38,14 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // الصفحة: من الإنترنت أولاً، ومن النسخة المحفوظة لو مفيش إنترنت
+  // الصفحة: تفتح فوراً من النسخة المحفوظة، وتتحدث في الخلفية للمرة القادمة
   if (r.mode === 'navigate' && u.origin === location.origin) {
-    e.respondWith(
-      fetch(r).then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put('/', copy));
-        return res;
-      }).catch(() => caches.match('/'))
-    );
+    e.respondWith(caches.open(CACHE).then(async (c) => {
+      const hit = await c.match('/');
+      const net = fetch(r).then((res) => { if (res.ok) c.put('/', res.clone()); return res; });
+      if (hit) { e.waitUntil(net.catch(() => {})); return hit; }
+      return net.catch(() => caches.match('/'));
+    }));
   }
 });
 

@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1c4f7c">
 <link rel="manifest" href="/manifest.json">
+<link rel="preconnect" href="https://yiumqwysldbrszadizjo.supabase.co" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preload" href="/supabase-2.117.3.js" as="script">
 <link rel="icon" href="/icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -260,6 +263,8 @@ button.brand{border:0;background:none;padding:0;text-align:start;cursor:pointer}
 .note.read{color:var(--muted)}
 .dz{border-color:var(--warn-soft)}
 .qada .list li{gap:10px}
+.tag{font-size:11px;font-weight:500;color:var(--lapis);background:var(--lapis-soft);border-radius:99px;padding:1px 8px;vertical-align:middle}
+.selfcard label{font-size:14px;line-height:1.5}
 .fsz{margin-top:8px;gap:8px;justify-content:flex-end}
 .fsz button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;min-width:40px;height:32px;font-size:15px}
 .fsz button[disabled]{opacity:.4}
@@ -281,7 +286,7 @@ button.brand{border:0;background:none;padding:0;text-align:start;cursor:pointer}
 <script>
 const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",294,200],["النساء",494,176],["المائدة",670,120],["الأنعام",790,165],["الأعراف",955,206],["الأنفال",1161,75],["التوبة",1236,129],["يونس",1365,109],["هود",1474,123],["يوسف",1597,111],["الرعد",1708,43],["ابراهيم",1751,52],["الحجر",1803,99],["النحل",1902,128],["الإسراء",2030,111],["الكهف",2141,110],["مريم",2251,98],["طه",2349,135],["الأنبياء",2484,112],["الحج",2596,78],["المؤمنون",2674,118],["النور",2792,64],["الفرقان",2856,77],["الشعراء",2933,227],["النمل",3160,93],["القصص",3253,88],["العنكبوت",3341,69],["الروم",3410,60],["لقمان",3470,34],["السجدة",3504,30],["الأحزاب",3534,73],["سبإ",3607,54],["فاطر",3661,45],["يس",3706,83],["الصافات",3789,182],["ص",3971,88],["الزمر",4059,75],["غافر",4134,85],["فصلت",4219,54],["الشورى",4273,53],["الزخرف",4326,89],["الدخان",4415,59],["الجاثية",4474,37],["الأحقاف",4511,35],["محمد",4546,38],["الفتح",4584,29],["الحجرات",4613,18],["ق",4631,45],["الذاريات",4676,60],["الطور",4736,49],["النجم",4785,62],["القمر",4847,55],["الرحمن",4902,78],["الواقعة",4980,96],["الحديد",5076,29],["المجادلة",5105,22],["الحشر",5127,24],["الممتحنة",5151,13],["الصف",5164,14],["الجمعة",5178,11],["المنافقون",5189,11],["التغابن",5200,18],["الطلاق",5218,12],["التحريم",5230,12],["الملك",5242,30],["القلم",5272,52],["الحاقة",5324,52],["المعارج",5376,44],["نوح",5420,28],["الجن",5448,28],["المزمل",5476,20],["المدثر",5496,56],["القيامة",5552,40],["الانسان",5592,31],["المرسلات",5623,50],["النبإ",5673,40],["النازعات",5713,46],["عبس",5759,42],["التكوير",5801,29],["الإنفطار",5830,19],["المطففين",5849,36],["الإنشقاق",5885,25],["البروج",5910,22],["الطارق",5932,17],["الأعلى",5949,19],["الغاشية",5968,26],["الفجر",5994,30],["البلد",6024,20],["الشمس",6044,15],["الليل",6059,21],["الضحى",6080,11],["الشرح",6091,8],["التين",6099,8],["العلق",6107,19],["القدر",6126,5],["البينة",6131,8],["الزلزلة",6139,8],["العاديات",6147,11],["القارعة",6158,11],["التكاثر",6169,8],["العصر",6177,3],["الهمزة",6180,9],["الفيل",6189,5],["قريش",6194,4],["الماعون",6198,7],["الكوثر",6205,3],["الكافرون",6208,6],["النصر",6214,3],["المسد",6217,5],["الإخلاص",6222,4],["الفلق",6226,5],["الناس",6231,6]],"r":[1,33,51,67,82,99,113,131,149,165,184,196,210,226,240,250,260,270,279,290,308,326,345,368,386,406,426,446,464,479,494,505,517,529,551,567,581,593,607,628,641,656,670,681,696,710,720,736,751,766,778,802,825,848,863,884,900,916,930,940,955,985,1001,1019,1042,1071,1096,1110,1125,1143,1161,1182,1201,1221,1236,1254,1269,1281,1295,1310,1328,1346,1357,1375,1390,1417,1435,1454,1479,1497,1514,1534,1557,1581,1603,1626,1649,1673,1697,1712,1726,1742,1760,1778,1803,1852,1902,1931,1952,1976,1991,2012,2030,2052,2079,2099,2128,2157,2172,2191,2215,2239,2272,2309,2349,2403,2431,2459,2484,2512,2534,2566,2596,2614,2633,2655,2674,2709,2748,2792,2812,2826,2844,2856,2876,2908,2933,2984,3043,3113,3160,3186,3215,3241,3264,3281,3303,3328,3341,3366,3386,3410,3440,3463,3491,3514,3534,3551,3564,3584,3593,3616,3630,3652,3675,3701,3733,3765,3810,3871,3933,3991,4022,4066,4090,4111,4134,4154,4174,4199,4227,4243,4265,4285,4299,4323,4349,4382,4431,4485,4511,4531,4555,4578,4601,4613,4626,4657,4706,4759,4810,4855,4902,4980,5054,5091,5105,5118,5137,5157,5178,5192,5218,5230,5242,5272,5324,5394,5448,5495,5552,5610,5673,5759,5830,5885,5949,6024,6091,6155],"p":[1,8,13,24,32,37,45,56,65,69,77,84,91,96,101,109,113,120,127,134,142,149,153,161,171,177,184,189,194,198,204,210,218,223,227,232,238,241,245,253,256,260,264,267,272,277,282,289,290,294,303,309,316,323,331,339,346,355,364,371,377,385,394,402,409,415,426,434,442,447,451,459,467,474,480,488,494,500,505,508,513,517,520,527,531,538,545,553,559,568,573,580,585,588,595,599,607,615,621,628,634,641,648,656,664,669,672,675,679,683,687,693,701,706,711,715,720,727,734,740,746,752,759,765,773,778,783,790,798,808,817,825,834,842,849,858,863,871,880,884,891,900,908,914,921,927,932,936,941,947,955,966,977,985,992,998,1006,1012,1022,1028,1036,1042,1050,1059,1075,1085,1092,1098,1104,1110,1114,1118,1125,1133,1142,1150,1161,1169,1177,1186,1194,1201,1206,1213,1222,1230,1236,1242,1249,1256,1262,1267,1272,1276,1283,1290,1297,1304,1308,1315,1322,1329,1335,1342,1347,1353,1358,1365,1371,1379,1385,1390,1398,1407,1418,1426,1435,1443,1453,1462,1471,1479,1486,1493,1502,1511,1519,1527,1536,1545,1555,1562,1571,1582,1591,1601,1611,1619,1627,1634,1640,1649,1660,1666,1675,1683,1692,1700,1708,1713,1721,1726,1736,1742,1750,1756,1761,1769,1775,1784,1793,1803,1818,1834,1854,1873,1893,1908,1916,1928,1936,1944,1956,1966,1974,1981,1989,1995,2004,2012,2020,2030,2037,2047,2057,2068,2079,2088,2096,2105,2116,2126,2134,2145,2156,2161,2168,2175,2186,2194,2202,2215,2224,2238,2251,2262,2276,2289,2302,2315,2327,2346,2361,2386,2400,2413,2425,2436,2447,2462,2474,2484,2494,2508,2519,2528,2541,2556,2565,2574,2585,2596,2601,2611,2619,2626,2634,2642,2651,2660,2668,2674,2691,2701,2716,2733,2748,2763,2778,2792,2802,2812,2819,2823,2828,2835,2845,2850,2853,2858,2867,2876,2888,2899,2911,2923,2933,2952,2972,2993,3016,3044,3069,3092,3116,3139,3160,3173,3182,3195,3204,3215,3223,3236,3248,3258,3266,3274,3281,3288,3296,3303,3312,3323,3330,3337,3347,3355,3364,3371,3379,3386,3393,3404,3415,3425,3434,3442,3451,3460,3470,3481,3489,3498,3504,3515,3524,3534,3540,3549,3556,3564,3569,3577,3584,3588,3596,3607,3614,3621,3629,3638,3646,3655,3664,3672,3679,3691,3699,3705,3718,3733,3746,3760,3776,3789,3813,3840,3865,3891,3915,3942,3971,3987,3997,4013,4032,4054,4064,4069,4080,4090,4099,4106,4115,4126,4133,4141,4150,4159,4167,4174,4183,4192,4200,4211,4219,4230,4239,4248,4257,4265,4273,4283,4288,4295,4304,4317,4324,4336,4348,4359,4373,4386,4399,4415,4433,4454,4474,4487,4496,4506,4516,4525,4531,4539,4546,4557,4565,4575,4584,4593,4599,4607,4612,4617,4624,4631,4646,4666,4682,4706,4727,4750,4767,4785,4811,4829,4853,4874,4896,4918,4942,4969,4996,5030,5056,5079,5087,5094,5100,5105,5111,5116,5126,5130,5136,5143,5151,5156,5162,5169,5178,5186,5193,5200,5209,5218,5223,5230,5237,5242,5254,5268,5287,5314,5332,5358,5386,5415,5430,5448,5461,5476,5495,5513,5543,5571,5597,5617,5642,5673,5703,5728,5759,5801,5830,5855,5883,5910,5932,5964,5994,6017,6044,6073,6099,6126,6138,6156,6177,6194,6208,6222]};
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+<script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
 const N=6236, H=3600e3;
@@ -332,7 +337,7 @@ async function load(){
   const byId=Object.fromEntries(wirds.map(w=>[w.id,w]));
   (st.completions||[]).forEach(c=>{const w=byId[c.w];if(w)w.done[c.u]=Date.parse(c.t)});
   const keep=G&&G.id===grp.id;
-  G={id:grp.id,group:grp.name,code:grp.code,members:st.members||[],wirds,nextRub:grp.next_rub,
+  G={id:grp.id,adminId:grp.admin_id,group:grp.name,code:grp.code,members:st.members||[],wirds,nextRub:grp.next_rub,
      unit:keep?G.unit:grp.unit,hours:keep?G.hours:grp.hours,khatmas:grp.khatmas,showBoard:grp.show_board,
      auto:{enabled:!!grp.auto_enabled,time:String(grp.auto_time||'08:00').slice(0,5),days:grp.auto_days||[0,1,2,3,4,5,6],
        unit:grp.auto_unit||2,hours:grp.auto_hours||24,tz:grp.tz||'Asia/Riyadh',last:grp.auto_last||null},
@@ -401,6 +406,10 @@ const bonusOf=(w,t)=>w.bonus&&t<=w.at+w.bonus*H?5:0;
 const ptsW=(w,t)=>(t<=deadline(w)?10:5)+bonusOf(w,t);
 
 /* ---- المشرف: الرئيسية ---- */
+const selfReads=()=>!!(A&&G&&G.members.some(m=>m.id===A.mid));
+function selfCard(){const on=selfReads();
+  return `<div class="card selfcard"><div class="switch"><label for="selfread"><b>أقرأ مع المجموعة</b><br><span class="sub">${on?`تُحسب قراءتك مع الأعضاء · نقاطك ${AR(pointsFor(A.mid))} · التزامك ${AR(commit(A.mid))}٪`:'فعّلها لتقرأ الورد وتظهر قراءتك مع الأعضاء'}</span></label>
+    <input type="checkbox" id="selfread" ${on?'checked':''}></div></div>`}
 function adminView(){
   const w=cur(), done=w?G.members.filter(m=>w.done[m.id]):[], pend=w?G.members.filter(m=>!w.done[m.id]):[];
   const pct=G.members.length?Math.round(100*done.length/G.members.length):0;
@@ -415,21 +424,25 @@ function adminView(){
     <div class="meta"><span>صفحات ${AR(w.p1)}–${AR(w.p2)}</span><span>${left(w)}</span>${w.bonus?`<span>⭐ مكافأة المبادرين: أول ${AR(w.bonus)} ساعات</span>`:''}</div>
     <div style="margin-top:14px" class="bar"><i style="width:${pct}%"></i></div>
     <div class="meta" style="margin-top:6px"><span class="num">${allDone(w)?'🌿 المجموعة كلها أتمّت الورد':`قرأ ${AR(done.length)} من ${AR(G.members.length)}`}</span></div>
-    <div class="row" style="margin-top:14px"><button class="btn btn-light" id="preview">معاينة الورد في المصحف</button></div>
+    <div class="row" style="margin-top:14px">${selfReads()
+      ?`<button class="btn btn-light" id="read">${w.done[A.mid]?'إعادة القراءة':(readPos(w)?'أكمل القراءة':'ابدأ القراءة')}</button>`
+      :'<button class="btn btn-light" id="preview">معاينة الورد في المصحف</button>'}</div>
   </div>
+  ${selfCard()}
+  ${selfReads()?qadaCard({id:A.mid}):''}
   <div class="card">
     <p class="h"><span>متابعة الورد الحالي</span>
       <button class="btn btn-ghost" id="remind" style="padding:6px 12px;font-size:13px" ${pend.length?'':'disabled'}>تذكير المتأخرين (${AR(pend.length)})</button></p>
     ${G.members.length?'':`<p class="empty">لا يوجد أعضاء بعد. ادعُهم برابط المجموعة.</p>`}
     <ul class="list">${[...pend,...done].map(m=>`<li><span class="av">${initials(m.name)}</span>
-      <span class="grow"><span class="name">${esc(m.name)}</span><br><span class="sub">${w.done[m.id]?'أتم '+ago(w.done[m.id]):'لم يقرأ بعد'}</span></span>
+      <span class="grow"><span class="name">${esc(m.name)}${m.id===A.mid?' <span class="tag">المشرف</span>':''}</span><br><span class="sub">${w.done[m.id]?'أتم '+ago(w.done[m.id]):'لم يقرأ بعد'}</span></span>
       <span class="chip ${w.done[m.id]?'ok':'wait'}">${w.done[m.id]?(bonusOf(w,w.done[m.id])?'⭐ تم':'تم ✓'):'لم يقرأ'}</span></li>`).join('')}</ul>
   </div>`:`
   <div class="card wird">
     <p class="h"><span>مرحباً بك في ${esc(G.group)}</span></p>
     <div class="range">ابدأ أول ورد للمجموعة</div>
     <div class="meta"><span>اختر المقدار من الأسفل واضغط نشر، وسيصل إشعار لكل الأعضاء.</span></div>
-  </div>`)+`
+  </div>${selfCard()}`)+`
   <div class="actions">
     <button class="btn btn-ghost" id="to-invite">دعوة الأعضاء</button>
     <button class="btn btn-ghost" id="to-settings">⚙ إعدادات المجموعة</button>
@@ -456,6 +469,12 @@ function adminView(){
 }
 function bindAdmin(){
   const pv=$('#preview');if(pv)pv.onclick=()=>openReader(cur());
+  const rd=$('#read');if(rd)rd.onclick=()=>openReader(cur());
+  document.querySelectorAll('[data-qada]').forEach(b=>b.onclick=()=>{const w=G.wirds.find(x=>String(x.id)===b.dataset.qada);if(w)openReader(w)});
+  const sr=$('#selfread');if(sr)sr.onchange=async()=>{const on=sr.checked;sr.disabled=true;
+    const {error}=on?await sb.rpc('join_group',{p_code:G.code}):await sb.rpc('leave_group',{p_group:G.id});
+    if(error){sr.checked=!on;sr.disabled=false;return toast(errMsg(error))}
+    await refresh();toast(on?'تمام، ستُحسب قراءتك مع المجموعة ويصلك إشعار الورد':'أُوقفت قراءتك مع المجموعة')};
   $('#to-settings').onclick=()=>go('settings');
   $('#to-invite').onclick=()=>go('settings','invite');
   document.querySelectorAll('[data-unit]').forEach(b=>b.onclick=()=>{G.unit=+b.dataset.unit;render()});
@@ -502,8 +521,8 @@ function settingsView(){
     <p class="h"><span>الأعضاء والنقاط</span><span>${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}</span></p>
     ${G.members.length?'':'<p class="empty">لا يوجد أعضاء بعد.</p>'}
     <ul class="list">${board.map(m=>rmId===m.id?`<li>${confirmRow(`حذف <b>${esc(m.name)}</b> من المجموعة؟ قراءاته السابقة تبقى في الإحصائيات.`,'rm-ok','حذف','rm-no')}</li>`:`<li><span class="av">${initials(m.name)}</span>
-      <span class="grow"><span class="name">${esc(m.name)}</span><br><span class="sub num">التزام ${AR(commit(m.id))}٪ · ${AR(streak(m.id))} أوراد متتالية</span></span>
-      <span class="pts num">${AR(pointsFor(m.id))} نقطة</span><button class="rm" data-rm="${m.id}" aria-label="حذف ${esc(m.name)}" title="حذف من المجموعة">✕</button></li>`).join('')}</ul>
+      <span class="grow"><span class="name">${esc(m.name)}${m.id===A.mid?' <span class="tag">المشرف</span>':''}</span><br><span class="sub num">التزام ${AR(commit(m.id))}٪ · ${AR(streak(m.id))} أوراد متتالية</span></span>
+      <span class="pts num">${AR(pointsFor(m.id))} نقطة</span>${m.id===A.mid?'':`<button class="rm" data-rm="${m.id}" aria-label="حذف ${esc(m.name)}" title="حذف من المجموعة">✕</button>`}</li>`).join('')}</ul>
     <div class="switch" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><label for="board">إظهار ترتيب النقاط للأعضاء</label><input type="checkbox" id="board" ${G.showBoard?'checked':''}></div>
   </div>
   ${autoCard()}
@@ -576,7 +595,7 @@ function memberView(){
     </div></div>
 
   ${G.showBoard?`<div class="card"><p class="h"><span>ترتيب المجموعة</span></p><ul class="list">${board.map((m,i)=>`<li><span class="av">${AR(i+1)}</span>
-    <span class="grow name">${esc(m.name)}${m.id===me.id?' <span class="sub">(أنت)</span>':''}</span><span class="pts num">${AR(pointsFor(m.id))}</span></li>`).join('')}</ul></div>`:''}
+    <span class="grow name">${esc(m.name)}${m.id===me.id?' <span class="sub">(أنت)</span>':''}${G.adminId===m.id&&m.id!==me.id?' <span class="tag">المشرف</span>':''}</span><span class="pts num">${AR(pointsFor(m.id))}</span></li>`).join('')}</ul></div>`:''}
 
   ${qadaCard(me)}
   <div class="card"><p class="h"><span>الأوراد السابقة</span></p><ul class="list">${G.wirds.slice(0,-1).reverse().slice(0,5).map(x=>`<li>
@@ -721,7 +740,7 @@ function drawReader(){
       <div class="pg num">${AR(p)}</div></div></div>
     <div class="r-foot"><div class="r-in">
       <button class="btn btn-ghost" id="prev" ${i===0?'disabled':''}>السابقة</button>
-      ${last?(A.role==='member'?`<button class="btn btn-ok" id="done" style="flex:1" ${done?'disabled':''}>${done?'تم تسجيل قراءتك ✓':'تم بحمد الله'}</button>`:`<button class="btn btn-ghost" id="rclose2" style="flex:1">إغلاق</button>`)
+      ${last?(A.role==='member'||selfReads()?`<button class="btn btn-ok" id="done" style="flex:1" ${done?'disabled':''}>${done?'تم تسجيل قراءتك ✓':'تم بحمد الله'}</button>`:`<button class="btn btn-ghost" id="rclose2" style="flex:1">إغلاق</button>`)
             :`<button class="btn btn-main" id="next" style="flex:1">الصفحة التالية</button>`}
     </div></div></div>`;
   $('#rbody').scrollTop=0;
@@ -769,7 +788,7 @@ async function finish(){
     <div class="big">${khatm?'ختمت القرآن':'تقبّل الله منك'}</div>${w!==cur()&&!khatm?'<div class="sub">قضيت وردك الفائت، بارك الله فيك.</div>':''}
     ${khatm?'<div class="q">اللَّهُمَّ ارْحَمْنِي بِالقُرْآنِ، وَاجْعَلْهُ لِي إِمَامًا وَنُورًا وَهُدًى وَرَحْمَةً</div><div class="sub">سيصلكم تنبيه عندما تتم المجموعة كلها الختمة.</div>':''}
     <div>أُضيفت <b class="num">${AR(pts)}</b> ${pts>2&&pts<11?'نقاط':'نقطة'}${bon?` (منها ${AR(bon)} مكافأة المبادرين ⭐)`:''} · ${AR(streak(A.mid))} أوراد متتالية</div>
-    <div class="sub">${queued?'سُجّلت قراءتك على جهازك، وتصل للمشرف تلقائياً عند الاتصال بالإنترنت.':'وصل للمشرف أنك أتممت الورد.'}</div>
+    <div class="sub">${queued?(A.role==='admin'?'سُجّلت قراءتك على جهازك، وتُرسل تلقائياً عند الاتصال بالإنترنت.':'سُجّلت قراءتك على جهازك، وتصل للمشرف تلقائياً عند الاتصال بالإنترنت.'):(A.role==='admin'?'سُجّلت قراءتك مع المجموعة.':'وصل للمشرف أنك أتممت الورد.')}</div>
     <button class="btn btn-main" id="ok">الحمد لله</button></div></div>`;
   $('#ok').onclick=()=>{back();refresh()};
 }
@@ -1169,9 +1188,14 @@ applyTheme();
 sb.auth.onAuthStateChange(ev=>{if(ev==='PASSWORD_RECOVERY'){recovery=true;loading=false;setTimeout(render,0)}});
 if(PJ&&!lsGet('sb-yiumqwysldbrszadizjo-auth-token'))AU={role:'member',tab:'register',err:'',info:''};
 $('#brand').onclick=()=>{if(A)goHome()};
+const prefetched=new Set();
+function prefetchWird(){try{
+  if(!A||!G||R||!navigator.onLine||mushaf!=='madinah')return;const w=cur();
+  if(!w||prefetched.has(w.id)||w.done[A.mid]||!(A.role==='member'||selfReads()))return;
+  prefetched.add(w.id);readerPages(w,'madinah').forEach(p=>loadPage4(p).catch(()=>{}))}catch(e){}}
 // فتح فوري: اعرض آخر بيانات محفوظة، وحدّثها في الخلفية
 if(remember()&&!recovery&&restoreCache()){OFF=null;loading=false}
-render();refresh().then(()=>{const idle=window.requestIdleCallback||(f=>setTimeout(f,1500));if(A)idle(()=>ensureText().catch(()=>{}))});resolvePJ();
+render();refresh().then(()=>{const idle=window.requestIdleCallback||(f=>setTimeout(f,1500));if(A)idle(()=>{prefetchWird();ensureText().catch(()=>{})})});resolvePJ();
 setInterval(()=>{if(A&&G&&!R&&!busy&&VIEW==='home'&&document.visibilityState==='visible')refresh()},60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&A&&!R&&VIEW==='home')refresh()});
 })();

@@ -1,13 +1,13 @@
 // ختمة: عامل الخدمة (فتح سريع + العمل بدون إنترنت + الإشعارات)
-const CACHE = 'khatma-v3';
-const SB_LIB = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js';
+const CACHE = 'khatma-v4';
+const SB_LIB = '/supabase-2.117.3.js';
 const TEXT = '/quran-text-v1.js';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
   e.waitUntil(caches.open(CACHE).then(async (c) => {
     await c.addAll(['/', '/manifest.json', '/icon-192.png', '/badge-96.png']).catch(() => {});
-    await c.add(new Request(SB_LIB, { mode: 'cors' })).catch(() => {});
+    await c.add(SB_LIB).catch(() => {});
   }));
 });
 
@@ -19,7 +19,7 @@ self.addEventListener('activate', (e) => {
 });
 
 // ملفات لا تتغير (المكتبة، الخطوط، نص المصحف): من النسخة المحفوظة دائماً
-const isStatic = (u) => u.href === SB_LIB || u.host === 'fonts.googleapis.com' || u.host === 'fonts.gstatic.com'
+const isStatic = (u) => (u.origin === location.origin && u.pathname === SB_LIB) || u.host === 'fonts.googleapis.com' || u.host === 'fonts.gstatic.com'
   || (u.origin === location.origin && u.pathname === TEXT);
 
 self.addEventListener('fetch', (e) => {

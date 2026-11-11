@@ -14,7 +14,18 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ختمة">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="description" content="ختمة: تطبيق لإدارة ختمة القرآن الكريم للمجموعات">
+<meta name="description" content="ختمة: نقرأ نفس الورد ونختم القرآن معاً. ورد بإشعار، ومتابعة هادئة من غير زحمة رسائل.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ختمة">
+<meta property="og:locale" content="ar_AR">
+<meta property="og:url" content="https://khatma-opal.vercel.app/">
+<meta property="og:title" content="ختمة | نقرأ نفس الورد ونختم القرآن معاً">
+<meta property="og:description" content="ورد يوصلك بإشعار، تقرأه من مصحف المدينة جوه التطبيق، والمشرف يتابع من غير زحمة رسائل.">
+<meta property="og:image" content="https://khatma-opal.vercel.app/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ختمة: نقرأ نفس الورد ونختم القرآن معاً">
+<meta name="twitter:card" content="summary_large_image">
 <script>try{var t=localStorage.getItem('khatma-theme');if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <title>ختمة المجموعة</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -267,6 +278,7 @@ button.brand{border:0;background:none;padding:0;text-align:start;cursor:pointer}
 .wird .row .btn-outline-light{padding:12px 14px;font-size:14px}
 .qbtns{display:flex;flex-direction:column;align-items:center;gap:4px;flex:none}
 .qbtns .back{font-size:12px}
+.dlg .back{align-self:center;font-size:13px;margin-top:-2px}
 .list li.pp{display:block}
 .pi{font-size:12px}
 .pi.off{opacity:.75}
@@ -306,7 +318,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-11b'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-11c'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -360,7 +372,7 @@ async function load(){
   (st.completions||[]).forEach(c=>{const w=byId[c.w];if(w)w.done[c.u]=Date.parse(c.t)});
   const keep=G&&G.id===grp.id;if(!keep){autoDirty=false;bonusDirty=false}
   G={id:grp.id,adminId:grp.admin_id,group:grp.name,code:grp.code,members:st.members||[],wirds,nextRub:grp.next_rub,
-     unit:keep?G.unit:grp.unit,hours:keep?G.hours:grp.hours,khatmas:grp.khatmas,showBoard:grp.show_board,
+     unit:keep?G.unit:grp.unit,hours:keep?G.hours:grp.hours,khatmas:grp.khatmas,showBoard:grp.show_board,remind:grp.remind_enabled!==false,
      auto:keep&&autoDirty?G.auto:{enabled:!!grp.auto_enabled,time:String(grp.auto_time||'08:00').slice(0,5),days:grp.auto_days||[0,1,2,3,4,5,6],
        unit:grp.auto_unit||2,hours:grp.auto_hours||24,tz:grp.tz||'Asia/Riyadh',last:grp.auto_last||null},
      bonus:keep&&bonusDirty?G.bonus:{enabled:!!grp.bonus_enabled,hours:grp.bonus_hours||6}};
@@ -539,6 +551,10 @@ function bonusCard(){const b=G.bonus;
     <div class="field"><label for="bn-h">المدة</label><select id="bn-h">${[3,6,12].map(h=>`<option value="${h}" ${b.hours===h?'selected':''}>أول ${AR(h)} ساعات من نزول الورد</option>`).join('')}</select></div>
     <p class="sub" style="margin:8px 0 0">تشجّع على المبادرة من غير سباق: كل من يتم خلال المدة يأخذ المكافأة. تُطبّق على الأوراد الجديدة.</p>
     <button class="btn btn-main" id="bn-save" style="width:100%;margin-top:12px" ${bonusDirty?"":"disabled"}>${bonusDirty?"حفظ التغييرات":"✓ تم الحفظ"}</button></div>`}
+function remindCard(){const on=G.remind;
+  return `<div class="card"><p class="h"><span>تذكير قبل نهاية الورد</span><span class="chip ${on?'ok':'wait'}">${on?'مفعّل':'متوقف'}</span></p>
+    <div class="switch"><label for="rm-on">إشعار تلقائي قبل نهاية الورد بساعة</label><input type="checkbox" id="rm-on" ${on?'checked':''}></div>
+    <p class="sub" style="margin:8px 0 0">يصل فقط للي لسه ما قرأش، مرة واحدة لكل ورد، من غير ما تحتاج تفتكر تبعته.</p></div>`}
 function moveRow(m){const others=GROUPS.filter(g=>g.id!==G.id);
   return `<div class="confirm"><p>نقل <b>${esc(m.name)}</b> إلى مجموعة:</p>
     <select id="mv-to" aria-label="المجموعة الجديدة">${others.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select>
@@ -568,6 +584,7 @@ function settingsView(){
   </div>
   ${autoCard()}
   ${bonusCard()}
+  ${remindCard()}
   <div class="card dz"><p class="h"><span>حذف المجموعة</span></p>
     ${delOpen?`<p class="sub" style="margin:0">الحذف نهائي: تُحذف الأوراد والقراءات والنقاط، ويصل للأعضاء إشعار بإغلاق المجموعة. للتأكيد اكتب اسم المجموعة: <b style="color:var(--ink)">${esc(G.group)}</b></p>
       <div class="field"><label for="del-in">اسم المجموعة</label><input type="text" id="del-in" autocomplete="off"></div>
@@ -601,6 +618,10 @@ function bindSettings(){
     const {error}=await sb.from('groups').update({show_board:v}).eq('id',G.id);
     if(error){e.target.checked=!v;toast(errMsg(error));return}
     G.showBoard=v;toast(v?'الترتيب ظاهر للأعضاء':'النقاط خاصة بكل عضو')};
+  $('#rm-on').onchange=async e=>{const v=e.target.checked;
+    const {error}=await sb.from('groups').update({remind_enabled:v}).eq('id',G.id);
+    if(error){e.target.checked=!v;toast(errMsg(error));return}
+    G.remind=v;render();toast(v?'هيوصل تذكير تلقائي قبل نهاية الورد بساعة':'أُوقف التذكير التلقائي')};
   $('#bn-on').onchange=e=>{G.bonus.enabled=e.target.checked;bonusDirty=true;render()};
   $('#bn-h').onchange=e=>{G.bonus.hours=+e.target.value;bonusDirty=true;render()};
   $('#bn-save').onclick=async e=>{const btn=e.currentTarget;btn.disabled=true;
@@ -820,20 +841,27 @@ function drawReader(){
     });
   }
 }
+let undoT=0;
 async function finish(wArg){
   const fromR=!wArg&&!!R, w=wArg||R.w, t=Date.now(), online=navigator.onLine;
   // يظهر التأكيد فوراً، والإرسال يتم في الخلفية (ويُعاد تلقائياً لو النت فصل)
   if(!w.done[A.mid])setQ([...getQ().filter(x=>!(x.wird_id===w.id&&x.user_id===A.mid)),{wird_id:w.id,user_id:A.mid,done_at:new Date(t).toISOString()}]);
   w.done[A.mid]=w.done[A.mid]||t;saveCache();try{localStorage.removeItem(posKey(w))}catch(e){}
-  flushQueue().catch(()=>{});
+  clearTimeout(undoT);let undone=false;undoT=setTimeout(()=>{if(!undone)flushQueue().catch(()=>{});const u=$('#undo');if(u)u.remove()},5000);
   const pts=ptsW(w,w.done[A.mid]), bon=bonusOf(w,w.done[A.mid]), khatm=w.endRub===240;
   $('#layer').innerHTML=`<div class="modal"><div class="dlg">
     <div class="big">${khatm?'ختمت القرآن':'تقبّل الله منك'}</div>${w!==cur()&&!khatm?'<div class="sub">قضيت وردك الفائت، بارك الله فيك.</div>':''}
     ${khatm?'<div class="q">اللَّهُمَّ ارْحَمْنِي بِالقُرْآنِ، وَاجْعَلْهُ لِي إِمَامًا وَنُورًا وَهُدًى وَرَحْمَةً</div><div class="sub">سيصلكم تنبيه عندما تتم المجموعة كلها الختمة.</div>':''}
     <div>أُضيفت <b class="num">${AR(pts)}</b> ${pts>2&&pts<11?'نقاط':'نقطة'}${bon?` (منها ${AR(bon)} مكافأة المبادرين ⭐)`:''} · ${AR(streak(A.mid))} ${streak(A.mid)>2&&streak(A.mid)<11?'أوراد متتالية':'ورد متتالٍ'}</div>
     <div class="sub">${!online?(A.role==='admin'?'سُجّلت قراءتك على جهازك، وتُرسل تلقائياً عند الاتصال بالإنترنت.':'سُجّلت قراءتك على جهازك، وتصل للمشرف تلقائياً عند الاتصال بالإنترنت.'):(A.role==='admin'?'سُجّلت قراءتك مع المجموعة.':'وصل للمشرف أنك أتممت الورد.')}</div>
-    <button class="btn btn-main" id="ok">الحمد لله</button></div></div>`;
-  $('#ok').onclick=()=>{if(fromR)back();else $('#layer').innerHTML='';refresh()};
+    <button class="btn btn-main" id="ok">الحمد لله</button>
+    <button class="back" id="undo">سجّلتها بالغلط؟ تراجع</button></div></div>`;
+  $('#ok').onclick=()=>{clearTimeout(undoT);if(fromR)back();else $('#layer').innerHTML='';refresh()};
+  $('#undo').onclick=async e=>{undone=true;clearTimeout(undoT);e.currentTarget.disabled=true;
+    const queued=isQueued(w);setQ(getQ().filter(x=>!(x.wird_id===w.id&&x.user_id===A.mid)));
+    if(!queued){const {error}=await sb.from('completions').delete().eq('wird_id',w.id).eq('user_id',A.mid);
+      if(error){undone=false;e.currentTarget.disabled=false;return toast(isNetErr(error)?'محتاج اتصال بالإنترنت عشان نلغي التسجيل.':errMsg(error))}}
+    delete w.done[A.mid];saveCache();$('#layer').innerHTML='';render();toast('تم التراجع، الورد لسه في انتظارك');if(!queued)setTimeout(()=>refresh(),400)};
 }
 
 /* ---------- INSTALL & PUSH ---------- */

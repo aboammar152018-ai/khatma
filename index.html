@@ -263,6 +263,12 @@ button.brand{border:0;background:none;padding:0;text-align:start;cursor:pointer}
 .note.read{color:var(--muted)}
 .dz{border-color:var(--warn-soft)}
 .qada .list li{gap:10px}
+.diag li{font-size:13px;padding:7px 0}
+.cancel-link{margin-top:10px;font-size:13px;color:inherit;opacity:.8;text-decoration:underline}
+.cancelbox{margin-top:12px;background:var(--surface);color:var(--ink);border-radius:12px;padding:12px}
+.rm.mv{font-size:16px}
+.confirm select{width:100%}
+.diag b{font-weight:600;color:var(--ink)}
 .tag{font-size:11px;font-weight:500;color:var(--lapis);background:var(--lapis-soft);border-radius:99px;padding:1px 8px;vertical-align:middle}
 .selfcard label{font-size:14px;line-height:1.5}
 .fsz{margin-top:8px;gap:8px;justify-content:flex-end}
@@ -289,6 +295,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-10c'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -319,11 +326,15 @@ const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{storage:authStore,per
 let GROUPS=[],G=null,A=null,USER=null,loading=true,recovery=false,netErr='';
 const save=()=>{};
 async function load(){
+  let tA=performance.now();
   const {data:{session},error:se}=await sb.auth.getSession();
+  DIAG.session=Math.round(performance.now()-tA);
   if(!session&&(se||!navigator.onLine))throw se||new Error('offline');
   USER=session?session.user:null;
   if(!USER){A=null;G=null;GROUPS=[];NOTES=[];return}
+  tA=performance.now();
   const {data:st,error}=await sb.rpc('app_state',{p_mode:getMode()||'',p_group:getSelGroup()||null});
+  DIAG.state=Math.round(performance.now()-tA);
   if(error)throw error;
   if(!st||!st.profile){A=null;G=null;GROUPS=[];NOTES=[];return}
   if(!getMode())setMode(st.mode);
@@ -407,6 +418,7 @@ const ptsW=(w,t)=>(t<=deadline(w)?10:5)+bonusOf(w,t);
 
 /* ---- المشرف: الرئيسية ---- */
 const selfReads=()=>!!(A&&G&&G.members.some(m=>m.id===A.mid));
+let cancelOpen=false, mvId=null;
 function selfCard(){const on=selfReads();
   return `<div class="card selfcard"><div class="switch"><label for="selfread"><b>أقرأ مع المجموعة</b><br><span class="sub">${on?`تُحسب قراءتك مع الأعضاء · نقاطك ${AR(pointsFor(A.mid))} · التزامك ${AR(commit(A.mid))}٪`:'فعّلها لتقرأ الورد وتظهر قراءتك مع الأعضاء'}</span></label>
     <input type="checkbox" id="selfread" ${on?'checked':''}></div></div>`}
@@ -424,9 +436,11 @@ function adminView(){
     <div class="meta"><span>صفحات ${AR(w.p1)}–${AR(w.p2)}</span><span>${left(w)}</span>${w.bonus?`<span>⭐ مكافأة المبادرين: أول ${AR(w.bonus)} ساعات</span>`:''}</div>
     <div style="margin-top:14px" class="bar"><i style="width:${pct}%"></i></div>
     <div class="meta" style="margin-top:6px"><span class="num">${allDone(w)?'🌿 المجموعة كلها أتمّت الورد':`قرأ ${AR(done.length)} من ${AR(G.members.length)}`}</span></div>
+    ${cancelOpen?`<div class="cancelbox">${confirmRow(`إلغاء الورد «${ref(w.start)} ← ${ref(w.end)}»؟ ${done.length?`أتمّه ${AR(done.length)} وستُحذف قراءاتهم له. `:''}ترجع المجموعة لنفس نقطة البداية، ويصل للأعضاء تنبيه بالإلغاء.`,'cw-ok','نعم، ألغِ الورد','cw-no','تراجع')}</div>`:''}
     <div class="row" style="margin-top:14px">${selfReads()
       ?`<button class="btn btn-light" id="read">${w.done[A.mid]?'إعادة القراءة':(readPos(w)?'أكمل القراءة':'ابدأ القراءة')}</button>`
       :'<button class="btn btn-light" id="preview">معاينة الورد في المصحف</button>'}</div>
+    ${cancelOpen?'':'<button class="back cancel-link" id="cw-open">نُشر بالخطأ؟ إلغاء هذا الورد</button>'}
   </div>
   ${selfCard()}
   ${selfReads()?qadaCard({id:A.mid}):''}
@@ -469,6 +483,13 @@ function adminView(){
 }
 function bindAdmin(){
   const pv=$('#preview');if(pv)pv.onclick=()=>openReader(cur());
+  const co=$('#cw-open');if(co)co.onclick=()=>{cancelOpen=true;render()};
+  const cn=$('#cw-no');if(cn)cn.onclick=()=>{cancelOpen=false;render()};
+  const cy=$('#cw-ok');if(cy)cy.onclick=async()=>{cy.disabled=true;cy.textContent='جارٍ الإلغاء…';
+    const {error}=await sb.rpc('cancel_wird',{p_wird:cur().id});cancelOpen=false;
+    if(error){render();return toast(/not latest/i.test(error.message)?'يمكن إلغاء آخر ورد فقط.':errMsg(error))}
+    try{localStorage.removeItem('khatma-pos-'+cur().id)}catch(e){}
+    comp={mode:'continue',pick:null};await refresh();toast('أُلغي الورد. يمكنك نشر الورد الصحيح الآن.')};
   const rd=$('#read');if(rd)rd.onclick=()=>openReader(cur());
   document.querySelectorAll('[data-qada]').forEach(b=>b.onclick=()=>{const w=G.wirds.find(x=>String(x.id)===b.dataset.qada);if(w)openReader(w)});
   const sr=$('#selfread');if(sr)sr.onchange=async()=>{const on=sr.checked;sr.disabled=true;
@@ -503,6 +524,11 @@ function bonusCard(){const b=G.bonus;
     <div class="field"><label for="bn-h">المدة</label><select id="bn-h">${[3,6,12].map(h=>`<option value="${h}" ${b.hours===h?'selected':''}>أول ${AR(h)} ساعات من نزول الورد</option>`).join('')}</select></div>
     <p class="sub" style="margin:8px 0 0">تشجّع على المبادرة من غير سباق: كل من يتم خلال المدة يأخذ المكافأة. تُطبّق على الأوراد الجديدة.</p>
     <button class="btn btn-main" id="bn-save" style="width:100%;margin-top:12px">حفظ المكافأة</button></div>`}
+function moveRow(m){const others=GROUPS.filter(g=>g.id!==G.id);
+  return `<div class="confirm"><p>نقل <b>${esc(m.name)}</b> إلى مجموعة:</p>
+    <select id="mv-to" aria-label="المجموعة الجديدة">${others.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select>
+    <p class="sub" style="margin:0">قراءاته السابقة تبقى في إحصائيات هذه المجموعة، ويصله تنبيه بالنقل.</p>
+    <div class="row"><button class="btn btn-main sm" id="mv-ok">نقل</button><button class="btn btn-ghost sm" id="mv-no">إلغاء</button></div></div>`}
 function settingsView(){
   const board=[...G.members].sort((a,b)=>pointsFor(b.id)-pointsFor(a.id));
   return screenHead(`إعدادات «${esc(G.group)}»`)+`
@@ -520,9 +546,9 @@ function settingsView(){
   <div class="card">
     <p class="h"><span>الأعضاء والنقاط</span><span>${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}</span></p>
     ${G.members.length?'':'<p class="empty">لا يوجد أعضاء بعد.</p>'}
-    <ul class="list">${board.map(m=>rmId===m.id?`<li>${confirmRow(`حذف <b>${esc(m.name)}</b> من المجموعة؟ قراءاته السابقة تبقى في الإحصائيات.`,'rm-ok','حذف','rm-no')}</li>`:`<li><span class="av">${initials(m.name)}</span>
+    <ul class="list">${board.map(m=>mvId===m.id?`<li>${moveRow(m)}</li>`:rmId===m.id?`<li>${confirmRow(`حذف <b>${esc(m.name)}</b> من المجموعة؟ قراءاته السابقة تبقى في الإحصائيات.`,'rm-ok','حذف','rm-no')}</li>`:`<li><span class="av">${initials(m.name)}</span>
       <span class="grow"><span class="name">${esc(m.name)}${m.id===A.mid?' <span class="tag">المشرف</span>':''}</span><br><span class="sub num">التزام ${AR(commit(m.id))}٪ · ${AR(streak(m.id))} أوراد متتالية</span></span>
-      <span class="pts num">${AR(pointsFor(m.id))} نقطة</span>${m.id===A.mid?'':`<button class="rm" data-rm="${m.id}" aria-label="حذف ${esc(m.name)}" title="حذف من المجموعة">✕</button>`}</li>`).join('')}</ul>
+      <span class="pts num">${AR(pointsFor(m.id))} نقطة</span>${m.id===A.mid?'':`${GROUPS.length>1?`<button class="rm mv" data-mv="${m.id}" aria-label="نقل ${esc(m.name)} لمجموعة أخرى" title="نقل لمجموعة أخرى">⇄</button>`:''}<button class="rm" data-rm="${m.id}" aria-label="حذف ${esc(m.name)}" title="حذف من المجموعة">✕</button>`}</li>`).join('')}</ul>
     <div class="switch" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><label for="board">إظهار ترتيب النقاط للأعضاء</label><input type="checkbox" id="board" ${G.showBoard?'checked':''}></div>
   </div>
   ${autoCard()}
@@ -545,7 +571,13 @@ function bindSettings(){
   const rgn=$('#rg-no');if(rgn)rgn.onclick=()=>{regen=false;render()};
   const rgo=$('#rg-ok');if(rgo)rgo.onclick=async()=>{rgo.disabled=true;const {error}=await sb.rpc('regenerate_code',{p_group:G.id});
     regen=false;if(error){render();return toast(errMsg(error))}await refresh();toast('تم تغيير الكود. الكود الجديد: '+G.code)};
-  document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{rmId=b.dataset.rm;render()});
+  document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{rmId=b.dataset.rm;mvId=null;render()});
+  document.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{mvId=b.dataset.mv;rmId=null;render()});
+  const mvn=$('#mv-no');if(mvn)mvn.onclick=()=>{mvId=null;render()};
+  const mvo=$('#mv-ok');if(mvo)mvo.onclick=async()=>{mvo.disabled=true;const to=$('#mv-to').value;
+    const who=(G.members.find(m=>m.id===mvId)||{}).name||'العضو', tname=(GROUPS.find(g=>g.id===to)||{}).name||'';
+    const {error}=await sb.rpc('move_member',{p_from:G.id,p_to:to,p_user:mvId});mvId=null;
+    if(error){render();return toast(errMsg(error))}await refresh();toast(`نُقل ${who} إلى «${tname}»`)};
   const rmn=$('#rm-no');if(rmn)rmn.onclick=()=>{rmId=null;render()};
   const rmo=$('#rm-ok');if(rmo)rmo.onclick=async()=>{rmo.disabled=true;const who=(G.members.find(m=>m.id===rmId)||{}).name||'العضو';
     const {error}=await sb.rpc('remove_member',{p_group:G.id,p_user:rmId});rmId=null;
@@ -774,21 +806,17 @@ function drawReader(){
   }
 }
 async function finish(){
-  const w=R.w, btn=$('#done');btn.disabled=true;btn.textContent='جارٍ التسجيل…';
-  const t=Date.now(), item={wird_id:w.id,user_id:A.mid,done_at:new Date(t).toISOString()};
-  let queued=false;
-  if(!navigator.onLine){setQ([...getQ(),item]);queued=true}
-  else{const {error}=await sb.from('completions').insert(item);
-    if(error&&error.code!=='23505'){
-      if(isNetErr(error)){setQ([...getQ(),item]);queued=true}
-      else{btn.disabled=false;btn.textContent='تم بحمد الله';return toast(errMsg(error))}}}
+  const w=R.w, t=Date.now(), online=navigator.onLine;
+  // يظهر التأكيد فوراً، والإرسال يتم في الخلفية (ويُعاد تلقائياً لو النت فصل)
+  if(!w.done[A.mid])setQ([...getQ().filter(x=>!(x.wird_id===w.id&&x.user_id===A.mid)),{wird_id:w.id,user_id:A.mid,done_at:new Date(t).toISOString()}]);
   w.done[A.mid]=w.done[A.mid]||t;saveCache();try{localStorage.removeItem(posKey(w))}catch(e){}
-  const pts=ptsW(w,t), bon=bonusOf(w,t), khatm=w.endRub===240;
+  flushQueue().catch(()=>{});
+  const pts=ptsW(w,w.done[A.mid]), bon=bonusOf(w,w.done[A.mid]), khatm=w.endRub===240;
   $('#layer').innerHTML=`<div class="modal"><div class="dlg">
     <div class="big">${khatm?'ختمت القرآن':'تقبّل الله منك'}</div>${w!==cur()&&!khatm?'<div class="sub">قضيت وردك الفائت، بارك الله فيك.</div>':''}
     ${khatm?'<div class="q">اللَّهُمَّ ارْحَمْنِي بِالقُرْآنِ، وَاجْعَلْهُ لِي إِمَامًا وَنُورًا وَهُدًى وَرَحْمَةً</div><div class="sub">سيصلكم تنبيه عندما تتم المجموعة كلها الختمة.</div>':''}
-    <div>أُضيفت <b class="num">${AR(pts)}</b> ${pts>2&&pts<11?'نقاط':'نقطة'}${bon?` (منها ${AR(bon)} مكافأة المبادرين ⭐)`:''} · ${AR(streak(A.mid))} أوراد متتالية</div>
-    <div class="sub">${queued?(A.role==='admin'?'سُجّلت قراءتك على جهازك، وتُرسل تلقائياً عند الاتصال بالإنترنت.':'سُجّلت قراءتك على جهازك، وتصل للمشرف تلقائياً عند الاتصال بالإنترنت.'):(A.role==='admin'?'سُجّلت قراءتك مع المجموعة.':'وصل للمشرف أنك أتممت الورد.')}</div>
+    <div>أُضيفت <b class="num">${AR(pts)}</b> ${pts>2&&pts<11?'نقاط':'نقطة'}${bon?` (منها ${AR(bon)} مكافأة المبادرين ⭐)`:''} · ${AR(streak(A.mid))} ${streak(A.mid)>2&&streak(A.mid)<11?'أوراد متتالية':'ورد متتالٍ'}</div>
+    <div class="sub">${!online?(A.role==='admin'?'سُجّلت قراءتك على جهازك، وتُرسل تلقائياً عند الاتصال بالإنترنت.':'سُجّلت قراءتك على جهازك، وتصل للمشرف تلقائياً عند الاتصال بالإنترنت.'):(A.role==='admin'?'سُجّلت قراءتك مع المجموعة.':'وصل للمشرف أنك أتممت الورد.')}</div>
     <button class="btn btn-main" id="ok">الحمد لله</button></div></div>`;
   $('#ok').onclick=()=>{back();refresh()};
 }
@@ -836,13 +864,13 @@ async function disablePush(){
   if(pushState==='on')pushState='off';
 }
 function appCard(){
-  const member=A&&A.role==='member', iosBrowser=isIOS&&!standalone(), parts=[];
+  const adm=A&&A.role==='admin', iosBrowser=isIOS&&!standalone(), parts=[];
   if(!standalone()){
     if(installEvt)parts.push(`<div class="row"><span class="grow">ثبّت ختمة على شاشتك الرئيسية لتفتحه كتطبيق.</span><button class="btn btn-ghost sm" id="install">تثبيت</button></div>`);
-    else if(isIOS)parts.push(`<p class="sub" style="margin:0">لتثبيت التطبيق${member?' وتلقّي الإشعارات':''} على الآيفون: افتح الموقع في <b>Safari</b>، اضغط زر المشاركة <b>⬆︎</b>، ثم <b>«إضافة إلى الشاشة الرئيسية»</b>، وافتح التطبيق من الأيقونة.</p>`);
+    else if(isIOS)parts.push(`<p class="sub" style="margin:0">لتثبيت التطبيق وتلقّي الإشعارات على الآيفون: افتح الموقع في <b>Safari</b>، اضغط زر المشاركة <b>⬆︎</b>، ثم <b>«إضافة إلى الشاشة الرئيسية»</b>، وافتح التطبيق من الأيقونة.</p>`);
   }
-  if(member&&!iosBrowser){
-    if(pushState==='off')parts.push(`<div class="row"><span class="grow">فعّل الإشعارات ليصلك الورد الجديد والتذكير حتى والتطبيق مغلق.</span><button class="btn btn-main sm" id="pushon">تفعيل الإشعارات</button></div>`);
+  if(!iosBrowser){
+    if(pushState==='off')parts.push(`<div class="row"><span class="grow">${adm?'فعّل الإشعارات ليصلك تمام المجموعة والورد لو تقرأ معهم، حتى والتطبيق مغلق.':'فعّل الإشعارات ليصلك الورد الجديد والتذكير حتى والتطبيق مغلق.'}</span><button class="btn btn-main sm" id="pushon">تفعيل الإشعارات</button></div>`);
     else if(pushState==='denied')parts.push(`<p class="sub" style="margin:0">الإشعارات محظورة لهذا الموقع. فعّلها من إعدادات المتصفح ← إعدادات الموقع ← الإشعارات، ثم حدّث الصفحة.</p>`);
     else if(pushState==='on')parts.push(`<div class="row"><span class="grow sub">🔔 الإشعارات مفعّلة على هذا الجهاز</span><button class="back" id="pushoff">إيقاف</button></div>`);
   }
@@ -873,7 +901,7 @@ function groupBar(){
     <button class="btn btn-main" id="g-ok" style="width:100%;margin-top:14px">${adm?'إنشاء المجموعة':'انضمام'}</button></div>`:''}`;
 }
 function bindGroupBar(){
-  const s=$('#gsel');if(s)s.onchange=async()=>{setSelGroup(s.value);comp={mode:'continue',pick:null};showNotes=false;gAdd=false;loading=true;render();await refresh();scrollTo(0,0)};
+  const s=$('#gsel');if(s)s.onchange=async()=>{cancelOpen=false;mvId=null;rmId=null;setSelGroup(s.value);comp={mode:'continue',pick:null};showNotes=false;gAdd=false;loading=true;render();await refresh();scrollTo(0,0)};
   $('#gadd').onclick=()=>{gAdd=!gAdd;render();const i=$('#g-in');if(i)i.focus()};
   const ok=$('#g-ok');if(ok)ok.onclick=async()=>{const v=$('#g-in').value.trim();if(!v)return $('#g-in').focus();
     ok.disabled=true;const adm=A.role==='admin';
@@ -966,14 +994,28 @@ function bindJoinCard(){
     const name=PJ.name;clearPJ();setMode('member');setSelGroup(data);comp={mode:'continue',pick:null};showNotes=false;gAdd=false;
     loading=true;render();await refresh();scrollTo(0,0);toast(`انضممت إلى «${name||G.group}»`)};
 }
+let editName=false;
 function modeCard(){const adm=A.role==='admin';
-  return `<div class="card"><p class="h"><span>الحساب</span></p><div class="row"><span class="grow sub">أنت الآن في <b style="color:var(--ink)">وضع ${adm?'المشرف':'العضو'}</b>. نفس حسابك يعمل كمشرف وكعضو.</span>
+  return `<div class="card"><p class="h"><span>الحساب</span></p>
+    ${editName?`<div class="field" style="margin-top:0"><label for="nm-in">اسمك كما يظهر للمجموعة</label><input type="text" id="nm-in" maxlength="40" autocomplete="name" value="${esc(A.name)}"></div>
+      <div class="row" style="margin:10px 0 14px"><button class="btn btn-main sm" id="nm-save">حفظ الاسم</button><button class="btn btn-ghost sm" id="nm-no">إلغاء</button></div>`
+    :`<div class="row" style="margin-bottom:12px"><span class="grow">الاسم: <b>${esc(A.name)}</b></span><button class="btn btn-ghost sm" id="nm-edit">تعديل الاسم</button></div>`}
+    <div class="row"><span class="grow sub">أنت الآن في <b style="color:var(--ink)">وضع ${adm?'المشرف':'العضو'}</b>. نفس حسابك يعمل كمشرف وكعضو.</span>
     <button class="btn btn-ghost sm" id="swmode">التبديل لوضع ${adm?'العضو':'المشرف'}</button></div></div>`}
-function bindModeCard(){const b=$('#swmode');if(b)b.onclick=async()=>{const to=A.role==='admin'?'member':'admin';
+function bindModeCard(){
+  const ne=$('#nm-edit');if(ne)ne.onclick=()=>{editName=true;render();const i=$('#nm-in');if(i){i.focus();i.select()}};
+  const nn=$('#nm-no');if(nn)nn.onclick=()=>{editName=false;render()};
+  const ns=$('#nm-save');if(ns)ns.onclick=async()=>{const v=$('#nm-in').value.trim().replace(/\s+/g,' ');
+    if(v.length<2)return toast('اكتب اسماً من حرفين على الأقل.');
+    if(v===A.name){editName=false;return render()}
+    ns.disabled=true;const {error}=await sb.from('profiles').update({name:v}).eq('id',A.mid);
+    if(error){ns.disabled=false;return toast(errMsg(error))}
+    A.name=v;editName=false;await refresh();toast('تم تغيير اسمك إلى «'+v+'»')};
+  const b=$('#swmode');if(b)b.onclick=async()=>{const to=A.role==='admin'?'member':'admin';
   setMode(to);comp={mode:'continue',pick:null};showNotes=false;gAdd=false;rmId=null;leaving=false;regen=false;
   loading=true;render();await refresh();scrollTo(0,0);toast(to==='admin'?'أنت الآن في وضع المشرف':'أنت الآن في وضع العضو')}}
-function confirmRow(text,okId,okLabel,noId){
-  return `<div class="confirm"><p>${text}</p><div class="row"><button class="btn btn-danger sm" id="${okId}">${okLabel}</button><button class="btn btn-ghost sm" id="${noId}">إلغاء</button></div></div>`}
+function confirmRow(text,okId,okLabel,noId,noLabel){
+  return `<div class="confirm"><p>${text}</p><div class="row"><button class="btn btn-danger sm" id="${okId}">${okLabel}</button><button class="btn btn-ghost sm" id="${noId}">${noLabel||'إلغاء'}</button></div></div>`}
 
 // ---- البقاء داخل + نسخة محفوظة من البيانات ----
 const remember=()=>lsGet('khatma-remember')!=='0';
@@ -1162,6 +1204,23 @@ function bindAuth(){
   };
 }
 
+/* ---------- قياس السرعة (افتح الرابط مع #diag في آخره) ---------- */
+function diagCard(){if(location.hash!=='#diag')return '';
+  const ms=v=>v==null?'—':`${AR(v)} ملّي ثانية`, c=navigator.connection;
+  const rows=[['فتح الصفحة وتشغيلها',ms(DIAG.t0)],['أول ما ظهر المحتوى',ms(DIAG.first)],['ظهر من النسخة المحفوظة',DIAG.cached?'نعم':'لا'],
+    ['التحقق من الدخول',ms(DIAG.session)],['تحميل البيانات من السيرفر',ms(DIAG.state)],['زمن الوصول للسيرفر',DIAG.ping?ms(DIAG.ping):'اضغط «قياس الاتصال»'],
+    ['عامل الخدمة',navigator.serviceWorker&&navigator.serviceWorker.controller?'شغال':'غير شغال'],['التطبيق مثبّت',standalone()?'نعم':'لا'],
+    ['نوع الشبكة',c&&c.effectiveType?c.effectiveType:'غير معروف'],['الإصدار',DIAG.v]];
+  return `<div class="card diag"><p class="h"><span>قياس السرعة</span></p><ul class="list">${rows.map(r=>`<li><span class="grow">${r[0]}</span><b class="num">${r[1]}</b></li>`).join('')}</ul>
+    <div class="row" style="margin-top:10px"><button class="btn btn-ghost sm" id="dg-ping">قياس الاتصال</button><button class="btn btn-ghost sm" id="dg-copy">نسخ النتائج</button></div></div>`}
+function bindDiag(){const p=$('#dg-ping');if(!p)return;
+  p.onclick=async()=>{p.disabled=true;p.textContent='جارٍ القياس…';let best=1e9;
+    for(let k=0;k<3;k++){const a=performance.now();try{await fetch(SB_URL+'/auth/v1/health',{headers:{apikey:SB_KEY},cache:'no-store'})}catch(e){}best=Math.min(best,performance.now()-a)}
+    DIAG.ping=Math.round(best);render()};
+  $('#dg-copy').onclick=()=>{const t=[...document.querySelectorAll('.diag li')].map(li=>li.innerText.replace(/\n/g,': ')).join('\n');
+    const pr=navigator.clipboard&&navigator.clipboard.writeText(t);if(pr)pr.then(()=>toast('نُسخت النتائج'),()=>toast('صوّر الشاشة بدلاً من النسخ'));else toast('صوّر الشاشة بدلاً من النسخ')}}
+addEventListener('hashchange',()=>{if(location.hash==='#diag')render()});
+
 /* ---------- SHELL ---------- */
 function render(){
   $('#gname').textContent=G?G.group:'ختمة القرآن الكريم';
@@ -1176,6 +1235,8 @@ function render(){
   const qn=getQ().length;
   const err=(netErr?`<p class="err" role="alert">${esc(netErr)}</p>`:'')+(A&&OFF?`<p class="offbar" role="status">غير متصل بالإنترنت · آخر تحديث ${ago(OFF)}${qn?` · ${AR(qn)} ${qn>2?'قراءات':'قراءة'} في انتظار الإرسال`:''}</p>`:'');
   if(loading){$('#view').innerHTML=`<div class="hero"><div class="logo">ختمة</div><p class="sub">جارٍ التحميل…</p></div>`;return}
+  if(DIAG.first==null)DIAG.first=Math.round(performance.now());
+  setTimeout(()=>{const v=$('#view');if(location.hash==='#diag'&&v&&!$('.diag')){v.insertAdjacentHTML('afterbegin',diagCard());bindDiag()}},0);
   if(recovery||!A){$('#view').innerHTML=err+authView();bindAuth();return}
   if(VIEW==='notes'){$('#view').innerHTML=err+notesView();bindNotes();return}
   if(!G){VIEW='home';$('#view').innerHTML=err+joinCard()+noGroupView()+modeCard();bindJoinCard();bindNoGroup();return}
@@ -1203,7 +1264,7 @@ function prefetchWird(){try{
   if(!w||prefetched.has(w.id)||w.done[A.mid]||!(A.role==='member'||selfReads()))return;
   prefetched.add(w.id);readerPages(w,'madinah').forEach(p=>loadPage4(p).catch(()=>{}))}catch(e){}}
 // فتح فوري: اعرض آخر بيانات محفوظة، وحدّثها في الخلفية
-if(remember()&&!recovery&&restoreCache()){OFF=null;loading=false}
+if(remember()&&!recovery&&restoreCache()){OFF=null;loading=false;DIAG.cached=true}
 render();refresh().then(()=>{const idle=window.requestIdleCallback||(f=>setTimeout(f,1500));if(A)idle(()=>{prefetchWird();ensureText().catch(()=>{})})});resolvePJ();
 setInterval(()=>{if(A&&G&&!R&&!busy&&VIEW==='home'&&document.visibilityState==='visible')refresh()},60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&A&&!R&&VIEW==='home')refresh()});

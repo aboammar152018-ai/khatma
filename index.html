@@ -374,9 +374,12 @@ function errMsg(e){const m=(e&&e.message||'').toLowerCase();
 const cur=()=>G.wirds[G.wirds.length-1];
 const deadline=w=>w.at+w.hours*H;
 function pointsFor(mid){let p=0;G.wirds.forEach(w=>{const t=w.done[mid];if(t)p+=ptsW(w,t)});return p}
-function streak(mid){let s=0;for(let i=G.wirds.length-1;i>=0;i--){const w=G.wirds[i];
-  if(w.done[mid])s++;else if(i===G.wirds.length-1&&Date.now()<deadline(w))continue;else break}return s}
-function commit(mid){const ws=G.wirds;if(!ws.length)return 0;return Math.round(100*ws.filter(w=>w.done[mid]).length/ws.length)}
+// الأوراد اللي تتحسب على العضو: اللي نزلت بعد انضمامه (أو قرأها)، والورد الحالي
+function wirdsFor(mid){const m=G.members.find(x=>x.id===mid), j=m&&m.joined?Date.parse(m.joined):0, last=G.wirds[G.wirds.length-1];
+  return j?G.wirds.filter(w=>w.at>=j||w.done[mid]||w===last):G.wirds}
+function streak(mid){const ws=wirdsFor(mid);let s=0;for(let i=ws.length-1;i>=0;i--){const w=ws[i];
+  if(w.done[mid])s++;else if(i===ws.length-1&&Date.now()<deadline(w))continue;else break}return s}
+function commit(mid){const ws=wirdsFor(mid);if(!ws.length)return 0;return Math.round(100*ws.filter(w=>w.done[mid]).length/ws.length)}
 function left(w){const ms=deadline(w)-Date.now();if(ms<=0)return 'انتهت المدة';const h=Math.floor(ms/H),m=Math.floor(ms%H/60000);
   return h?`متبقٍ ${AR(h)} ساعة${m?' و'+AR(m)+' دقيقة':''}`:`متبقٍ ${AR(m)} دقيقة`}
 function ago(t){const m=Math.round((Date.now()-t)/60000);if(m<1)return 'الآن';if(m<60)return `منذ ${AR(m)} دقيقة`;const h=Math.round(m/60);
@@ -630,14 +633,14 @@ function memberView(){
     <span class="grow name">${esc(m.name)}${m.id===me.id?' <span class="sub">(أنت)</span>':''}${G.adminId===m.id&&m.id!==me.id?' <span class="tag">المشرف</span>':''}</span><span class="pts num">${AR(pointsFor(m.id))}</span></li>`).join('')}</ul></div>`:''}
 
   ${qadaCard(me)}
-  <div class="card"><p class="h"><span>الأوراد السابقة</span></p><ul class="list">${G.wirds.slice(0,-1).reverse().slice(0,5).map(x=>`<li>
+  <div class="card"><p class="h"><span>الأوراد السابقة</span></p><ul class="list">${wirdsFor(me.id).filter(x=>x!==cur()).reverse().slice(0,5).map(x=>`<li>
     <span class="grow"><span class="name">${ref(x.start)} ← ${ref(x.end)}</span><br><span class="sub">${ago(x.at)}</span></span>
     <span class="chip ${x.done[me.id]?'ok':'wait'}">${x.done[me.id]?'تم ✓':'فاتني'}</span></li>`).join('')||'<li class="empty">لا يوجد</li>'}</ul></div>
   ${leaving?`<div class="card">${confirmRow(`الخروج من «${esc(G.group)}»؟ لن يصلك وردها بعد ذلك، ويمكنك العودة بكود المجموعة.`,'lv-ok','خروج من المجموعة','lv-no')}</div>`
     :'<button class="back danger" id="leave" style="align-self:center">الخروج من هذه المجموعة</button>'}`;
 }
 function qadaCard(me){
-  const missed=G.wirds.slice(0,-1).filter(x=>!x.done[me.id]);
+  const missed=wirdsFor(me.id).filter(x=>x!==cur()&&!x.done[me.id]);
   if(!missed.length)return '';
   const shown=missed.slice(0,10);
   return `<div class="card qada"><p class="h"><span>أوراد فاتتك</span><span class="chip wait">${AR(missed.length)}</span></p>

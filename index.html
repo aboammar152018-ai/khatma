@@ -347,12 +347,12 @@ async function load(){
     at:Date.parse(w.created_at),hours:w.hours,bonus:w.bonus_hours||0,done:{}}));
   const byId=Object.fromEntries(wirds.map(w=>[w.id,w]));
   (st.completions||[]).forEach(c=>{const w=byId[c.w];if(w)w.done[c.u]=Date.parse(c.t)});
-  const keep=G&&G.id===grp.id;
+  const keep=G&&G.id===grp.id;if(!keep){autoDirty=false;bonusDirty=false}
   G={id:grp.id,adminId:grp.admin_id,group:grp.name,code:grp.code,members:st.members||[],wirds,nextRub:grp.next_rub,
      unit:keep?G.unit:grp.unit,hours:keep?G.hours:grp.hours,khatmas:grp.khatmas,showBoard:grp.show_board,
-     auto:{enabled:!!grp.auto_enabled,time:String(grp.auto_time||'08:00').slice(0,5),days:grp.auto_days||[0,1,2,3,4,5,6],
+     auto:keep&&autoDirty?G.auto:{enabled:!!grp.auto_enabled,time:String(grp.auto_time||'08:00').slice(0,5),days:grp.auto_days||[0,1,2,3,4,5,6],
        unit:grp.auto_unit||2,hours:grp.auto_hours||24,tz:grp.tz||'Asia/Riyadh',last:grp.auto_last||null},
-     bonus:{enabled:!!grp.bonus_enabled,hours:grp.bonus_hours||6}};
+     bonus:keep&&bonusDirty?G.bonus:{enabled:!!grp.bonus_enabled,hours:grp.bonus_hours||6}};
   applyQueue();
 }
 async function refresh(){
@@ -526,7 +526,7 @@ function bonusCard(){const b=G.bonus;
     <div class="switch"><label for="bn-on">+٥ نقاط لكل من يتم الورد مبكراً</label><input type="checkbox" id="bn-on" ${b.enabled?'checked':''}></div>
     <div class="field"><label for="bn-h">المدة</label><select id="bn-h">${[3,6,12].map(h=>`<option value="${h}" ${b.hours===h?'selected':''}>أول ${AR(h)} ساعات من نزول الورد</option>`).join('')}</select></div>
     <p class="sub" style="margin:8px 0 0">تشجّع على المبادرة من غير سباق: كل من يتم خلال المدة يأخذ المكافأة. تُطبّق على الأوراد الجديدة.</p>
-    <button class="btn btn-main" id="bn-save" style="width:100%;margin-top:12px">حفظ المكافأة</button></div>`}
+    <button class="btn btn-main" id="bn-save" style="width:100%;margin-top:12px" ${bonusDirty?"":"disabled"}>${bonusDirty?"حفظ التغييرات":"✓ تم الحفظ"}</button></div>`}
 function moveRow(m){const others=GROUPS.filter(g=>g.id!==G.id);
   return `<div class="confirm"><p>نقل <b>${esc(m.name)}</b> إلى مجموعة:</p>
     <select id="mv-to" aria-label="المجموعة الجديدة">${others.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select>
@@ -589,11 +589,11 @@ function bindSettings(){
     const {error}=await sb.from('groups').update({show_board:v}).eq('id',G.id);
     if(error){e.target.checked=!v;toast(errMsg(error));return}
     G.showBoard=v;toast(v?'الترتيب ظاهر للأعضاء':'النقاط خاصة بكل عضو')};
-  $('#bn-on').onchange=e=>{G.bonus.enabled=e.target.checked;render()};
-  $('#bn-h').onchange=e=>{G.bonus.hours=+e.target.value};
+  $('#bn-on').onchange=e=>{G.bonus.enabled=e.target.checked;bonusDirty=true;render()};
+  $('#bn-h').onchange=e=>{G.bonus.hours=+e.target.value;bonusDirty=true;render()};
   $('#bn-save').onclick=async e=>{const btn=e.currentTarget;btn.disabled=true;
     const {error}=await sb.from('groups').update({bonus_enabled:G.bonus.enabled,bonus_hours:G.bonus.hours}).eq('id',G.id);
-    if(error){btn.disabled=false;return toast(errMsg(error))}await refresh();toast(G.bonus.enabled?`فُعّلت المكافأة لأول ${AR(G.bonus.hours)} ساعات`:'أُوقفت مكافأة المبادرين')};
+    if(error){btn.disabled=false;return toast(errMsg(error))}bonusDirty=false;await refresh();toast(G.bonus.enabled?`فُعّلت المكافأة لأول ${AR(G.bonus.hours)} ساعات`:'أُوقفت مكافأة المبادرين')};
   const dop=$('#del-open');if(dop)dop.onclick=()=>{delOpen=true;render();const i=$('#del-in');if(i)i.focus()};
   const dno=$('#del-no');if(dno)dno.onclick=()=>{delOpen=false;render()};
   const din=$('#del-in');if(din)din.oninput=()=>{$('#del-ok').disabled=din.value.trim()!==G.group.trim()};
@@ -939,17 +939,18 @@ function autoCard(){
     <div class="preview"><div class="sub">الورد التلقائي القادم: <b>${nextRunText(a)}</b></div>
       <div class="q" style="font-size:18px">من ${ref(rubStart(r))} إلى ${ref(rubEnd(e))}</div>
       <div class="sub">يكمل من حيث توقفت المجموعة، ويصل إشعار لكل الأعضاء.</div></div>
-    <button class="btn btn-main" id="au-save" style="width:100%;margin-top:14px">حفظ النشر التلقائي</button>
+    <button class="btn btn-main" id="au-save" style="width:100%;margin-top:14px" ${autoDirty?"":"disabled"}>${autoDirty?"حفظ التغييرات":"✓ تم الحفظ"}</button>
   </div>`;
 }
+let autoDirty=false, bonusDirty=false;
 function bindAuto(){
   if(!$('#autocard'))return;
   const a=G.auto;
-  $('#au-on').onchange=e=>{a.enabled=e.target.checked;render()};
-  $('#au-time').onchange=e=>{if(e.target.value){a.time=e.target.value.slice(0,5);render()}};
-  document.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{const d=+b.dataset.day;a.days=a.days.includes(d)?a.days.filter(x=>x!==d):[...a.days,d].sort();render()});
-  document.querySelectorAll('[data-aunit]').forEach(b=>b.onclick=()=>{a.unit=+b.dataset.aunit;render()});
-  $('#au-hours').onchange=e=>{a.hours=+e.target.value;render()};
+  $('#au-on').onchange=e=>{a.enabled=e.target.checked;autoDirty=true;render()};
+  $('#au-time').onchange=e=>{if(e.target.value){a.time=e.target.value.slice(0,5);autoDirty=true;render()}};
+  document.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{const d=+b.dataset.day;a.days=a.days.includes(d)?a.days.filter(x=>x!==d):[...a.days,d].sort();autoDirty=true;render()});
+  document.querySelectorAll('[data-aunit]').forEach(b=>b.onclick=()=>{a.unit=+b.dataset.aunit;autoDirty=true;render()});
+  $('#au-hours').onchange=e=>{a.hours=+e.target.value;autoDirty=true;render()};
   $('#au-save').onclick=async e=>{
     if(a.enabled&&!a.days.length)return toast('اختر يوماً واحداً على الأقل.');
     const btn=e.currentTarget;btn.disabled=true;btn.textContent='جارٍ الحفظ…';
@@ -958,8 +959,8 @@ function bindAuto(){
     // لو وقت اليوم فات، يبدأ النشر التلقائي من الموعد القادم ولا ينشر فوراً
     if(a.enabled&&n.time>=a.time&&!(a.last&&a.last>=n.date))a.last=n.date;
     const {error}=await sb.from('groups').update({auto_enabled:a.enabled,auto_time:a.time,auto_days:a.days,auto_unit:a.unit,auto_hours:a.hours,tz,auto_last:a.last||null}).eq('id',G.id);
-    if(error){btn.disabled=false;btn.textContent='حفظ النشر التلقائي';return toast(errMsg(error))}
-    await refresh();toast(a.enabled?`تم الحفظ. الورد القادم: ${nextRunText(G.auto)}`:'أُوقف النشر التلقائي');
+    if(error){btn.disabled=false;btn.textContent='حفظ التغييرات';return toast(errMsg(error))}
+    autoDirty=false;await refresh();toast(a.enabled?`تم الحفظ. الورد القادم: ${nextRunText(G.auto)}`:'أُوقف النشر التلقائي');
   };
 }
 

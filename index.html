@@ -318,7 +318,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-11c'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-11e'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -821,7 +821,7 @@ function drawReader(){
   $('#fs-up').onclick=()=>fsSet(0.1);$('#fs-down').onclick=()=>fsSet(-0.1);
   $('#prev').onclick=()=>{R.i--;drawReader()};
   const nx=$('#next');if(nx)nx.onclick=()=>{R.i++;drawReader()};
-  const dn=$('#done');if(dn)dn.onclick=finish;
+  const dn=$('#done');if(dn)dn.onclick=()=>finish();
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
     const m=b.dataset.m;if(m===R.mode)return;
     if(m==='madinah'&&!navigator.onLine)return toast('مصحف المدينة يحتاج اتصالاً بالإنترنت. اقرأ من النص الآن.');
@@ -843,6 +843,7 @@ function drawReader(){
 }
 let undoT=0;
 async function finish(wArg){
+  if(wArg&&!wArg.done)wArg=null;
   const fromR=!wArg&&!!R, w=wArg||R.w, t=Date.now(), online=navigator.onLine;
   // يظهر التأكيد فوراً، والإرسال يتم في الخلفية (ويُعاد تلقائياً لو النت فصل)
   if(!w.done[A.mid])setQ([...getQ().filter(x=>!(x.wird_id===w.id&&x.user_id===A.mid)),{wird_id:w.id,user_id:A.mid,done_at:new Date(t).toISOString()}]);
@@ -869,7 +870,10 @@ const VAPID_PUBLIC='BKzvo8cyfSJ_xs3CHTTZa4pahxYbFIzRP-HEQTcvH8p2cj-lcmKZbi5HGiGY
 const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 const pushOK=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;
-let installEvt=null,pushState='unknown',swReg=null;
+let installEvt=null,pushState='unknown',swReg=null,appInstalled=false;
+const UA=navigator.userAgent, isAndroid=/android/i.test(UA);
+const inApp=/FBAN|FBAV|FB_IAB|FBIOS|Instagram|Messenger|Line\/|Snapchat|TikTok|musical_ly|Twitter/i.test(UA)||(isAndroid&&/; wv\)/.test(UA));
+try{if(navigator.getInstalledRelatedApps)navigator.getInstalledRelatedApps().then(a=>{appInstalled=a.length>0;if(appInstalled&&A&&!R)render()}).catch(()=>{})}catch(e){}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;if(A&&!R)render()});
 window.addEventListener('appinstalled',()=>{installEvt=null;toast('تم تثبيت التطبيق');if(A&&!R)render()});
 if('serviceWorker' in navigator){
@@ -909,8 +913,13 @@ async function disablePush(){
 function appCard(){
   const adm=A&&A.role==='admin', iosBrowser=isIOS&&!standalone(), parts=[];
   if(!standalone()){
-    if(installEvt)parts.push(`<div class="row"><span class="grow">ثبّت ختمة على شاشتك الرئيسية لتفتحه كتطبيق.</span><button class="btn btn-ghost sm" id="install">تثبيت</button></div>`);
-    else if(isIOS)parts.push(`<p class="sub" style="margin:0">لتثبيت التطبيق وتلقّي الإشعارات على الآيفون: افتح الموقع في <b>Safari</b>، اضغط زر المشاركة <b>⬆︎</b>، ثم <b>«إضافة إلى الشاشة الرئيسية»</b>، وافتح التطبيق من الأيقونة.</p>`);
+    const how=t=>`<p class="sub" style="margin:0">${t}</p>`;
+    if(inApp)parts.push(how(`أنت فاتح التطبيق من داخل فيسبوك أو تطبيق تاني، ومن هنا مش هينفع يتثبّت ولا توصلك إشعارات. اضغط <b>⋮</b> أو <b>•••</b> فوق، واختار <b>«فتح في المتصفح»</b> ${isIOS?'(Safari)':'(Chrome)'}.`)+`<div class="row"><button class="btn btn-ghost sm" id="copyapp">نسخ رابط التطبيق</button></div>`);
+    else if(installEvt)parts.push(`<div class="row"><span class="grow">ثبّت ختمة على شاشتك الرئيسية لتفتحه كتطبيق.</span><button class="btn btn-ghost sm" id="install">تثبيت</button></div>`);
+    else if(appInstalled)parts.push(how('📲 التطبيق متثبّت على جهازك. افتحه من أيقونة «ختمة» على الشاشة الرئيسية عشان توصلك الإشعارات.'));
+    else if(isIOS)parts.push(how(`لتثبيت التطبيق وتلقّي الإشعارات على الآيفون: اضغط زر المشاركة <b>⬆︎</b> ${/CriOS|EdgiOS|FxiOS/.test(UA)?'(فوق جنب العنوان)':'(تحت في Safari)'}، ثم <b>«إضافة إلى الشاشة الرئيسية»</b>، وبعدها افتح التطبيق من الأيقونة.`));
+    else if(isAndroid)parts.push(how('لتثبيت التطبيق: من قائمة المتصفح <b>⋮</b> اختار <b>«تثبيت التطبيق»</b> أو <b>«إضافة إلى الشاشة الرئيسية»</b>.'));
+    else parts.push(how('لتثبيت التطبيق على الكمبيوتر: اضغط أيقونة التثبيت <b>⊕</b> في آخر شريط العنوان (Chrome أو Edge).'));
   }
   if(!iosBrowser){
     if(pushState==='off')parts.push(`<div class="row"><span class="grow">${adm?'فعّل الإشعارات ليصلك تمام المجموعة والورد لو تقرأ معهم، حتى والتطبيق مغلق.':'فعّل الإشعارات ليصلك الورد الجديد والتذكير حتى والتطبيق مغلق.'}</span><button class="btn btn-main sm" id="pushon">تفعيل الإشعارات</button></div>`);
@@ -920,6 +929,7 @@ function appCard(){
   return parts.length?`<div class="card appcard"><p class="h"><span>التطبيق والإشعارات</span></p><div class="stack">${parts.join('')}</div></div>`:'';
 }
 function bindAppCard(){
+  const ca=$('#copyapp');if(ca)ca.onclick=async()=>{try{await navigator.clipboard.writeText(location.origin+'/');toast('نُسخ الرابط. الصقه في Chrome أو Safari.')}catch(e){toast(location.origin)}};
   const i=$('#install');if(i)i.onclick=async()=>{if(!installEvt)return;installEvt.prompt();try{await installEvt.userChoice}catch(e){}installEvt=null;render()};
   const on=$('#pushon');if(on)on.onclick=()=>enablePush(on);
   const off=$('#pushoff');if(off)off.onclick=async()=>{await disablePush();render();toast('أُوقفت الإشعارات على هذا الجهاز')};
@@ -1338,7 +1348,7 @@ function render(){
   const toFb=()=>{const f=$('#to-fb');if(f)f.onclick=()=>go('feedback')};
   if(recovery||!A){$('#view').innerHTML=err+authView()+(recovery?'':`<div class="fbauth">${feedbackRow()}</div>`);bindAuth();toFb();return}
   if(VIEW==='notes'){$('#view').innerHTML=err+notesView();bindNotes();return}
-  if(!G){VIEW='home';$('#view').innerHTML=err+joinCard()+noGroupView()+modeCard()+`<div class="card">${feedbackRow()}</div>`;bindJoinCard();bindNoGroup();toFb();return}
+  if(!G){VIEW='home';$('#view').innerHTML=err+joinCard()+noGroupView()+appCard()+modeCard()+`<div class="card">${feedbackRow()}</div>`;bindJoinCard();bindNoGroup();bindAppCard();toFb();return}
   if(VIEW==='settings'&&A.role==='admin'){$('#view').innerHTML=err+settingsView();bindSettings();return}
   $('#view').innerHTML=err+joinCard()+pushBanner()+groupBar()+(A.role==='admin'?adminView():memberView())+appCard()+modeCard()+`<div class="card">${feedbackRow()}</div>`;
   bindJoinCard();bindPushBanner();bindGroupBar();A.role==='admin'?bindAdmin():bindMember();bindAppCard();bindModeCard();toFb();

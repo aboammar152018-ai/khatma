@@ -322,6 +322,16 @@ textarea:focus{border-color:var(--lapis);outline:none;box-shadow:0 0 0 3px var(-
   box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-110%);transition:transform .2s}
 .reader.full.ctl .fctl{transform:none}
 @media (prefers-reduced-motion:reduce){.fctl{transition:none}}
+.otpnote{margin:14px 0 0!important;background:var(--gold-soft);color:var(--ink);border-radius:10px;padding:10px 12px;line-height:1.7}
+.pwhint{margin-top:8px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--muted)}
+.pwhint ul{margin:6px 0 0;padding-inline-start:18px;line-height:1.8}
+.pwbar{display:inline-flex;gap:4px;vertical-align:middle;margin-inline-end:8px}
+.pwbar i{width:34px;height:5px;border-radius:9px;background:var(--line)}
+.pwhint[data-s="0"] .pwbar i:nth-child(1){background:#c0392b}
+.pwhint[data-s="1"] .pwbar i:nth-child(-n+1){background:#d68910}
+.pwhint[data-s="2"] .pwbar i:nth-child(-n+2){background:#b7950b}
+.pwhint[data-s="3"] .pwbar i{background:#1e8449}
+.pwlbl{font-weight:500;color:var(--ink)}
 /* share */
 .sharebtn{width:36px;padding:0;justify-content:center;color:var(--lapis)}
 .sharebtn svg{display:block}
@@ -367,7 +377,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-12g'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-12i'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -395,7 +405,7 @@ const authStore={getItem:k=>{try{return sessionStorage.getItem(k)??localStorage.
   setItem:(k,v)=>{try{if(localStorage.getItem('khatma-remember')!=='0'){localStorage.setItem(k,v);sessionStorage.removeItem(k)}else{sessionStorage.setItem(k,v);localStorage.removeItem(k)}}catch(e){}},
   removeItem:k=>{try{localStorage.removeItem(k);sessionStorage.removeItem(k)}catch(e){}}};
 const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{storage:authStore,persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let GROUPS=[],G=null,A=null,USER=null,loading=true,recovery=false,netErr='';
+let TRASH=[],GROUPS=[],G=null,A=null,USER=null,loading=true,recovery=false,netErr='';
 const save=()=>{};
 async function load(){
   let tA=performance.now();
@@ -411,7 +421,7 @@ async function load(){
   if(!st||!st.profile){A=null;G=null;GROUPS=[];NOTES=[];return}
   if(!getMode())setMode(st.mode);
   A={u:st.profile.email,name:st.profile.name,role:st.mode,mid:USER.id};
-  GROUPS=st.groups||[];
+  GROUPS=st.groups||[];TRASH=st.trash||[];
   NOTES=(st.notes||[]).map(n=>({id:n.id,t:Date.parse(n.t),text:n.text,read:n.read}));
   if(!st.group){G=null;return}
   const grp=st.group;
@@ -682,7 +692,7 @@ function settingsView(){
   ${bonusCard()}
   ${remindCard()}
   <div class="card dz"><p class="h"><span>حذف المجموعة</span></p>
-    ${delOpen?`<p class="sub" style="margin:0">الحذف نهائي: تُحذف الأوراد والقراءات والنقاط، ويصل للأعضاء إشعار بإغلاق المجموعة. للتأكيد اكتب اسم المجموعة: <b style="color:var(--ink)">${esc(G.group)}</b></p>
+    ${delOpen?`<p class="sub" style="margin:0">تُحذف المجموعة بأورادها وقراءاتها، ويصل للأعضاء إشعار بإغلاقها. يمكنك استعادتها كما هي خلال ٧ أيام، وبعدها تُحذف نهائياً. للتأكيد اكتب اسم المجموعة: <b style="color:var(--ink)">${esc(G.group)}</b></p>
       <div class="field"><label for="del-in">اسم المجموعة</label><input type="text" id="del-in" autocomplete="off"></div>
       <div class="row" style="margin-top:12px"><button class="btn btn-danger" id="del-ok" disabled style="flex:1">حذف المجموعة نهائياً</button><button class="btn btn-ghost sm" id="del-no">إلغاء</button></div>`
     :`<button class="back danger" id="del-open">حذف هذه المجموعة…</button>`}
@@ -733,7 +743,7 @@ function bindSettings(){
   const dok=$('#del-ok');if(dok)dok.onclick=async()=>{dok.disabled=true;dok.textContent='جارٍ الحذف…';const name=G.group;
     const {error}=await sb.rpc('delete_group',{p_group:G.id,p_confirm:$('#del-in').value});
     if(error){dok.disabled=false;dok.textContent='حذف المجموعة نهائياً';return toast(/mismatch/i.test(error.message)?'الاسم غير مطابق.':errMsg(error))}
-    delOpen=false;setSelGroup('');goHome();await refresh();toast(`حُذفت مجموعة «${name}»`)};
+    delOpen=false;setSelGroup('');goHome();await refresh();toast(`حُذفت مجموعة «${name}». يمكنك استعادتها خلال ٧ أيام من الصفحة الرئيسية.`)};
 }
 
 /* ---- العضو: الرئيسية ---- */
@@ -1209,6 +1219,19 @@ function bindJoinCard(){
     loading=true;render();await refresh();scrollTo(0,0);toast(`انضممت إلى «${name||G.group}»`)};
 }
 let editName=false;
+// المجموعات المحذوفة: تُستعاد خلال ٧ أيام
+function trashCard(){if(!A||A.role!=='admin'||!TRASH.length)return '';
+  return `<div class="card"><p class="h"><span>مجموعات محذوفة</span></p>
+    <p class="sub" style="margin:0 0 6px">ترجع كما هي بأعضائها وأورادها وقراءاتها وكودها.</p>
+    <ul class="list">${TRASH.map(t=>{const d=Math.max(0,7-Math.floor((Date.now()-Date.parse(t.at))/864e5));
+      return `<li><span class="grow"><span class="name">${esc(t.name)}</span><br><span class="sub">تُحذف نهائياً بعد ${d<=1?'أقل من يوم':d===2?'يومين':AR(d)+' أيام'}</span></span>
+      <button class="btn btn-ghost sm" data-restore="${t.id}">استعادة</button></li>`}).join('')}</ul></div>`}
+function bindTrash(){document.querySelectorAll('[data-restore]').forEach(b=>b.onclick=async()=>{const t=TRASH.find(x=>String(x.id)===b.dataset.restore);
+  b.disabled=true;b.textContent='جارٍ الاستعادة…';
+  const {data,error}=await sb.rpc('restore_group',{p_trash:+b.dataset.restore});
+  if(error){b.disabled=false;b.textContent='استعادة';const m=error.message||'';
+    return toast(/too many/.test(m)?'وصلت للحد الأقصى (٢٠ مجموعة). احذف مجموعة أولاً.':/expired/.test(m)?'انتهت مدة الاستعادة.':errMsg(error))}
+  if(data)setSelGroup(data);await refresh();scrollTo(0,0);toast(`عادت مجموعة «${t?t.name:''}» كما كانت 🌿`)})}
 function modeCard(){const adm=A.role==='admin';
   return `<div class="card"><p class="h"><span>الحساب</span></p>
     ${editName?`<div class="field" style="margin-top:0"><label for="nm-in">اسمك كما يظهر للمجموعة</label><input type="text" id="nm-in" maxlength="40" autocomplete="name" value="${esc(A.name)}"></div>
@@ -1267,6 +1290,19 @@ window.addEventListener('offline',()=>{if(!A)return;OFF=lastLoadAt||Date.now();i
 /* ---------- AUTH ---------- */
 let AU={role:null,tab:'login',err:'',info:''}, busy=false;
 const pwField=(id,label,ac,hint)=>`<div class="field"><label for="${id}">${label}</label><div class="pw"><input type="password" id="${id}" autocomplete="${ac}" dir="ltr"><button type="button" class="eye" data-eye="${id}" aria-label="إظهار كلمة المرور">إظهار</button></div>${hint?`<span class="sub">${hint}</span>`:''}</div>`;
+// كلمة مرور قوية: ٨ أحرف على الأقل، وليست من الكلمات الشائعة
+const COMMON_PW=['12345678','123456789','1234567890','87654321','11111111','00000000','12341234','11223344','password','password1','qwertyui','qwerty123','abcd1234','abc12345','iloveyou','aaaaaaaa','123123123','asdfghjk','1q2w3e4r','zxcvbnm1'];
+function pwScore(v){if(!v)return 0;let s=0;if(v.length>=8)s++;if(v.length>=12)s++;
+  if(/[a-z]/i.test(v)&&/\d/.test(v))s++;if(/[A-Z]/.test(v)&&/[a-z]/.test(v)||/[^A-Za-z0-9]/.test(v))s++;
+  if(COMMON_PW.includes(v.toLowerCase())||/^(.)\1+$/.test(v))s=0;return Math.min(3,s)}
+function pwWeak(v,email){if(v.length<8)return 'كلمة المرور ٨ أحرف على الأقل.';
+  if(COMMON_PW.includes(v.toLowerCase())||/^(.)\1+$/.test(v))return 'كلمة المرور هذه شائعة وسهلة التخمين، اختر غيرها.';
+  if(email&&v.toLowerCase()===email.split('@')[0])return 'لا تجعل كلمة المرور مثل اسم بريدك.';return ''}
+const pwHint=id=>`<div class="pwhint" data-for="${id}"><div class="pwbar"><i></i><i></i><i></i></div><span class="pwlbl"></span>
+  <ul><li>٨ أحرف أو أكثر</li><li>يُفضّل خليط من حروف إنجليزية كبيرة وصغيرة وأرقام ورموز مثل @ # !</li><li>لا تستخدم كلمة مرور بريدك أو أرقاماً متتالية مثل ١٢٣٤٥٦٧٨</li></ul></div>`;
+function bindPwHint(){document.querySelectorAll('.pwhint').forEach(h=>{const i=$('#'+h.dataset.for);if(!i)return;
+  const up=()=>{const sc=pwScore(i.value);h.dataset.s=i.value?sc:'';h.querySelector('.pwlbl').textContent=!i.value?'':i.value.length<8?'قصيرة':['ضعيفة','مقبولة','جيدة','قوية'][sc]};
+  i.addEventListener('input',up);up()})}
 const msgs=()=>`${AU.err?`<p class="err" role="alert">${esc(AU.err)}</p>`:''}${AU.info?`<p class="info" role="status">${esc(AU.info)}</p>`:''}`;
 function verifyView(){
   const signup=AU.kind==='signup';
@@ -1279,12 +1315,13 @@ function verifyView(){
       ${msgs()}
       <button class="btn btn-main" type="submit" id="otpbtn" style="width:100%;margin-top:16px">تأكيد</button>
       <button class="back" type="button" id="resend" style="margin-top:14px"></button>
+      <p class="sub otpnote">⏳ قد تتأخر الرسالة دقيقة أو دقيقتين، فانتظرها. وإذا طلبت رمزاً جديداً فاستخدم <b>آخر رمز وصلك فقط</b>، لأن الرمز السابق يتوقف.</p>
       <p class="sub" style="margin:10px 0 0">لم تصلك الرسالة؟ افحص مجلد الرسائل غير المرغوب فيها (Spam).</p>
     </form></div>`;
 }
 function authView(){
   if(recovery) return `<div class="card auth"><h2>كلمة مرور جديدة</h2>
-    <form id="recform" novalidate>${pwField('f-np','كلمة المرور الجديدة','new-password','6 أحرف على الأقل')}${pwField('f-np2','تأكيد كلمة المرور','new-password')}
+    <form id="recform" novalidate>${pwField('f-np','كلمة المرور الجديدة','new-password','')}${pwHint('f-np')}${pwField('f-np2','تأكيد كلمة المرور','new-password')}
     ${msgs()}<button class="btn btn-main" type="submit" style="width:100%;margin-top:16px">حفظ كلمة المرور</button></form></div>`;
   if(AU.stage==='verify')return verifyView();
   if(!AU.role) return `
@@ -1303,7 +1340,7 @@ function authView(){
     <form id="authform" novalidate>
       ${reg?`<div class="field"><label for="f-name">الاسم</label><input type="text" id="f-name" autocomplete="name" placeholder="الاسم الذي سيظهر للمجموعة"></div>`:''}
       <div class="field"><label for="f-user">البريد الإلكتروني</label><input type="email" id="f-user" autocomplete="email" inputmode="email" dir="ltr" autocapitalize="none" placeholder="name@example.com"></div>
-      ${pwField('f-pass','كلمة المرور',reg?'new-password':'current-password',reg?'6 أحرف على الأقل':'')}
+      ${pwField('f-pass','كلمة المرور',reg?'new-password':'current-password','')}${reg?pwHint('f-pass'):''}
       ${reg?pwField('f-pass2','تأكيد كلمة المرور','new-password'):''}
       ${reg&&adm?`<div class="field"><label for="f-group">اسم المجموعة</label><input type="text" id="f-group" placeholder="مثلاً: ختمة العائلة"></div>`:''}
       ${reg&&!adm?`<div class="field"><label for="f-code">كود المجموعة</label><input type="text" id="f-code" dir="ltr" autocapitalize="characters" placeholder="KH-ABCD-1234"><span class="sub">اطلبه من مشرف مجموعتك</span></div>`:''}
@@ -1329,7 +1366,13 @@ function bindNoGroup(){
     if(error){jn.disabled=false;return toast(errMsg(error))}if(!data){jn.disabled=false;return toast('كود المجموعة غير صحيح. تأكد منه مع المشرف.')}setSelGroup(data);await refresh();toast('انضممت إلى '+(G?G.group:'المجموعة'))};
   bindModeCard();
 }
-function toVerify(kind,email,info){busy=false;AU={...AU,stage:'verify',kind,email,err:'',info:info||'',cool:Date.now()+60000};render();
+// حفظ شاشة الرمز: لو الموبايل قفل الصفحة وهو بيجيب الرمز من الإيميل، يرجع لنفس الشاشة من غير رمز جديد
+const OTPK='khatma-otp';
+function saveOtp(){lsSet(OTPK,JSON.stringify({kind:AU.kind,email:AU.email,role:AU.role,tab:AU.tab,cool:AU.cool,t:Date.now()}))}
+function clearOtp(){try{localStorage.removeItem(OTPK)}catch(e){}}
+function restoreOtp(){try{const o=JSON.parse(lsGet(OTPK)||'null');if(!o||Date.now()-o.t>55*60000){clearOtp();return false}
+  AU={role:o.role,tab:o.tab||'login',stage:'verify',kind:o.kind,email:o.email,err:'',info:'',cool:o.cool};return true}catch(e){return false}}
+function toVerify(kind,email,info){busy=false;AU={...AU,stage:'verify',kind,email,err:'',info:info||'',cool:Date.now()+120000};saveOtp();render();
   setTimeout(()=>{const o=$('#f-otp');if(o)o.focus()},60)}
 function tickResend(){const b=$('#resend');if(!b)return;const s=Math.ceil(((AU.cool||0)-Date.now())/1000);
   b.disabled=s>0;b.textContent=s>0?`إعادة إرسال الرمز بعد ${AR(s)} ث`:'إعادة إرسال الرمز'}
@@ -1338,12 +1381,12 @@ function bindAuth(){
   document.querySelectorAll('[data-eye]').forEach(b=>b.onclick=()=>{const i=$('#'+b.dataset.eye),show=i.type==='password';
     i.type=show?'text':'password';b.textContent=show?'إخفاء':'إظهار';b.setAttribute('aria-label',show?'إخفاء كلمة المرور':'إظهار كلمة المرور')});
   bindShareCard();document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{AU={role:b.dataset.role,tab:'login',err:'',info:''};render()});
-  const bk=$('#back');if(bk)bk.onclick=()=>{if(AU.stage==='verify'){AU={role:AU.role,tab:AU.tab,err:'',info:''}}else AU={role:null,tab:'login',err:'',info:''};render()};
+  const bk=$('#back');if(bk)bk.onclick=()=>{if(AU.stage==='verify'){clearOtp();AU={role:AU.role,tab:AU.tab,err:'',info:''}}else AU={role:null,tab:'login',err:'',info:''};render()};
   document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{AU.tab=b.dataset.tab;AU.err='';AU.info='';render()});
-  tickResend();
+  tickResend();bindPwHint();
   const fc=$('#f-code');if(fc&&PJ&&!fc.value)fc.value=PJ.code;
   const rf=$('#recform');if(rf)rf.onsubmit=async e=>{e.preventDefault();const np=$('#f-np').value;
-    if(np.length<6){AU.err='كلمة المرور 6 أحرف على الأقل.';return render()}
+    {const w=pwWeak(np);if(w){AU.err=w;return render()}}
     if(np!==$('#f-np2').value){AU.err='كلمتا المرور غير متطابقتين.';return render()}
     const {error}=await sb.auth.updateUser({password:np});if(error){AU.err=errMsg(error);return render()}
     recovery=false;AU.err='';history.replaceState(null,'',location.pathname);await refresh();toast('تم حفظ كلمة المرور الجديدة')};
@@ -1358,15 +1401,15 @@ function bindAuth(){
     let {error}=await sb.auth.verifyOtp({email:AU.email,token,type:'email'});
     if(error&&AU.kind==='signup'){const r=await sb.auth.verifyOtp({email:AU.email,token,type:'signup'});error=r.error}
     busy=false;
-    if(error){AU.err=/expired|invalid|not found/i.test(error.message)?'الرمز غير صحيح أو انتهت صلاحيته. اطلب رمزاً جديداً.':errMsg(error);AU.info='';render();$('#f-otp').value=token;return}
-    const kind=AU.kind;if(AU.role)setMode(AU.role);AU={role:null,tab:'login',err:'',info:''};comp={mode:'continue',pick:null};showNotes=false;
+    if(error){AU.err=/expired|invalid|not found/i.test(error.message)?'الرمز غير صحيح أو انتهت صلاحيته. تأكد أنك تكتب الرمز من آخر رسالة وصلتك، أو اطلب رمزاً جديداً.':errMsg(error);AU.info='';render();$('#f-otp').value=token;return}
+    const kind=AU.kind;clearOtp();if(AU.role)setMode(AU.role);AU={role:null,tab:'login',err:'',info:''};comp={mode:'continue',pick:null};showNotes=false;
     loading=true;render();await refresh();scrollTo(0,0);
     toast(kind==='signup'?(A&&A.role==='admin'&&G?`تم تفعيل حسابك. كود المجموعة: ${G.code}`:'تم تفعيل حسابك، أهلاً بك'):`أهلاً ${A?A.name:''}`)};
   const rs=$('#resend');if(rs)rs.onclick=async()=>{if(Date.now()<(AU.cool||0))return;rs.disabled=true;
     const {error}=AU.kind==='signup'
       ?await sb.auth.resend({type:'signup',email:AU.email,options:{emailRedirectTo:location.origin+location.pathname}})
       :await sb.auth.signInWithOtp({email:AU.email,options:{shouldCreateUser:false}});
-    AU.cool=Date.now()+60000;AU.err=error?errMsg(error):'';AU.info=error?'':'أرسلنا رمزاً جديداً إلى بريدك.';render()};
+    AU.cool=Date.now()+120000;saveOtp();AU.err=error?errMsg(error):'';AU.info=error?'':'أرسلنا رمزاً جديداً إلى بريدك. استخدم هذا الرمز الجديد فقط، فالرمز السابق لم يعد يعمل.';render()};
   const f=$('#authform');if(!f)return;
   f.onsubmit=async e=>{e.preventDefault();if(busy)return;
     const val=id=>{const el=$(id);return el?el.value.trim():''};
@@ -1386,7 +1429,10 @@ function bindAuth(){
           return toVerify('signup',email,'حسابك غير مفعّل بعد. أرسلنا لك رمز التفعيل.')}
         return fail(errMsg(error));
       }
-      if(isTrusted(email)&&remember()){
+      // رمز الدخول مطلوب فقط لحساب يدير مجموعة (على جهاز جديد). حساب العضو يدخل بكلمة المرور
+      let manages=true;
+      if(!(isTrusted(email)&&remember())){try{const q=await sb.from('groups').select('id').eq('admin_id',data.user.id).limit(1);manages=!!q.error||!!(q.data&&q.data.length)}catch(e){manages=true}}
+      if((isTrusted(email)&&remember())||!manages){
         setMode(AU.role);busy=false;AU={role:null,tab:'login',err:'',info:''};comp={mode:'continue',pick:null};showNotes=false;
         loading=true;render();await refresh();scrollTo(0,0);return toast(`أهلاً ${A?A.name:''}`);
       }
@@ -1397,7 +1443,7 @@ function bindAuth(){
       return toVerify('login',email);
     }
     if(!keep.name)return fail('اكتب اسمك.');
-    if(p.length<6)return fail('كلمة المرور 6 أحرف على الأقل.');
+    {const w=pwWeak(p,email);if(w)return fail(w)}
     if(p!==p2)return fail('كلمتا المرور غير متطابقتين.');
     if(AU.role==='admin'&&!keep.group)return fail('اكتب اسم المجموعة.');
     busy=true;const btn=$('#authbtn');btn.disabled=true;btn.textContent='لحظة…';
@@ -1534,7 +1580,7 @@ function render(){
   const bl=$('#bell');if(bl)bl.onclick=()=>{if(VIEW==='notes')back();else go('notes')};
   const lo=$('#logout');if(lo)lo.onclick=async()=>{
     if(getQ().length&&!navigator.onLine)return toast('عندك قراءات لم تُرسل بعد. اتصل بالإنترنت أولاً ثم اخرج.');
-    await flushQueue();await disablePush();await sb.auth.signOut();clearLocal();A=null;G=null;USER=null;GROUPS=[];NOTES=[];gAdd=false;OFF=null;VIEW='home';AU={role:null,tab:'login',err:'',info:''};render();scrollTo(0,0)};
+    await flushQueue();await disablePush();await sb.auth.signOut();clearLocal();clearOtp();A=null;G=null;USER=null;GROUPS=[];NOTES=[];gAdd=false;OFF=null;VIEW='home';AU={role:null,tab:'login',err:'',info:''};render();scrollTo(0,0)};
   const qn=getQ().length;
   const err=(netErr?`<p class="err" role="alert">${esc(netErr)}</p>`:'')+(A&&OFF?`<p class="offbar" role="status">غير متصل بالإنترنت · آخر تحديث ${ago(OFF)}${qn?` · ${AR(qn)} ${qn>2?'قراءات':'قراءة'} في انتظار الإرسال`:''}</p>`:'');
   if(loading){$('#view').innerHTML=`<div class="hero"><div class="logo">ختمة</div><p class="sub">جارٍ التحميل…</p></div>`;return}
@@ -1544,9 +1590,9 @@ function render(){
   const toFb=()=>{const f=$('#to-fb');if(f)f.onclick=()=>go('feedback')};
   if(recovery||!A){$('#view').innerHTML=err+authView()+(recovery?'':`<div class="fbauth">${feedbackRow()}</div>`);bindAuth();toFb();return}
   if(VIEW==='notes'){$('#view').innerHTML=err+notesView();bindNotes();return}
-  if(!G){VIEW='home';$('#view').innerHTML=err+joinCard()+noGroupView()+appCard()+modeCard()+shareCard()+`<div class="card">${feedbackRow()}</div>`;bindJoinCard();bindNoGroup();bindAppCard();toFb();bindShareCard();return}
+  if(!G){VIEW='home';$('#view').innerHTML=err+joinCard()+noGroupView()+trashCard()+appCard()+modeCard()+shareCard()+`<div class="card">${feedbackRow()}</div>`;bindJoinCard();bindNoGroup();bindTrash();bindAppCard();toFb();bindShareCard();return}
   if(VIEW==='settings'&&A.role==='admin'){$('#view').innerHTML=err+settingsView();bindSettings();return}
-  $('#view').innerHTML=err+joinCard()+pushBanner()+groupBar()+(A.role==='admin'?adminView():memberView())+appCard()+modeCard()+shareCard()+`<div class="card">${feedbackRow()}</div>`;bindShareCard();
+  $('#view').innerHTML=err+joinCard()+pushBanner()+groupBar()+(A.role==='admin'?adminView():memberView())+trashCard()+appCard()+modeCard()+shareCard()+`<div class="card">${feedbackRow()}</div>`;bindShareCard();
   bindJoinCard();bindPushBanner();bindGroupBar();A.role==='admin'?bindAdmin():bindMember();bindAppCard();bindModeCard();toFb();
 }
 const THEMES=[{k:'auto',i:'◐',t:'تلقائي'},{k:'light',i:'☀',t:'فاتح'},{k:'dark',i:'☾',t:'داكن'}];
@@ -1563,6 +1609,7 @@ try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTh
 applyTheme();
 sb.auth.onAuthStateChange(ev=>{if(ev==='PASSWORD_RECOVERY'){recovery=true;loading=false;setTimeout(render,0)}});
 if(PJ&&!lsGet('sb-yiumqwysldbrszadizjo-auth-token'))AU={role:'member',tab:'register',err:'',info:''};
+restoreOtp();
 $('#brand').onclick=()=>{if(A)goHome()};
 const prefetched=new Set();
 function prefetchWird(){try{

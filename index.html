@@ -367,7 +367,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-12f'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-12g'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -811,7 +811,8 @@ let R=null;
 // ملء الشاشة + الشاشة ما تطفيش أثناء القراءة
 let FULL=false;try{FULL=localStorage.getItem('khatma-full')==='1'}catch(e){}
 let ctlT=0,wakeL=null;
-function goFS(){try{const d=document.documentElement;if(!document.fullscreenElement&&d.requestFullscreen)d.requestFullscreen({navigationUI:'hide'}).catch(()=>{})}catch(e){}}
+// ملء الشاشة داخل التطبيق فقط: وضع ملء الشاشة الخاص بالمتصفح يُظهر رسالة إنجليزية طويلة من النظام
+function goFS(){}
 function exitFS(){try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{})}catch(e){}}
 function setFull(on){FULL=on;try{localStorage.setItem('khatma-full',on?'1':'0')}catch(e){}
   if(on)goFS();else exitFS();if(R){R.anim='';drawReader()}}

@@ -14,17 +14,17 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ختمة">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="description" content="ختمة: نقرأ نفس الورد ونختم القرآن معاً. ورد بإشعار، ومتابعة هادئة من غير زحمة رسائل.">
+<meta name="description" content="ختمة: نقرأ الورد نفسه ونختم القرآن معاً. ورد بإشعار، ومتابعة هادئة دون زحمة رسائل.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ختمة">
 <meta property="og:locale" content="ar_AR">
 <meta property="og:url" content="https://khatma-opal.vercel.app/">
-<meta property="og:title" content="ختمة | نقرأ نفس الورد ونختم القرآن معاً">
-<meta property="og:description" content="ورد يوصلك بإشعار، تقرأه من مصحف المدينة جوه التطبيق، والمشرف يتابع من غير زحمة رسائل.">
+<meta property="og:title" content="ختمة | نقرأ الورد نفسه ونختم القرآن معاً">
+<meta property="og:description" content="ورد يصلك بإشعار، تقرؤه من مصحف المدينة داخل التطبيق، والمشرف يتابع دون زحمة رسائل.">
 <meta property="og:image" content="https://khatma-opal.vercel.app/og.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="ختمة: نقرأ نفس الورد ونختم القرآن معاً">
+<meta property="og:image:alt" content="ختمة: نقرأ الورد نفسه ونختم القرآن معاً">
 <meta name="twitter:card" content="summary_large_image">
 <script>try{var t=localStorage.getItem('khatma-theme');if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 <title>ختمة المجموعة</title>
@@ -367,7 +367,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-12d'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-12f'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -501,7 +501,7 @@ function khatmaCard(){
     return `<div class="card prog"><p class="h"><span>الختمة رقم ${AR(num)}</span><span class="num">${AR(gpct)}٪</span></p>
       <div class="bar gold"><i style="width:${gpct}%"></i></div>
       <p class="sub" style="margin:6px 0 0">${w?`وصلت المجموعة إلى ${ref(w.end)}`:'تبدأ الختمة مع أول ورد'}${prevTxt}</p>
-      ${w&&known.length?`<p class="sub kline">${last?`🌿 ختم منهم ${AR(comp)} من ${AR(ms.length)}`:`🌿 ما فاتهمش ولا ورد: ${AR(clean)} من ${AR(ms.length)}`}</p>`:''}</div>`;
+      ${w&&known.length?`<p class="sub kline">${last?`🌿 ختم منهم ${AR(comp)} من ${AR(ms.length)}`:`🌿 لم يفتهم أي ورد سابق: ${AR(clean)} من ${AR(ms.length)}`}</p>`:''}</div>`;
   }
   const mk=myKh(A.mid);
   if(mk.complete)return `<div class="card khatm"><p class="h"><span>الختمة رقم ${AR(num)}</span><span>١٠٠٪</span></p>
@@ -512,7 +512,7 @@ function khatmaCard(){
   const done=k?k.done+q.length:mk.asg.length-mk.rem.length, asg=k?Math.max(k.assigned,done):mk.asg.length, pct=Math.min(100,Math.round(100*rubs/240));
   return `<div class="card prog"><p class="h"><span>ختمتك · الختمة رقم ${AR(num)}</span><span class="num">${AR(pct)}٪</span></p>
     <div class="bar gold"><i style="width:${pct}%"></i></div>
-    <p class="sub" style="margin:6px 0 0">${w?`قرأت ${AR(done)} من ${AR(asg)} ${plW(asg)} في الختمة دي${mk.rem.length>(w.done[A.mid]?0:1)?` · فاتك ${numW(mk.rem.length-(w.done[A.mid]?0:1))}`:''}`:'تبدأ الختمة مع أول ورد'}</p>
+    <p class="sub" style="margin:6px 0 0">${w?`قرأت ${AR(done)} من ${AR(asg)} ${plW(asg)} في هذه الختمة${mk.rem.length>(w.done[A.mid]?0:1)?` · فاتك ${numW(mk.rem.length-(w.done[A.mid]?0:1))}`:''}`:'تبدأ الختمة مع أول ورد'}</p>
     ${w?`<p class="sub kline">المجموعة وصلت إلى ${ref(w.end)} (${AR(gpct)}٪)${prevTxt}</p>`:''}</div>`;
 }
 
@@ -529,10 +529,10 @@ function selfCard(){const on=selfReads();
 function lateCard(){const late=G.members.filter(m=>m.kh&&m.kh.missed>0).sort((a,b)=>b.kh.missed-a.kh.missed);
   if(!late.length)return '';
   return `<div class="card"><p class="h"><span>أوراد فاتت الأعضاء</span><span class="chip wait">${AR(late.length)}</span></p>
-    <p class="sub" style="margin:0 0 6px">في الختمة الحالية. التذكير يوصل للعضو لوحده، مرة واحدة في اليوم.</p>
+    <p class="sub" style="margin:0 0 6px">في الختمة الحالية. التذكير يصل للعضو وحده، مرة واحدة في اليوم.</p>
     <ul class="list">${late.map(m=>`<li><span class="av">${initials(m.name)}</span>
       <span class="grow"><span class="name">${esc(m.name)}${m.id===A.mid?' <span class="tag">المشرف</span>':''}${pushIcon(m)}</span><br><span class="sub">فاته ${numW(m.kh.missed)}</span></span>
-      ${m.id===A.mid?'':m.qr?'<span class="chip ok">اتذكّر النهارده</span>':`<button class="btn btn-ghost sm" data-rq="${m.id}">🔔 تذكير</button>`}</li>`).join('')}</ul></div>`}
+      ${m.id===A.mid?'':m.qr?'<span class="chip ok">تم تذكيره اليوم</span>':`<button class="btn btn-ghost sm" data-rq="${m.id}">🔔 تذكير</button>`}</li>`).join('')}</ul></div>`}
 function adminView(){
   const w=cur(), done=w?G.members.filter(m=>w.done[m.id]):[], pend=w?G.members.filter(m=>!w.done[m.id]):[];
   const pct=G.members.length?Math.round(100*done.length/G.members.length):0;
@@ -598,10 +598,10 @@ function bindLate(){document.querySelectorAll('[data-rq]').forEach(b=>b.onclick=
   b.disabled=true;b.textContent='جارٍ الإرسال…';
   const {data,error}=await sb.rpc('remind_qada',{p_group:G.id,p_user:m.id});
   if(error){const t=(error.message||'');
-    if(/already/i.test(t)){m.qr=true;render();return toast('اتبعتله تذكير النهارده خلاص.')}
-    if(/nothing/i.test(t)){await refresh();return toast(`${m.name} مفيش أوراد فاتته دلوقتي.`)}
+    if(/already/i.test(t)){m.qr=true;render();return toast('تم إرسال تذكير له اليوم.')}
+    if(/nothing/i.test(t)){await refresh();return toast(`لا توجد أوراد فائتة عند ${m.name} الآن.`)}
     b.disabled=false;b.textContent='🔔 تذكير';return toast(errMsg(error))}
-  m.qr=true;render();toast(`اتبعت التذكير لـ${m.name}${m.push===false?'، وهيلاقيه في التنبيهات لما يفتح التطبيق':''}`)})}
+  m.qr=true;render();toast(`تم إرسال التذكير إلى ${m.name}${m.push===false?'، وسيجده في التنبيهات عندما يفتح التطبيق':''}`)})}
 function bindAdmin(){bindLate();
   const pv=$('#preview');if(pv)pv.onclick=()=>openReader(cur());
   const co=$('#cw-open');if(co)co.onclick=()=>{cancelOpen=true;render()};
@@ -616,7 +616,7 @@ function bindAdmin(){bindLate();
   const sr=$('#selfread');if(sr)sr.onchange=async()=>{const on=sr.checked;sr.disabled=true;
     const {error}=on?await sb.rpc('join_group',{p_code:G.code}):await sb.rpc('leave_group',{p_group:G.id});
     if(error){sr.checked=!on;sr.disabled=false;return toast(errMsg(error))}
-    await refresh();toast(on?'تمام، ستُحسب قراءتك مع المجموعة ويصلك إشعار الورد':'أُوقفت قراءتك مع المجموعة')};
+    await refresh();toast(on?'حسناً، ستُحسب قراءتك مع المجموعة ويصلك إشعار الورد':'أُوقفت قراءتك مع المجموعة')};
   $('#to-settings').onclick=()=>go('settings');
   $('#to-invite').onclick=()=>go('settings','invite');
   document.querySelectorAll('[data-unit]').forEach(b=>b.onclick=()=>{G.unit=+b.dataset.unit;render()});
@@ -648,7 +648,7 @@ function bonusCard(){const b=G.bonus;
 function remindCard(){const on=G.remind;
   return `<div class="card"><p class="h"><span>تذكير قبل نهاية الورد</span><span class="chip ${on?'ok':'wait'}">${on?'مفعّل':'متوقف'}</span></p>
     <div class="switch"><label for="rm-on">إشعار تلقائي قبل نهاية الورد بساعة</label><input type="checkbox" id="rm-on" ${on?'checked':''}></div>
-    <p class="sub" style="margin:8px 0 0">يصل فقط للي لسه ما قرأش، مرة واحدة لكل ورد، من غير ما تحتاج تفتكر تبعته.</p></div>`}
+    <p class="sub" style="margin:8px 0 0">يصل فقط لمن لم يقرأ بعد، مرة واحدة لكل ورد، ولا تحتاج لإرساله بنفسك.</p></div>`}
 function moveRow(m){const others=GROUPS.filter(g=>g.id!==G.id);
   return `<div class="confirm"><p>نقل <b>${esc(m.name)}</b> إلى مجموعة:</p>
     <select id="mv-to" aria-label="المجموعة الجديدة">${others.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select>
@@ -676,7 +676,7 @@ function settingsView(){
       <span class="pts num">${AR(pointsFor(m.id))} نقطة</span>${m.id===A.mid?'':`${GROUPS.length>1?`<button class="rm mv" data-mv="${m.id}" aria-label="نقل ${esc(m.name)} لمجموعة أخرى" title="نقل لمجموعة أخرى">⇄</button>`:''}<button class="rm" data-rm="${m.id}" aria-label="حذف ${esc(m.name)}" title="حذف من المجموعة">✕</button>`}</li>`).join('')}</ul>
     <div class="switch" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><label for="pts-on">إظهار النقاط للأعضاء</label><input type="checkbox" id="pts-on" ${G.showPoints?'checked':''}></div>
     <div class="switch" style="margin-top:10px"><label for="board">إظهار ترتيب النقاط للأعضاء</label><input type="checkbox" id="board" ${G.showBoard&&G.showPoints?'checked':''} ${G.showPoints?'':'disabled'}></div>
-    <p class="sub" style="margin:8px 0 0">لو النقاط مخفية، العضو يشوف التزامه وأوراده المتتالية بس، وانت تفضل شايف كل حاجة.</p>
+    <p class="sub" style="margin:8px 0 0">عند إخفاء النقاط يرى العضو التزامه وأوراده المتتالية فقط، وأنت ترى كل شيء.</p>
   </div>
   ${autoCard()}
   ${bonusCard()}
@@ -721,7 +721,7 @@ function bindSettings(){
   $('#rm-on').onchange=async e=>{const v=e.target.checked;
     const {error}=await sb.from('groups').update({remind_enabled:v}).eq('id',G.id);
     if(error){e.target.checked=!v;toast(errMsg(error));return}
-    G.remind=v;render();toast(v?'هيوصل تذكير تلقائي قبل نهاية الورد بساعة':'أُوقف التذكير التلقائي')};
+    G.remind=v;render();toast(v?'سيصل تذكير تلقائي قبل نهاية الورد بساعة':'أُوقف التذكير التلقائي')};
   $('#bn-on').onchange=e=>{G.bonus.enabled=e.target.checked;bonusDirty=true;render()};
   $('#bn-h').onchange=e=>{G.bonus.hours=+e.target.value;bonusDirty=true;render()};
   $('#bn-save').onclick=async e=>{const btn=e.currentTarget;btn.disabled=true;
@@ -957,12 +957,12 @@ function drawReader(){
   const fc=$('#fclose');if(fc)fc.onclick=close;
   $('#rbody').addEventListener('click',e=>{if(!FULL||e.target.closest('button'))return;const r=$('.reader');if(!r)return;
     r.classList.toggle('ctl');clearTimeout(ctlT);if(r.classList.contains('ctl'))ctlT=setTimeout(()=>{const x=$('.reader');if(x)x.classList.remove('ctl')},3500)});
-  if(total>1&&!lsGet('khatma-swipe-hint')){lsSet('khatma-swipe-hint','1');setTimeout(()=>toast('تقدر تقلّب الصفحات بسحب الشاشة يمين وشمال، أو من زرار «الصفحة التالية».'),600)}
+  if(total>1&&!lsGet('khatma-swipe-hint')){lsSet('khatma-swipe-hint','1');setTimeout(()=>toast('يمكنك تقليب الصفحات بسحب الشاشة يمين ويسار، أو من زر «الصفحة التالية».'),600)}
   const dn=$('#done');if(dn)dn.onclick=()=>finish();
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
     const m=b.dataset.m;if(m===R.mode)return;
     if(m==='madinah'&&!navigator.onLine){const w=R.w;
-      return mdReady(w).then(ok=>{if(!R||R.w!==w)return;if(ok)switchMode('madinah',true);else toast('صفحات مصحف المدينة للورد ده مش محفوظة على جهازك. اقرأ من النص دلوقتي، وهتتحفظ أول ما تتصل بالإنترنت.')})}
+      return mdReady(w).then(ok=>{if(!R||R.w!==w)return;if(ok)switchMode('madinah',true);else toast('صفحات مصحف المدينة لهذا الورد غير محفوظة على جهازك. اقرأ من النص الآن، وستُحفظ بمجرد اتصالك بالإنترنت.')})}
     switchMode(m,true);
   });
   if(md){
@@ -982,7 +982,7 @@ function drawReader(){
 // تقليب الصفحات: السحب بالإصبع + الأزرار + أسهم الكيبورد
 function turnPage(d){if(!R)return false;const j=R.i+d;
   if(j<0)return false;
-  if(j>=R.list.length){toast('دي آخر صفحة في الورد.');return false}
+  if(j>=R.list.length){toast('هذه آخر صفحة في الورد.');return false}
   R.i=j;R.anim=d>0?'sl-n':'sl-p';drawReader();return true}
 function bindSwipe(el){if(!el)return;let x0=0,y0=0,t0=0,on=false,horiz=null;const pg=()=>$('#mpage');
   el.addEventListener('touchstart',e=>{if(e.touches.length!==1){on=false;return}const t=e.touches[0];x0=t.clientX;y0=t.clientY;t0=Date.now();on=true;horiz=null},{passive:true});
@@ -1011,17 +1011,17 @@ async function finish(wArg){
   const pts=ptsW(w,w.done[A.mid]), bon=bonusOf(w,w.done[A.mid]), mk=myKh(A.mid), khatm=mk.complete&&inKh(w), remK=cur()&&cur().endRub>=240&&!khatm?mk.rem.length:0, showP=G.showPoints||A.role==='admin';
   $('#layer').innerHTML=`<div class="modal"><div class="dlg">
     <div class="big">${khatm?(mk.full?'ختمت القرآن':'أتممت أوراد الختمة'):'تقبّل الله منك'}</div>${w!==cur()&&!khatm?'<div class="sub">قضيت وردك الفائت، بارك الله فيك.</div>':''}
-    ${khatm?`<div class="q">اللَّهُمَّ ارْحَمْنِي بِالقُرْآنِ، وَاجْعَلْهُ لِي إِمَامًا وَنُورًا وَهُدًى وَرَحْمَةً</div>${mk.full?'':'<div class="sub">كل الأوراد منذ انضمامك، تقبّل الله منك.</div>'}`:''}${remK?`<div class="sub">باقي لك ${numW(remK)} عشان تختم، تلاقيها في «أوراد فاتتك».</div>`:''}
+    ${khatm?`<div class="q">اللَّهُمَّ ارْحَمْنِي بِالقُرْآنِ، وَاجْعَلْهُ لِي إِمَامًا وَنُورًا وَهُدًى وَرَحْمَةً</div>${mk.full?'':'<div class="sub">كل الأوراد منذ انضمامك، تقبّل الله منك.</div>'}`:''}${remK?`<div class="sub">باقي لك ${numW(remK)} لتختم، ستجدها في «أوراد فاتتك».</div>`:''}
     <div>${showP?`أُضيفت <b class="num">${AR(pts)}</b> ${pts>2&&pts<11?'نقاط':'نقطة'}${bon?` (منها ${AR(bon)} مكافأة المبادرين ⭐)`:''} · `:''}${AR(streak(A.mid))} ${streak(A.mid)>2&&streak(A.mid)<11?'أوراد متتالية':'ورد متتالٍ'}</div>
     <div class="sub">${!online?(A.role==='admin'?'سُجّلت قراءتك على جهازك، وتُرسل تلقائياً عند الاتصال بالإنترنت.':'سُجّلت قراءتك على جهازك، وتصل للمشرف تلقائياً عند الاتصال بالإنترنت.'):(A.role==='admin'?'سُجّلت قراءتك مع المجموعة.':'وصل للمشرف أنك أتممت الورد.')}</div>
     <button class="btn btn-main" id="ok">الحمد لله</button>
-    <button class="back" id="undo">سجّلتها بالغلط؟ تراجع</button></div></div>`;
+    <button class="back" id="undo">سجّلتها بالخطأ؟ تراجع</button></div></div>`;
   $('#ok').onclick=()=>{clearTimeout(undoT);if(fromR)back();else $('#layer').innerHTML='';refresh()};
   $('#undo').onclick=async e=>{undone=true;clearTimeout(undoT);e.currentTarget.disabled=true;
     const queued=isQueued(w);setQ(getQ().filter(x=>!(x.wird_id===w.id&&x.user_id===A.mid)));
     if(!queued){const {error}=await sb.from('completions').delete().eq('wird_id',w.id).eq('user_id',A.mid);
-      if(error){undone=false;e.currentTarget.disabled=false;return toast(isNetErr(error)?'محتاج اتصال بالإنترنت عشان نلغي التسجيل.':errMsg(error))}}
-    delete w.done[A.mid];saveCache();$('#layer').innerHTML='';render();toast('تم التراجع، الورد لسه في انتظارك');if(!queued)setTimeout(()=>refresh(),400)};
+      if(error){undone=false;e.currentTarget.disabled=false;return toast(isNetErr(error)?'تحتاج اتصالاً بالإنترنت لإلغاء التسجيل.':errMsg(error))}}
+    delete w.done[A.mid];saveCache();$('#layer').innerHTML='';render();toast('تم التراجع، والورد ما زال في انتظارك');if(!queued)setTimeout(()=>refresh(),400)};
 }
 
 /* ---------- INSTALL & PUSH ---------- */
@@ -1073,11 +1073,11 @@ function appCard(){
   const adm=A&&A.role==='admin', iosBrowser=isIOS&&!standalone(), parts=[];
   if(!standalone()){
     const how=t=>`<p class="sub" style="margin:0">${t}</p>`;
-    if(inApp)parts.push(how(`أنت فاتح التطبيق من داخل فيسبوك أو تطبيق تاني، ومن هنا مش هينفع يتثبّت ولا توصلك إشعارات. اضغط <b>⋮</b> أو <b>•••</b> فوق، واختار <b>«فتح في المتصفح»</b> ${isIOS?'(Safari)':'(Chrome)'}.`)+`<div class="row"><button class="btn btn-ghost sm" id="copyapp">نسخ رابط التطبيق</button></div>`);
+    if(inApp)parts.push(how(`التطبيق مفتوح من داخل فيسبوك أو تطبيق آخر، ومن هنا لا يمكن تثبيته ولن تصلك الإشعارات. اضغط <b>⋮</b> أو <b>•••</b> في الأعلى، واختر <b>«فتح في المتصفح»</b> ${isIOS?'(Safari)':'(Chrome)'}.`)+`<div class="row"><button class="btn btn-ghost sm" id="copyapp">نسخ رابط التطبيق</button></div>`);
     else if(installEvt)parts.push(`<div class="row"><span class="grow">ثبّت ختمة على شاشتك الرئيسية لتفتحه كتطبيق.</span><button class="btn btn-ghost sm" id="install">تثبيت</button></div>`);
-    else if(appInstalled)parts.push(how('📲 التطبيق متثبّت على جهازك. افتحه من أيقونة «ختمة» على الشاشة الرئيسية عشان توصلك الإشعارات.'));
-    else if(isIOS)parts.push(how(`لتثبيت التطبيق وتلقّي الإشعارات على الآيفون: اضغط زر المشاركة <b>⬆︎</b> ${/CriOS|EdgiOS|FxiOS/.test(UA)?'(فوق جنب العنوان)':'(تحت في Safari)'}، ثم <b>«إضافة إلى الشاشة الرئيسية»</b>، وبعدها افتح التطبيق من الأيقونة.`));
-    else if(isAndroid)parts.push(how('لتثبيت التطبيق: من قائمة المتصفح <b>⋮</b> اختار <b>«تثبيت التطبيق»</b> أو <b>«إضافة إلى الشاشة الرئيسية»</b>.'));
+    else if(appInstalled)parts.push(how('📲 التطبيق مثبّت على جهازك. افتحه من أيقونة «ختمة» على الشاشة الرئيسية حتى تصلك الإشعارات.'));
+    else if(isIOS)parts.push(how(`لتثبيت التطبيق وتلقّي الإشعارات على الآيفون: اضغط زر المشاركة <b>⬆︎</b> ${/CriOS|EdgiOS|FxiOS/.test(UA)?'(أعلى الشاشة بجانب العنوان)':'(أسفل الشاشة في Safari)'}، ثم <b>«إضافة إلى الشاشة الرئيسية»</b>، وبعدها افتح التطبيق من الأيقونة.`));
+    else if(isAndroid)parts.push(how('لتثبيت التطبيق: من قائمة المتصفح <b>⋮</b> اختر <b>«تثبيت التطبيق»</b> أو <b>«إضافة إلى الشاشة الرئيسية»</b>.'));
     else parts.push(how('لتثبيت التطبيق على الكمبيوتر: اضغط أيقونة التثبيت <b>⊕</b> في آخر شريط العنوان (Chrome أو Edge).'));
   }
   if(!iosBrowser){
@@ -1421,9 +1421,9 @@ function bindAuth(){
 /* ---------- قياس السرعة (افتح الرابط مع #diag في آخره) ---------- */
 function diagCard(){if(location.hash!=='#diag')return '';
   const ms=v=>v==null?'—':`${AR(v)} ملّي ثانية`, c=navigator.connection;
-  const rows=[['فتح الصفحة وتشغيلها',ms(DIAG.t0)],['أول ما ظهر المحتوى',ms(DIAG.first)],['ظهر من النسخة المحفوظة',DIAG.cached?'نعم':'لا'],
+  const rows=[['فتح الصفحة وتشغيلها',ms(DIAG.t0)],['أول ظهور للمحتوى',ms(DIAG.first)],['ظهر من النسخة المحفوظة',DIAG.cached?'نعم':'لا'],
     ['التحقق من الدخول',ms(DIAG.session)],['تحميل البيانات من السيرفر',ms(DIAG.state)],['زمن الوصول للسيرفر',DIAG.ping?ms(DIAG.ping):'اضغط «قياس الاتصال»'],
-    ['عامل الخدمة',navigator.serviceWorker&&navigator.serviceWorker.controller?'شغال':'غير شغال'],['التطبيق مثبّت',standalone()?'نعم':'لا'],
+    ['عامل الخدمة',navigator.serviceWorker&&navigator.serviceWorker.controller?'يعمل':'لا يعمل'],['التطبيق مثبّت',standalone()?'نعم':'لا'],
     ['نوع الشبكة',c&&c.effectiveType?c.effectiveType:'غير معروف'],['الإصدار',DIAG.v]];
   return `<div class="card diag"><p class="h"><span>قياس السرعة</span></p><ul class="list">${rows.map(r=>`<li><span class="grow">${r[0]}</span><b class="num">${r[1]}</b></li>`).join('')}</ul>
     <div class="row" style="margin-top:10px"><button class="btn btn-ghost sm" id="dg-ping">قياس الاتصال</button><button class="btn btn-ghost sm" id="dg-copy">نسخ النتائج</button></div></div>`}
@@ -1438,7 +1438,7 @@ addEventListener('hashchange',()=>{if(location.hash==='#diag')render()});
 const SH_ICON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>';
 /* ---------- مشاركة التطبيق ---------- */
 const APP_URL='https://khatma-opal.vercel.app';
-const SHARE_MSG='تطبيق «ختمة»، بيجمعنا على ختمة القرآن، اختم مع أهلك وأصحابك.';
+const SHARE_MSG='تطبيق «ختمة» يجمعنا على ختمة القرآن، اختم مع أهلك وأصحابك.';
 const shareText=()=>`${SHARE_MSG}\n${APP_URL}`;
 const IC={
   wa:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.7-5.1A8.5 8.5 0 1 1 21 11.5z"/><path d="M9 9.5c.3 1.6 1.9 3.6 4 4.5l1.2-1.1 1.8.8-.4 1.6c-3 .3-6.6-3-6.9-6l1.5-.5.8 1.8z" fill="currentColor" stroke="none"/></svg>',
@@ -1452,7 +1452,7 @@ function shareCard(){return `<div class="card sharecard"><div class="sc-in">
 function shareSheet(){const L=$('#layer');
   L.innerHTML=`<div class="modal sheetwrap" id="shm"><div class="sheet" role="dialog" aria-label="مشاركة التطبيق">
     <div class="grab"></div>
-    <div class="sh-head"><img src="/icon-192.png" alt="" width="44" height="44"><div><b>ختمة</b><span class="sub">نقرأ نفس الورد… ونختم القرآن معاً</span></div></div>
+    <div class="sh-head"><img src="/icon-192.png" alt="" width="44" height="44"><div><b>ختمة</b><span class="sub">نقرأ الورد نفسه… ونختم القرآن معاً</span></div></div>
     <div class="sh-grid">
       <a class="sh-o" style="--c:#1fa855" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(shareText())}"><span class="sh-i">${IC.wa}</span>واتساب</a>
       <a class="sh-o" style="--c:#1877f2" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(APP_URL)}"><span class="sh-i">${IC.fb}</span>فيسبوك</a>
@@ -1484,7 +1484,7 @@ function bindPaper(){
 const pushIcon=m=>m.push===true?' <span class="pi" title="مفعّل الإشعارات">🔔</span>':m.push===false?' <span class="pi off" title="لم يفعّل الإشعارات">🔕</span>':'';
 function pushSummary(){const known=G.members.filter(m=>m.push!=null);if(!known.length)return '';
   const on=known.filter(m=>m.push).length;
-  return `<p class="sub" style="margin:0 0 6px">🔔 ${AR(on)} من ${AR(known.length)} مفعّلين الإشعارات${on<known.length?' · تابع مع اللي جنبهم 🔕 عشان يوصلهم الورد':''}</p>`}
+  return `<p class="sub" style="margin:0 0 6px">🔔 ${AR(on)} من ${AR(known.length)} فعّلوا الإشعارات${on<known.length?' · تابع مع من بجانب اسمه 🔕 حتى يصله الورد':''}</p>`}
 // تنبيه تفعيل الإشعارات أعلى الصفحة
 function pushBanner(){
   if(bannerHidden||!A||!G)return '';
@@ -1492,8 +1492,8 @@ function pushBanner(){
   const ios=isIOS&&!standalone();
   if(!ios&&pushState!=='off')return '';
   return `<div class="card pushbanner"><div class="row"><span class="grow">${ios
-      ?'🔔 على الآيفون: ثبّت التطبيق على الشاشة الرئيسية الأول عشان يوصلك الورد بإشعار. الطريقة في آخر الصفحة.'
-      :'🔔 فعّل الإشعارات عشان يوصلك الورد كل يوم حتى والتطبيق مقفول.'}</span></div>
+      ?'🔔 على الآيفون: ثبّت التطبيق على الشاشة الرئيسية أولاً حتى يصلك الورد بإشعار. الطريقة في آخر الصفحة.'
+      :'🔔 فعّل الإشعارات حتى يصلك الورد كل يوم، حتى والتطبيق مغلق.'}</span></div>
     <div class="row" style="margin-top:10px">${ios?'':'<button class="btn btn-main sm" id="pb-on">تفعيل الإشعارات</button>'}<button class="back" id="pb-later">لاحقاً</button></div></div>`}
 function bindPushBanner(){const on=$('#pb-on');if(on)on.onclick=()=>enablePush(on);
   const l=$('#pb-later');if(l)l.onclick=()=>{bannerHidden=true;render()}}
@@ -1501,17 +1501,17 @@ function bindPushBanner(){const on=$('#pb-on');if(on)on.onclick=()=>enablePush(o
 function deviceInfo(){return {v:DIAG.v,view:VIEW,mode:A&&A.role,group:G&&G.group,online:navigator.onLine,standalone:standalone(),
   push:pushState,screen:innerWidth+'x'+innerHeight,ua:navigator.userAgent.slice(0,220),lang:navigator.language}}
 function feedbackView(){return screenHead('إرسال ملاحظة')+`<div class="card">
-  <p class="sub" style="margin:0 0 10px">اكتب أي مشكلة قابلتك أو اقتراح عندك. هيوصلني مباشرة، ومعاه نوع جهازك وإصدار التطبيق عشان أقدر أحلها.</p>
-  <div class="field" style="margin-top:0"><label for="fb-text">ملاحظتك</label><textarea id="fb-text" rows="6" maxlength="3000" placeholder="مثلاً: زرار تم ما بيظهرش عندي في آخر الورد…"></textarea></div>
+  <p class="sub" style="margin:0 0 10px">اكتب أي مشكلة واجهتك أو أي اقتراح عندك. ستصلني مباشرة ومعها نوع جهازك وإصدار التطبيق، حتى أستطيع حلها.</p>
+  <div class="field" style="margin-top:0"><label for="fb-text">ملاحظتك</label><textarea id="fb-text" rows="6" maxlength="3000" placeholder="مثلاً: زر «تم» لا يظهر لي في آخر الورد…"></textarea></div>
   <button class="btn btn-main" id="fb-send" style="width:100%;margin-top:12px">إرسال</button></div>`}
 function bindFeedback(){$('#sback').onclick=back;
-  $('#fb-send').onclick=async e=>{const t=$('#fb-text').value.trim();if(t.length<2){$('#fb-text').focus();return toast('اكتب ملاحظتك الأول.')}
-    if(!navigator.onLine)return toast('محتاج اتصال بالإنترنت عشان تتبعت الملاحظة.');
+  $('#fb-send').onclick=async e=>{const t=$('#fb-text').value.trim();if(t.length<2){$('#fb-text').focus();return toast('اكتب ملاحظتك أولاً.')}
+    if(!navigator.onLine)return toast('تحتاج اتصالاً بالإنترنت لإرسال الملاحظة.');
     const b=e.currentTarget;b.disabled=true;b.textContent='جارٍ الإرسال…';
     const {error}=await sb.rpc('submit_feedback',{p_text:t,p_info:deviceInfo()});
     if(error){b.disabled=false;b.textContent='إرسال';return toast(errMsg(error))}
     back();toast('وصلت ملاحظتك، جزاك الله خيراً 🌿')}}
-const feedbackRow=()=>`<div class="row fbrow"><span class="grow sub">عندك ملاحظة أو قابلتك مشكلة؟</span><button class="btn btn-ghost sm" id="to-fb">💬 إرسال ملاحظة</button></div>`;
+const feedbackRow=()=>`<div class="row fbrow"><span class="grow sub">عندك ملاحظة أو واجهتك مشكلة؟</span><button class="btn btn-ghost sm" id="to-fb">💬 إرسال ملاحظة</button></div>`;
 // تسجيل الأخطاء تلقائياً
 let errCount=0;const seenErr=new Set();
 function reportError(msg,extra){try{

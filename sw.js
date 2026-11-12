@@ -2,6 +2,8 @@
 const CACHE = 'khatma-v4';
 const SB_LIB = '/supabase-2.117.3.js';
 const TEXT = '/quran-text-v1.js';
+const QCF_CACHE = 'khatma-qcf-v1'; // صفحات وخطوط مصحف المدينة (تُحفظ عشان تفتح بدون إنترنت)
+const isQcf = (u) => u.host === 'cdn.jsdelivr.net' && u.pathname.startsWith('/npm/quran-qcf4@');
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
@@ -13,7 +15,7 @@ self.addEventListener('install', (e) => {
 
 self.addEventListener('activate', (e) => {
   e.waitUntil((async () => {
-    for (const k of await caches.keys()) if (k !== CACHE) await caches.delete(k);
+    for (const k of await caches.keys()) if (k !== CACHE && k !== QCF_CACHE) await caches.delete(k);
     await self.clients.claim();
   })());
 });
@@ -26,6 +28,17 @@ self.addEventListener('fetch', (e) => {
   const r = e.request;
   if (r.method !== 'GET') return;
   const u = new URL(r.url);
+
+  if (isQcf(u)) {
+    e.respondWith(caches.open(QCF_CACHE).then(async (c) => {
+      const hit = await c.match(r.url);
+      if (hit) return hit;
+      const res = await fetch(r);
+      if (res.ok) c.put(r.url, res.clone());
+      return res;
+    }));
+    return;
+  }
 
   if (isStatic(u)) {
     e.respondWith(caches.open(CACHE).then(async (c) => {

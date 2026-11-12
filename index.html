@@ -129,7 +129,7 @@ select,input[type=text]{width:100%;background:var(--bg);border:1px solid var(--l
 .preview .q{font-family:var(--f-quran);font-size:20px;line-height:1.8}
 .preview .sub b{color:var(--ink);font-weight:500}
 
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stats{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;text-align:center}
 .stat{background:var(--bg);border-radius:12px;padding:10px 4px}
 .stat b{display:block;font-size:22px;font-weight:600}
 .stat span{font-size:12px;color:var(--muted)}
@@ -233,7 +233,9 @@ input,select{font-size:16px}
 .stack{display:flex;flex-direction:column;gap:12px}
 .appcard .grow{font-size:14px;min-width:0}
 .mseg button{padding:5px 10px;font-size:12px}
-.mushaf.md{padding:14px 10px 10px;max-width:min(620px,calc((100dvh - 190px) * 0.64))}
+.mushaf.md{padding:12px 10px 8px;max-width:620px}
+.r-body.mdb{padding-top:8px;padding-bottom:8px}
+.mushaf.md .pg{margin-top:4px}
 .m4{direction:rtl;color:var(--ink);line-height:1.9;user-select:none;-webkit-user-select:none;overflow:hidden}
 .l4{display:flex;white-space:nowrap;align-items:baseline}
 .l4.just{justify-content:space-between}
@@ -298,6 +300,52 @@ textarea:focus{border-color:var(--lapis);outline:none;box-shadow:0 0 0 3px var(-
 .fsz button{border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;min-width:40px;height:32px;font-size:15px}
 .fsz button[disabled]{opacity:.4}
 .hdr .bell{width:36px;height:36px}
+
+.mushaf.sl-n{animation:sln .22s ease-out}.mushaf.sl-p{animation:slp .22s ease-out}
+@keyframes sln{from{transform:translateX(-28px);opacity:.4}to{transform:none;opacity:1}}
+@keyframes slp{from{transform:translateX(28px);opacity:.4}to{transform:none;opacity:1}}
+.r-body{touch-action:pan-y pinch-zoom}
+@media (prefers-reduced-motion:reduce){.mushaf.sl-n,.mushaf.sl-p{animation:none}}
+.kline{margin:4px 0 0!important}
+.late{color:var(--gold);font-weight:500}
+.fullbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;height:32px;padding:0 10px;font:inherit;font-size:13px;cursor:pointer}
+.fullbtn svg{flex:none}
+.reader.full{background:var(--page)}
+.reader.full .r-head{display:none}
+.reader.full .r-foot{display:none}
+.reader.full.islast .r-foot{display:block;background:transparent;border:0}
+.reader.full.islast .r-foot #prev{display:none}
+.reader.full .r-body{padding:calc(env(safe-area-inset-top,0px) + 6px) max(6px,env(safe-area-inset-left,0px)) 6px max(6px,env(safe-area-inset-right,0px))}
+.reader.full .mushaf{border-color:transparent;box-shadow:none;background:transparent}
+.fctl{position:absolute;top:0;left:0;right:0;z-index:2;background:var(--surface);border-bottom:1px solid var(--line);
+  padding:calc(env(safe-area-inset-top,0px) + 8px) max(12px,env(safe-area-inset-left,0px)) 8px max(12px,env(safe-area-inset-right,0px));
+  box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-110%);transition:transform .2s}
+.reader.full.ctl .fctl{transform:none}
+@media (prefers-reduced-motion:reduce){.fctl{transition:none}}
+/* share */
+.sharebtn{width:36px;padding:0;justify-content:center;color:var(--lapis)}
+.sharebtn svg{display:block}
+.sharecard{background:linear-gradient(135deg,var(--lapis-soft),var(--gold-soft));border-color:transparent}
+.sc-in{display:flex;align-items:center;gap:12px}
+.sc-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.sc-t b{font-size:15px}
+.sc-t .sub{font-family:var(--f-quran);font-size:14px;color:var(--gold)}
+.sharecard .btn{display:inline-flex;align-items:center;gap:6px}
+.sharecard .btn svg{width:16px;height:16px}
+.sheetwrap{place-items:end center;padding:0}
+.sheet{background:var(--surface);width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px));
+  display:flex;flex-direction:column;gap:16px;animation:shup .22s ease-out}
+@keyframes shup{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+.grab{width:40px;height:4px;border-radius:9px;background:var(--line);margin:0 auto}
+.sh-head{display:flex;align-items:center;gap:12px}
+.sh-head img{border-radius:12px}
+.sh-head b{font-family:var(--f-brand);font-size:22px;color:var(--lapis);display:block;line-height:1.2}
+.sh-head .sub{font-size:13px}
+.sh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(64px,1fr));gap:10px}
+.sh-o{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--ink);text-decoration:none;background:none;border:0;padding:4px 0;cursor:pointer;font-family:inherit}
+.sh-i{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;color:#fff;background:var(--c);box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.sh-link{text-align:center;font-size:13px;color:var(--muted);background:var(--bg);border-radius:10px;padding:8px}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -306,6 +354,7 @@ textarea:focus{border-color:var(--lapis);outline:none;box-shadow:0 0 0 3px var(-
 <header class="top"><div class="top-in">
   <button class="brand" id="brand" type="button" aria-label="الرئيسية">ختمة<small id="gname">ختمة العائلة</small></button>
   <div class="hdr" id="hdr"></div>
+  <button class="themebtn sharebtn" id="sharebtn" type="button" aria-label="مشاركة التطبيق"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>
   <button class="themebtn" id="theme" type="button"></button>
 </div></header>
 
@@ -318,7 +367,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-11e'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-12d'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -372,14 +421,15 @@ async function load(){
   (st.completions||[]).forEach(c=>{const w=byId[c.w];if(w)w.done[c.u]=Date.parse(c.t)});
   const keep=G&&G.id===grp.id;if(!keep){autoDirty=false;bonusDirty=false}
   G={id:grp.id,adminId:grp.admin_id,group:grp.name,code:grp.code,members:st.members||[],wirds,nextRub:grp.next_rub,
-     unit:keep?G.unit:grp.unit,hours:keep?G.hours:grp.hours,khatmas:grp.khatmas,showBoard:grp.show_board,remind:grp.remind_enabled!==false,
+     unit:keep?G.unit:grp.unit,hours:keep?G.hours:grp.hours,khatmas:grp.khatmas,showBoard:grp.show_board,remind:grp.remind_enabled!==false,showPoints:grp.show_points!==false,
+     khStart:st.kh_start?Date.parse(st.kh_start):0,khTotal:st.kh_total||0,
      auto:keep&&autoDirty?G.auto:{enabled:!!grp.auto_enabled,time:String(grp.auto_time||'08:00').slice(0,5),days:grp.auto_days||[0,1,2,3,4,5,6],
        unit:grp.auto_unit||2,hours:grp.auto_hours||24,tz:grp.tz||'Asia/Riyadh',last:grp.auto_last||null},
      bonus:keep&&bonusDirty?G.bonus:{enabled:!!grp.bonus_enabled,hours:grp.bonus_hours||6}};
   applyQueue();
 }
 async function refresh(){
-  try{await flushQueue();await load();netErr='';OFF=null;lastLoadAt=Date.now();saveCache();if(A)markTrusted(A.u);resolvePJ()}
+  try{await flushQueue();await load();netErr='';OFF=null;lastLoadAt=Date.now();saveCache();if(A)markTrusted(A.u);resolvePJ();setTimeout(prefetchWird,2500)}
   catch(e){console.error(e);if(navigator.onLine&&!isNetErr(e))reportError('refresh: '+(e&&e.message||e));if(restoreCache())netErr='';else netErr='تعذّر تحميل البيانات. تأكد من الإنترنت ثم حدّث الصفحة.'}
   loading=false;render();
 }
@@ -418,24 +468,52 @@ const unreadCount=()=>NOTES.filter(n=>!n.read).length;
 // التنقل: زر الرجوع في الموبايل يرجع للشاشة السابقة
 function go(v,anchor){VIEW=v;const n=((history.state&&history.state.n)||0)+1;history.pushState({k:v,n},'');render();
   if(anchor){const a=$('#'+anchor);if(a)a.scrollIntoView({block:'start'})}else scrollTo(0,0)}
-function back(){if(history.state&&history.state.n)history.back();else{if(R){$('#layer').innerHTML='';R=null}VIEW='home';delOpen=false;render();scrollTo(0,0)}}
-function goHome(){const n=(history.state&&history.state.n)||0;if(n>0)history.go(-n);else{if(R){$('#layer').innerHTML='';R=null}VIEW='home';delOpen=false;render();scrollTo(0,0)}}
+function back(){if(history.state&&history.state.n)history.back();else{if(R){$('#layer').innerHTML='';R=null;readerClosed()}VIEW='home';delOpen=false;render();scrollTo(0,0)}}
+function goHome(){const n=(history.state&&history.state.n)||0;if(n>0)history.go(-n);else{if(R){$('#layer').innerHTML='';R=null;readerClosed()}VIEW='home';delOpen=false;render();scrollTo(0,0)}}
 window.addEventListener('popstate',e=>{const k=e.state&&e.state.k;
-  if(R&&k!=='read'){$('#layer').innerHTML='';R=null}
+  if(R&&k!=='read'){$('#layer').innerHTML='';R=null;readerClosed()}
   VIEW=(k==='notes'||k==='settings'||k==='feedback')?k:'home';if(VIEW!=='settings')delOpen=false;render();if(k!=='read')scrollTo(0,0)});
 const screenHead=t=>`<div class="shead"><button class="back" id="sback" type="button">› رجوع</button><h2>${t}</h2></div>`;
 
 /* ---- تقدّم الختمة الجماعي ---- */
 const DUA='اللَّهُمَّ ارْحَمْنَا بِالقُرْآنِ، وَاجْعَلْهُ لَنَا إِمَامًا وَنُورًا وَهُدًى وَرَحْمَةً';
+// الختمة الحالية: الأوراد بعد آخر ورد ختم
+function khSeg(){const c=cur();if(!c)return [];let b=-1;
+  for(let i=G.wirds.length-2;i>=0;i--)if(G.wirds[i].endRub>=240){b=i;break}
+  return G.wirds.filter((w,i)=>i>b&&(!G.khStart||w.at>G.khStart))}
+const inKh=w=>khSeg().includes(w);
+const plW=n=>n===1?'ورد':n===2?'وردين':n<=10?'أوراد':'ورداً';
+const numW=n=>n===1?'ورد واحد':n===2?'وردين':`${AR(n)} ${plW(n)}`;
+// حال العضو في الختمة: المتبقي محسوب محلياً (كل أوراده الفائتة بتتحمّل)، والباقي من السيرفر
+function myKh(mid){const c=cur(), asg=wirdsFor(mid).filter(inKh), rem=asg.filter(w=>!w.done[mid]);
+  const m=G.members.find(x=>x.id===mid), k=m&&m.kh;
+  const full=!(k&&G.khTotal)||k.assigned>=G.khTotal;
+  return {asg,rem,complete:!!c&&c.endRub>=240&&asg.length>0&&rem.length===0,full,k}}
 function khatmaCard(){
   const w=cur(), last=w&&w.endRub>=240, num=last?G.khatmas:G.khatmas+1;
-  if(last&&allDone(w))return `<div class="card khatm"><p class="h"><span>الختمة رقم ${AR(num)}</span><span>١٠٠٪</span></p>
-    <div class="big">ختمت المجموعة القرآن الكريم</div><div class="q">${DUA}</div>
-    <p class="sub" style="margin:6px 0 0">تقبّل الله منكم جميعاً. الورد القادم يبدأ ختمة جديدة من سورة الفاتحة.</p></div>`;
-  const pct=w?Math.round(100*w.endRub/240):0, prev=last?G.khatmas-1:G.khatmas;
-  return `<div class="card prog"><p class="h"><span>الختمة رقم ${AR(num)}</span><span class="num">${AR(pct)}٪</span></p>
+  const gpct=w?Math.round(100*w.endRub/240):0, prev=last?G.khatmas-1:G.khatmas;
+  const prevTxt=prev>0?` · أتممنا ${AR(prev)} ${prev>2&&prev<11?'ختمات':'ختمة'} قبلها`:'';
+  if(A.role==='admin'){
+    const ms=G.members, known=ms.filter(m=>m.kh), comp=known.filter(m=>m.kh.complete).length, clean=known.filter(m=>!m.kh.missed).length;
+    if(last&&ms.length&&known.length===ms.length&&comp===ms.length)return `<div class="card khatm"><p class="h"><span>الختمة رقم ${AR(num)}</span><span>١٠٠٪</span></p>
+      <div class="big">ختم كل الأعضاء القرآن الكريم</div><div class="q">${DUA}</div>
+      <p class="sub" style="margin:6px 0 0">الورد القادم يبدأ ختمة جديدة من سورة الفاتحة.</p></div>`;
+    return `<div class="card prog"><p class="h"><span>الختمة رقم ${AR(num)}</span><span class="num">${AR(gpct)}٪</span></p>
+      <div class="bar gold"><i style="width:${gpct}%"></i></div>
+      <p class="sub" style="margin:6px 0 0">${w?`وصلت المجموعة إلى ${ref(w.end)}`:'تبدأ الختمة مع أول ورد'}${prevTxt}</p>
+      ${w&&known.length?`<p class="sub kline">${last?`🌿 ختم منهم ${AR(comp)} من ${AR(ms.length)}`:`🌿 ما فاتهمش ولا ورد: ${AR(clean)} من ${AR(ms.length)}`}</p>`:''}</div>`;
+  }
+  const mk=myKh(A.mid);
+  if(mk.complete)return `<div class="card khatm"><p class="h"><span>الختمة رقم ${AR(num)}</span><span>١٠٠٪</span></p>
+    <div class="big">${mk.full?'ختمت القرآن الكريم':'أتممت أوراد الختمة'}</div><div class="q">${DUA}</div>
+    <p class="sub" style="margin:6px 0 0">${mk.full?'تقبّل الله منك.':'كل الأوراد منذ انضمامك، تقبّل الله منك.'} الورد القادم يبدأ ختمة جديدة من سورة الفاتحة.</p></div>`;
+  const q=khSeg().filter(x=>x.done[A.mid]&&isQueued(x)), k=mk.k;
+  const rubs=k?k.rubs+q.reduce((a,x)=>a+x.endRub-x.startRub+1,0):mk.asg.filter(x=>x.done[A.mid]).reduce((a,x)=>a+x.endRub-x.startRub+1,0);
+  const done=k?k.done+q.length:mk.asg.length-mk.rem.length, asg=k?Math.max(k.assigned,done):mk.asg.length, pct=Math.min(100,Math.round(100*rubs/240));
+  return `<div class="card prog"><p class="h"><span>ختمتك · الختمة رقم ${AR(num)}</span><span class="num">${AR(pct)}٪</span></p>
     <div class="bar gold"><i style="width:${pct}%"></i></div>
-    <p class="sub" style="margin:6px 0 0">${w?`وصلنا معاً إلى ${ref(w.end)}`:'تبدأ الختمة مع أول ورد'}${prev>0?` · أتممنا ${AR(prev)} ${prev>2&&prev<11?'ختمات':'ختمة'} قبلها`:''}</p></div>`;
+    <p class="sub" style="margin:6px 0 0">${w?`قرأت ${AR(done)} من ${AR(asg)} ${plW(asg)} في الختمة دي${mk.rem.length>(w.done[A.mid]?0:1)?` · فاتك ${numW(mk.rem.length-(w.done[A.mid]?0:1))}`:''}`:'تبدأ الختمة مع أول ورد'}</p>
+    ${w?`<p class="sub kline">المجموعة وصلت إلى ${ref(w.end)} (${AR(gpct)}٪)${prevTxt}</p>`:''}</div>`;
 }
 
 /* ---- النقاط مع مكافأة المبادرين ---- */
@@ -448,6 +526,13 @@ let cancelOpen=false, mvId=null;
 function selfCard(){const on=selfReads();
   return `<div class="card selfcard"><div class="switch"><label for="selfread"><b>أقرأ مع المجموعة</b><br><span class="sub">${on?`تُحسب قراءتك مع الأعضاء · نقاطك ${AR(pointsFor(A.mid))} · التزامك ${AR(commit(A.mid))}٪`:'فعّلها لتقرأ الورد وتظهر قراءتك مع الأعضاء'}</span></label>
     <input type="checkbox" id="selfread" ${on?'checked':''}></div></div>`}
+function lateCard(){const late=G.members.filter(m=>m.kh&&m.kh.missed>0).sort((a,b)=>b.kh.missed-a.kh.missed);
+  if(!late.length)return '';
+  return `<div class="card"><p class="h"><span>أوراد فاتت الأعضاء</span><span class="chip wait">${AR(late.length)}</span></p>
+    <p class="sub" style="margin:0 0 6px">في الختمة الحالية. التذكير يوصل للعضو لوحده، مرة واحدة في اليوم.</p>
+    <ul class="list">${late.map(m=>`<li><span class="av">${initials(m.name)}</span>
+      <span class="grow"><span class="name">${esc(m.name)}${m.id===A.mid?' <span class="tag">المشرف</span>':''}${pushIcon(m)}</span><br><span class="sub">فاته ${numW(m.kh.missed)}</span></span>
+      ${m.id===A.mid?'':m.qr?'<span class="chip ok">اتذكّر النهارده</span>':`<button class="btn btn-ghost sm" data-rq="${m.id}">🔔 تذكير</button>`}</li>`).join('')}</ul></div>`}
 function adminView(){
   const w=cur(), done=w?G.members.filter(m=>w.done[m.id]):[], pend=w?G.members.filter(m=>!w.done[m.id]):[];
   const pct=G.members.length?Math.round(100*done.length/G.members.length):0;
@@ -478,7 +563,8 @@ function adminView(){
     <ul class="list">${[...pend,...done].map(m=>`<li><span class="av">${initials(m.name)}</span>
       <span class="grow"><span class="name">${esc(m.name)}${m.id===A.mid?' <span class="tag">المشرف</span>':''}${pushIcon(m)}</span><br><span class="sub">${w.done[m.id]?'أتم '+ago(w.done[m.id]):'لم يقرأ بعد'}</span></span>
       <span class="chip ${w.done[m.id]?'ok':'wait'}">${w.done[m.id]?(bonusOf(w,w.done[m.id])?'⭐ تم':'تم ✓'):'لم يقرأ'}</span></li>`).join('')}</ul>
-  </div>`:`
+  </div>
+  ${lateCard()}`:`
   <div class="card wird">
     <p class="h"><span>مرحباً بك في ${esc(G.group)}</span></p>
     <div class="range">ابدأ أول ورد للمجموعة</div>
@@ -508,7 +594,15 @@ function adminView(){
     <div class="row" style="margin-top:14px"><button class="btn btn-main" id="publish">نشر الورد وإشعار ${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}</button></div>
   </div>`;
 }
-function bindAdmin(){
+function bindLate(){document.querySelectorAll('[data-rq]').forEach(b=>b.onclick=async()=>{const m=G.members.find(x=>x.id===b.dataset.rq);if(!m)return;
+  b.disabled=true;b.textContent='جارٍ الإرسال…';
+  const {data,error}=await sb.rpc('remind_qada',{p_group:G.id,p_user:m.id});
+  if(error){const t=(error.message||'');
+    if(/already/i.test(t)){m.qr=true;render();return toast('اتبعتله تذكير النهارده خلاص.')}
+    if(/nothing/i.test(t)){await refresh();return toast(`${m.name} مفيش أوراد فاتته دلوقتي.`)}
+    b.disabled=false;b.textContent='🔔 تذكير';return toast(errMsg(error))}
+  m.qr=true;render();toast(`اتبعت التذكير لـ${m.name}${m.push===false?'، وهيلاقيه في التنبيهات لما يفتح التطبيق':''}`)})}
+function bindAdmin(){bindLate();
   const pv=$('#preview');if(pv)pv.onclick=()=>openReader(cur());
   const co=$('#cw-open');if(co)co.onclick=()=>{cancelOpen=true;render()};
   const cn=$('#cw-no');if(cn)cn.onclick=()=>{cancelOpen=false;render()};
@@ -578,9 +672,11 @@ function settingsView(){
     <p class="h"><span>الأعضاء والنقاط</span><span>${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}</span></p>
     ${G.members.length?pushSummary():'<p class="empty">لا يوجد أعضاء بعد.</p>'}
     <ul class="list">${board.map(m=>mvId===m.id?`<li>${moveRow(m)}</li>`:rmId===m.id?`<li>${confirmRow(`حذف <b>${esc(m.name)}</b> من المجموعة؟ قراءاته السابقة تبقى في الإحصائيات.`,'rm-ok','حذف','rm-no')}</li>`:`<li><span class="av">${initials(m.name)}</span>
-      <span class="grow"><span class="name">${esc(m.name)}${m.id===A.mid?' <span class="tag">المشرف</span>':''}${pushIcon(m)}</span><br><span class="sub num">التزام ${AR(commit(m.id))}٪ · ${AR(streak(m.id))} أوراد متتالية</span></span>
+      <span class="grow"><span class="name">${esc(m.name)}${m.id===A.mid?' <span class="tag">المشرف</span>':''}${pushIcon(m)}</span><br><span class="sub num">التزام ${AR(commit(m.id))}٪ · ${AR(streak(m.id))} أوراد متتالية${m.kh&&m.kh.missed?` · <b class="late">فاته ${numW(m.kh.missed)}</b>`:''}</span></span>
       <span class="pts num">${AR(pointsFor(m.id))} نقطة</span>${m.id===A.mid?'':`${GROUPS.length>1?`<button class="rm mv" data-mv="${m.id}" aria-label="نقل ${esc(m.name)} لمجموعة أخرى" title="نقل لمجموعة أخرى">⇄</button>`:''}<button class="rm" data-rm="${m.id}" aria-label="حذف ${esc(m.name)}" title="حذف من المجموعة">✕</button>`}</li>`).join('')}</ul>
-    <div class="switch" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><label for="board">إظهار ترتيب النقاط للأعضاء</label><input type="checkbox" id="board" ${G.showBoard?'checked':''}></div>
+    <div class="switch" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><label for="pts-on">إظهار النقاط للأعضاء</label><input type="checkbox" id="pts-on" ${G.showPoints?'checked':''}></div>
+    <div class="switch" style="margin-top:10px"><label for="board">إظهار ترتيب النقاط للأعضاء</label><input type="checkbox" id="board" ${G.showBoard&&G.showPoints?'checked':''} ${G.showPoints?'':'disabled'}></div>
+    <p class="sub" style="margin:8px 0 0">لو النقاط مخفية، العضو يشوف التزامه وأوراده المتتالية بس، وانت تفضل شايف كل حاجة.</p>
   </div>
   ${autoCard()}
   ${bonusCard()}
@@ -614,6 +710,10 @@ function bindSettings(){
   const rmo=$('#rm-ok');if(rmo)rmo.onclick=async()=>{rmo.disabled=true;const who=(G.members.find(m=>m.id===rmId)||{}).name||'العضو';
     const {error}=await sb.rpc('remove_member',{p_group:G.id,p_user:rmId});rmId=null;
     if(error){render();return toast(errMsg(error))}await refresh();toast(`حُذف ${who} من المجموعة`)};
+  const po=$('#pts-on');if(po)po.onchange=async e=>{const v=e.target.checked;
+    const {error}=await sb.from('groups').update({show_points:v}).eq('id',G.id);
+    if(error){e.target.checked=!v;toast(errMsg(error));return}
+    G.showPoints=v;render();toast(v?'النقاط ظاهرة للأعضاء':'النقاط مخفية عن الأعضاء')};
   $('#board').onchange=async e=>{const v=e.target.checked;
     const {error}=await sb.from('groups').update({show_board:v}).eq('id',G.id);
     if(error){e.target.checked=!v;toast(errMsg(error));return}
@@ -649,20 +749,19 @@ function memberView(){
     <p class="h"><span>${isDone?'وردك لهذه المرة':'الورد الجديد'} · ${unitName(w.count)}</span><span>${ago(w.at)}</span></p>
     <div class="range">${ref(w.start)} ← ${ref(w.end)}</div>
     <div class="meta"><span>${AR(w.p2-w.p1+1)} صفحات</span><span>${isDone?(isQueued(w)?'أتممته · في انتظار الاتصال':'أتممته '+ago(w.done[me.id])):left(w)}</span></div>
-    ${bonusLeft>0?`<div class="meta" style="margin-top:4px"><span>⭐ +٥ نقاط للمبادرين إذا أتممته خلال ${AR(Math.max(1,Math.ceil(bonusLeft/H)))} ${Math.ceil(bonusLeft/H)>2?'ساعات':'ساعة'}</span></div>`:''}
-    ${allDone(w)?'<div class="meta" style="margin-top:4px"><span>🌿 المجموعة كلها أتمّت الورد، الحمد لله</span></div>':''}
+    ${bonusLeft>0&&G.showPoints?`<div class="meta" style="margin-top:4px"><span>⭐ +٥ نقاط للمبادرين إذا أتممته خلال ${AR(Math.max(1,Math.ceil(bonusLeft/H)))} ${Math.ceil(bonusLeft/H)>2?'ساعات':'ساعة'}</span></div>`:''}
     <div class="row" style="margin-top:16px"><button class="btn btn-light" id="read">${isDone?'إعادة القراءة':(readPos(w)?'أكمل القراءة':'ابدأ القراءة')}</button>${paperBtn(w)}</div>${paperConfirm(w)}
   </div>`:`<div class="card wird"><p class="h"><span>الورد</span></p>
     <div class="range">لم يُنشر ورد بعد</div><div class="meta"><span>سيصلك إشعار عندما ينشر المشرف الورد الأول.</span></div></div>`}
 
   <div class="card"><p class="h"><span>إنجازك</span></p>
     <div class="stats">
-      <div class="stat"><b class="num">${AR(pointsFor(me.id))}</b><span>نقطة</span></div>
+      ${G.showPoints?`<div class="stat"><b class="num">${AR(pointsFor(me.id))}</b><span>نقطة</span></div>`:''}
       <div class="stat"><b class="num">${AR(streak(me.id))}</b><span>أوراد متتالية</span></div>
       <div class="stat"><b class="num">${AR(commit(me.id))}٪</b><span>التزام</span></div>
     </div></div>
 
-  ${G.showBoard?`<div class="card"><p class="h"><span>ترتيب المجموعة</span></p><ul class="list">${board.map((m,i)=>`<li><span class="av">${AR(i+1)}</span>
+  ${G.showBoard&&G.showPoints?`<div class="card"><p class="h"><span>ترتيب المجموعة</span></p><ul class="list">${board.map((m,i)=>`<li><span class="av">${AR(i+1)}</span>
     <span class="grow name">${esc(m.name)}${m.id===me.id?' <span class="sub">(أنت)</span>':''}${G.adminId===m.id&&m.id!==me.id?' <span class="tag">المشرف</span>':''}</span><span class="pts num">${AR(pointsFor(m.id))}</span></li>`).join('')}</ul></div>`:''}
 
   ${qadaCard(me)}
@@ -673,7 +772,7 @@ function memberView(){
     :'<button class="back danger" id="leave" style="align-self:center">الخروج من هذه المجموعة</button>'}`;
 }
 function qadaCard(me){
-  const missed=wirdsFor(me.id).filter(x=>x!==cur()&&!x.done[me.id]);
+  const missed=wirdsFor(me.id).filter(x=>x!==cur()&&!x.done[me.id]&&inKh(x));
   if(!missed.length)return '';
   const shown=missed.slice(0,10);
   return `<div class="card qada"><p class="h"><span>أوراد فاتتك</span><span class="chip wait">${AR(missed.length)}</span></p>
@@ -709,6 +808,16 @@ function bindNotes(){
 
 /* ---------- READER ---------- */
 let R=null;
+// ملء الشاشة + الشاشة ما تطفيش أثناء القراءة
+let FULL=false;try{FULL=localStorage.getItem('khatma-full')==='1'}catch(e){}
+let ctlT=0,wakeL=null;
+function goFS(){try{const d=document.documentElement;if(!document.fullscreenElement&&d.requestFullscreen)d.requestFullscreen({navigationUI:'hide'}).catch(()=>{})}catch(e){}}
+function exitFS(){try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{})}catch(e){}}
+function setFull(on){FULL=on;try{localStorage.setItem('khatma-full',on?'1':'0')}catch(e){}
+  if(on)goFS();else exitFS();if(R){R.anim='';drawReader()}}
+async function wake(){try{if(R&&navigator.wakeLock&&!wakeL&&document.visibilityState==='visible'){wakeL=await navigator.wakeLock.request('screen');wakeL.addEventListener('release',()=>{wakeL=null})}}catch(e){wakeL=null}}
+function readerClosed(){exitFS();try{if(wakeL)wakeL.release()}catch(e){}wakeL=null}
+document.addEventListener('visibilitychange',()=>{if(R)wake()});
 function pageHTML(p,w){
   const a=Q.p[p-1], b=p<604?Q.p[p]-1:N; let out='';
   for(let id=a;id<=b;id++){
@@ -757,8 +866,21 @@ function page4HTML(d,w){
   }).join('');
 }
 let RATIO=0;
+// الصفحة كلها على قد الشاشة: نضبط العرض على السطور، ولو الطول أكبر من المساحة نصغّر الصفحة
 function fit4(){
   const box=$('#m4');if(!box||!box.querySelector('.l4'))return;
+  const pg=$('#mpage'),body=$('#rbody');if(pg)pg.style.maxWidth='';box.style.lineHeight='';
+  fitW(box);if(!pg||!body)return;
+  const cs=getComputedStyle(body),avail=body.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-2;
+  for(let k=0;k<4&&pg.offsetHeight>avail;k++){
+    const min=Math.min(pg.offsetWidth,260),nw=Math.max(min,Math.floor(pg.offsetWidth*avail/pg.offsetHeight)-(k?4:0));
+    pg.style.maxWidth=nw+'px';fitW(box);if(nw<=min)break}
+  // لو فاضل مساحة تحت: نوسّع المسافة بين السطور عشان الصفحة تملأ الشاشة زي المصحف الورقي
+  const spare=avail-pg.offsetHeight;
+  if(spare>8&&box.offsetHeight>0){const lh=parseFloat(getComputedStyle(box).lineHeight)/parseFloat(box.style.fontSize||getComputedStyle(box).fontSize)||1.9;
+    box.style.lineHeight=Math.min(2.6,lh*(1+(spare-4)/box.offsetHeight)).toFixed(3)}
+}
+function fitW(box){
   const W=box.clientWidth, lines=[...box.querySelectorAll('.l4')], B=40;
   box.style.fontSize=B+'px';lines.forEach(l=>{l.classList.remove('just','cen');l.style.fontSize=''});
   const nat=lines.map(l=>{let s=0;for(const c of l.children)s+=c.getBoundingClientRect().width;return s});
@@ -782,12 +904,16 @@ function readPos(w){try{return JSON.parse(localStorage.getItem(posKey(w))||'null
 let QT_P=null;
 function ensureText(){if(window.QT)return Promise.resolve();if(QT_P)return QT_P;
   QT_P=new Promise((res,rej)=>{const s=document.createElement('script');s.src='/quran-text-v1.js';s.onload=()=>window.QT?res():rej();s.onerror=()=>{QT_P=null;s.remove();rej()};document.head.appendChild(s)});return QT_P}
-function openReader(w){const m=mushaf==='madinah'&&!navigator.onLine?'text':mushaf;
+// بدون إنترنت: نجرب صفحات المدينة من المحفوظ، ولو مش موجودة نعرض النص
+const mdReady=(w,ms)=>Promise.race([Promise.all(readerPages(w,'madinah').map(loadPage4)).then(()=>true,()=>false),new Promise(r=>setTimeout(()=>r(false),ms||3000))]);
+let opening=false;
+async function openReader(w){if(opening)return;opening=true;let m=mushaf;if(FULL)goFS();
+  try{if(m==='madinah'&&!navigator.onLine&&!(await mdReady(w)))m='text'}finally{opening=false}
   const list=readerPages(w,m);let i=0;const sp=!w.done[A.mid]&&readPos(w);
   if(sp){const firstId=sp.id||0,np=m==='madinah'?pageOf4(firstId):pageOf(firstId),k=list.indexOf(np);if(k>0){i=k;setTimeout(()=>toast('تكملة من حيث توقفت'),50)}}
   R={w,mode:m,list,i,offText:m!==mushaf};
   const n=((history.state&&history.state.n)||0)+1;history.pushState({k:'read',n},'');
-  drawReader()}
+  drawReader();wake()}
 function switchMode(m,persist){const {w,list,i,mode}=R,p=list[i];
   const firstId=Math.max(w.start,mode==='madinah'?QP4[p-1]:Q.p[p-1]);
   if(persist){mushaf=m;try{localStorage.setItem('khatma-mushaf',m)}catch(e){}}
@@ -795,14 +921,17 @@ function switchMode(m,persist){const {w,list,i,mode}=R,p=list[i];
   R={...R,w,mode:m,list:nl,i:Math.max(0,nl.indexOf(np)),offText:!persist&&m==='text'};drawReader()}
 function drawReader(){
   const {w,list,i,mode}=R, p=list[i], total=list.length, last=i===total-1, done=!!w.done[A.mid], md=mode==='madinah';
-  $('#layer').innerHTML=`<div class="reader" role="dialog" aria-label="المصحف">
+  $('#layer').innerHTML=`<div class="reader ${FULL?'full':''} ${last?'islast':''}" role="dialog" aria-label="المصحف">
+    ${FULL?`<div class="fctl"><div class="r-in"><button class="x" id="fclose" aria-label="إغلاق المصحف">✕</button>
+      <span class="grow sub num">صفحة ${AR(i+1)} من ${AR(total)}</span>
+      <button class="fullbtn" id="fexit"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg><span>خروج من ملء الشاشة</span></button></div></div>`:''}
     <div class="r-head"><div class="r-in"><button class="x" id="rclose" aria-label="إغلاق">✕</button>
       <div class="r-title"><b>${w!==cur()?'قضاء: ':''}${ref(w.start)} ← ${ref(w.end)}</b><span class="sub num">صفحة ${AR(i+1)} من ${AR(total)}</span></div>
       <div class="seg mseg" role="group" aria-label="نوع المصحف"><button data-m="madinah" aria-pressed="${md}">المدينة</button><button data-m="text" aria-pressed="${!md}">نص</button></div></div>
-      <div class="r-in fsz"><span class="sub">حجم الخط</span><button id="fs-down" aria-label="تصغير الخط" ${!md&&FS<=0.8?'disabled':''}>أ−</button><button id="fs-up" aria-label="تكبير الخط" ${!md&&FS>=1.8?'disabled':''}>أ+</button></div>
+      <div class="r-in fsz"><button class="fullbtn" id="fullbtn" style="margin-inline-end:auto"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>ملء الشاشة</span></button><span class="sub">حجم الخط</span><button id="fs-down" aria-label="تصغير الخط" ${!md&&FS<=0.8?'disabled':''}>أ−</button><button id="fs-up" aria-label="تكبير الخط" ${!md&&FS>=1.8?'disabled':''}>أ+</button></div>
       <div class="r-in" style="margin-top:8px"><div class="bar" style="flex:1"><i style="width:${100*(i+1)/total}%"></i></div></div>
       ${R.offText?'<div class="r-in"><p class="sub offnote">غير متصل بالإنترنت: يُعرض النص، ويعود مصحف المدينة مع الاتصال.</p></div>':''}</div>
-    <div class="r-body" id="rbody"><div class="mushaf ${md?'md':''}">
+    <div class="r-body ${md?'mdb':''}" id="rbody"><div class="mushaf ${md?'md':''} ${R.anim||''}" id="mpage">
       ${md?`<div class="m4" id="m4"><p class="sub" style="text-align:center;padding:48px 0;font-size:15px">جارٍ تحميل الصفحة…</p></div>`
         :(window.QT?`<div class="txt" style="font-size:${(24*FS).toFixed(1)}px">${pageHTML(p,w)}</div>`:`<div class="txt" id="txtwait"><p class="sub" style="text-align:center;padding:48px 0;font-size:15px">جارٍ تحميل الصفحة…</p></div>`)}
       <div class="pg num">${AR(p)}</div></div></div>
@@ -819,12 +948,21 @@ function drawReader(){
   const fsSet=d=>{if(R.mode==='madinah'){switchMode('text',true);toast('لتكبير الخط انتقلنا لوضع «نص». ويمكنك الرجوع لـ«المدينة» من الأعلى.');return}
     FS=Math.min(1.8,Math.max(0.8,Math.round((FS+d)*10)/10));try{localStorage.setItem('khatma-fs',FS)}catch(e){}drawReader()};
   $('#fs-up').onclick=()=>fsSet(0.1);$('#fs-down').onclick=()=>fsSet(-0.1);
-  $('#prev').onclick=()=>{R.i--;drawReader()};
-  const nx=$('#next');if(nx)nx.onclick=()=>{R.i++;drawReader()};
+  R.anim='';
+  $('#prev').onclick=()=>turnPage(-1);
+  const nx=$('#next');if(nx)nx.onclick=()=>turnPage(1);
+  bindSwipe($('#rbody'));
+  const fb=$('#fullbtn');if(fb)fb.onclick=()=>setFull(true);
+  const fe=$('#fexit');if(fe)fe.onclick=()=>setFull(false);
+  const fc=$('#fclose');if(fc)fc.onclick=close;
+  $('#rbody').addEventListener('click',e=>{if(!FULL||e.target.closest('button'))return;const r=$('.reader');if(!r)return;
+    r.classList.toggle('ctl');clearTimeout(ctlT);if(r.classList.contains('ctl'))ctlT=setTimeout(()=>{const x=$('.reader');if(x)x.classList.remove('ctl')},3500)});
+  if(total>1&&!lsGet('khatma-swipe-hint')){lsSet('khatma-swipe-hint','1');setTimeout(()=>toast('تقدر تقلّب الصفحات بسحب الشاشة يمين وشمال، أو من زرار «الصفحة التالية».'),600)}
   const dn=$('#done');if(dn)dn.onclick=()=>finish();
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
     const m=b.dataset.m;if(m===R.mode)return;
-    if(m==='madinah'&&!navigator.onLine)return toast('مصحف المدينة يحتاج اتصالاً بالإنترنت. اقرأ من النص الآن.');
+    if(m==='madinah'&&!navigator.onLine){const w=R.w;
+      return mdReady(w).then(ok=>{if(!R||R.w!==w)return;if(ok)switchMode('madinah',true);else toast('صفحات مصحف المدينة للورد ده مش محفوظة على جهازك. اقرأ من النص دلوقتي، وهتتحفظ أول ما تتصل بالإنترنت.')})}
     switchMode(m,true);
   });
   if(md){
@@ -841,6 +979,27 @@ function drawReader(){
     });
   }
 }
+// تقليب الصفحات: السحب بالإصبع + الأزرار + أسهم الكيبورد
+function turnPage(d){if(!R)return false;const j=R.i+d;
+  if(j<0)return false;
+  if(j>=R.list.length){toast('دي آخر صفحة في الورد.');return false}
+  R.i=j;R.anim=d>0?'sl-n':'sl-p';drawReader();return true}
+function bindSwipe(el){if(!el)return;let x0=0,y0=0,t0=0,on=false,horiz=null;const pg=()=>$('#mpage');
+  el.addEventListener('touchstart',e=>{if(e.touches.length!==1){on=false;return}const t=e.touches[0];x0=t.clientX;y0=t.clientY;t0=Date.now();on=true;horiz=null},{passive:true});
+  el.addEventListener('touchmove',e=>{if(!on)return;if(e.touches.length!==1){on=false;const m=pg();if(m)m.style.transform='';return}
+    const t=e.touches[0],dx=t.clientX-x0,dy=t.clientY-y0;
+    if(horiz===null&&(Math.abs(dx)>10||Math.abs(dy)>10))horiz=Math.abs(dx)>Math.abs(dy)*1.3;
+    if(horiz){const m=pg();if(m){m.style.transition='none';m.style.transform=`translateX(${dx*0.35}px)`;m.style.opacity=String(1-Math.min(Math.abs(dx)/900,.25))}}},{passive:true});
+  const end=e=>{if(!on)return;on=false;const m=pg();
+    const t=e.changedTouches&&e.changedTouches[0];const dx=t?t.clientX-x0:0,dy=t?t.clientY-y0:0,fast=Date.now()-t0<700;
+    const ok=horiz&&Math.abs(dx)>(fast?50:90)&&Math.abs(dx)>Math.abs(dy)*1.3;
+    // المصحف من اليمين للشمال: السحب لليمين = الصفحة التالية
+    if(ok&&turnPage(dx>0?1:-1))return;
+    if(m){m.style.transition='transform .18s,opacity .18s';m.style.transform='';m.style.opacity=''}};
+  el.addEventListener('touchend',end,{passive:true});el.addEventListener('touchcancel',end,{passive:true});
+}
+addEventListener('keydown',e=>{if(!R||(e.target.closest&&e.target.closest('input,textarea')))return;
+  if(e.key==='ArrowLeft'){e.preventDefault();turnPage(1)}else if(e.key==='ArrowRight'){e.preventDefault();turnPage(-1)}});
 let undoT=0;
 async function finish(wArg){
   if(wArg&&!wArg.done)wArg=null;
@@ -849,11 +1008,11 @@ async function finish(wArg){
   if(!w.done[A.mid])setQ([...getQ().filter(x=>!(x.wird_id===w.id&&x.user_id===A.mid)),{wird_id:w.id,user_id:A.mid,done_at:new Date(t).toISOString()}]);
   w.done[A.mid]=w.done[A.mid]||t;saveCache();try{localStorage.removeItem(posKey(w))}catch(e){}
   clearTimeout(undoT);let undone=false;undoT=setTimeout(()=>{if(!undone)flushQueue().catch(()=>{});const u=$('#undo');if(u)u.remove()},5000);
-  const pts=ptsW(w,w.done[A.mid]), bon=bonusOf(w,w.done[A.mid]), khatm=w.endRub===240;
+  const pts=ptsW(w,w.done[A.mid]), bon=bonusOf(w,w.done[A.mid]), mk=myKh(A.mid), khatm=mk.complete&&inKh(w), remK=cur()&&cur().endRub>=240&&!khatm?mk.rem.length:0, showP=G.showPoints||A.role==='admin';
   $('#layer').innerHTML=`<div class="modal"><div class="dlg">
-    <div class="big">${khatm?'ختمت القرآن':'تقبّل الله منك'}</div>${w!==cur()&&!khatm?'<div class="sub">قضيت وردك الفائت، بارك الله فيك.</div>':''}
-    ${khatm?'<div class="q">اللَّهُمَّ ارْحَمْنِي بِالقُرْآنِ، وَاجْعَلْهُ لِي إِمَامًا وَنُورًا وَهُدًى وَرَحْمَةً</div><div class="sub">سيصلكم تنبيه عندما تتم المجموعة كلها الختمة.</div>':''}
-    <div>أُضيفت <b class="num">${AR(pts)}</b> ${pts>2&&pts<11?'نقاط':'نقطة'}${bon?` (منها ${AR(bon)} مكافأة المبادرين ⭐)`:''} · ${AR(streak(A.mid))} ${streak(A.mid)>2&&streak(A.mid)<11?'أوراد متتالية':'ورد متتالٍ'}</div>
+    <div class="big">${khatm?(mk.full?'ختمت القرآن':'أتممت أوراد الختمة'):'تقبّل الله منك'}</div>${w!==cur()&&!khatm?'<div class="sub">قضيت وردك الفائت، بارك الله فيك.</div>':''}
+    ${khatm?`<div class="q">اللَّهُمَّ ارْحَمْنِي بِالقُرْآنِ، وَاجْعَلْهُ لِي إِمَامًا وَنُورًا وَهُدًى وَرَحْمَةً</div>${mk.full?'':'<div class="sub">كل الأوراد منذ انضمامك، تقبّل الله منك.</div>'}`:''}${remK?`<div class="sub">باقي لك ${numW(remK)} عشان تختم، تلاقيها في «أوراد فاتتك».</div>`:''}
+    <div>${showP?`أُضيفت <b class="num">${AR(pts)}</b> ${pts>2&&pts<11?'نقاط':'نقطة'}${bon?` (منها ${AR(bon)} مكافأة المبادرين ⭐)`:''} · `:''}${AR(streak(A.mid))} ${streak(A.mid)>2&&streak(A.mid)<11?'أوراد متتالية':'ورد متتالٍ'}</div>
     <div class="sub">${!online?(A.role==='admin'?'سُجّلت قراءتك على جهازك، وتُرسل تلقائياً عند الاتصال بالإنترنت.':'سُجّلت قراءتك على جهازك، وتصل للمشرف تلقائياً عند الاتصال بالإنترنت.'):(A.role==='admin'?'سُجّلت قراءتك مع المجموعة.':'وصل للمشرف أنك أتممت الورد.')}</div>
     <button class="btn btn-main" id="ok">الحمد لله</button>
     <button class="back" id="undo">سجّلتها بالغلط؟ تراجع</button></div></div>`;
@@ -1130,7 +1289,8 @@ function authView(){
   if(!AU.role) return `
   <div class="hero"><div class="logo">ختمة</div><p class="sub">ختمة القرآن الكريم مع أهلك وأصحابك: وِرد يصلك، تقرؤه، وتسجّل إتمامه.</p></div>
   <button class="rolecard" data-role="admin"><span class="ri">۞</span><span class="grow"><b>المشرف</b><span class="sub">أنشئ مجموعة، انشر الورد، وتابع الأعضاء</span></span><span class="go">‹</span></button>
-  <button class="rolecard" data-role="member"><span class="ri">📖</span><span class="grow"><b>العضو</b><span class="sub">انضم لمجموعة بالكود واقرأ وردك</span></span><span class="go">‹</span></button>`;
+  <button class="rolecard" data-role="member"><span class="ri">📖</span><span class="grow"><b>العضو</b><span class="sub">انضم لمجموعة بالكود واقرأ وردك</span></span><span class="go">‹</span></button>
+  ${shareCard()}`;
   const adm=AU.role==='admin', reg=AU.tab==='register';
   return `
   <button class="back" id="back">› رجوع</button>
@@ -1176,7 +1336,7 @@ setInterval(tickResend,1000);
 function bindAuth(){
   document.querySelectorAll('[data-eye]').forEach(b=>b.onclick=()=>{const i=$('#'+b.dataset.eye),show=i.type==='password';
     i.type=show?'text':'password';b.textContent=show?'إخفاء':'إظهار';b.setAttribute('aria-label',show?'إخفاء كلمة المرور':'إظهار كلمة المرور')});
-  document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{AU={role:b.dataset.role,tab:'login',err:'',info:''};render()});
+  bindShareCard();document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{AU={role:b.dataset.role,tab:'login',err:'',info:''};render()});
   const bk=$('#back');if(bk)bk.onclick=()=>{if(AU.stage==='verify'){AU={role:AU.role,tab:AU.tab,err:'',info:''}}else AU={role:null,tab:'login',err:'',info:''};render()};
   document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{AU.tab=b.dataset.tab;AU.err='';AU.info='';render()});
   tickResend();
@@ -1275,6 +1435,41 @@ function bindDiag(){const p=$('#dg-ping');if(!p)return;
     const pr=navigator.clipboard&&navigator.clipboard.writeText(t);if(pr)pr.then(()=>toast('نُسخت النتائج'),()=>toast('صوّر الشاشة بدلاً من النسخ'));else toast('صوّر الشاشة بدلاً من النسخ')}}
 addEventListener('hashchange',()=>{if(location.hash==='#diag')render()});
 
+const SH_ICON='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>';
+/* ---------- مشاركة التطبيق ---------- */
+const APP_URL='https://khatma-opal.vercel.app';
+const SHARE_MSG='تطبيق «ختمة»، بيجمعنا على ختمة القرآن، اختم مع أهلك وأصحابك.';
+const shareText=()=>`${SHARE_MSG}\n${APP_URL}`;
+const IC={
+  wa:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.7-5.1A8.5 8.5 0 1 1 21 11.5z"/><path d="M9 9.5c.3 1.6 1.9 3.6 4 4.5l1.2-1.1 1.8.8-.4 1.6c-3 .3-6.6-3-6.9-6l1.5-.5.8 1.8z" fill="currentColor" stroke="none"/></svg>',
+  fb:'<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M14 8h3V4h-3c-2.8 0-4.5 1.8-4.5 4.6V11H7v4h2.5v7h4v-7H17l.5-4h-4V8.8c0-.5.2-.8.5-.8z"/></svg>',
+  tg:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21.5 3.5L2.5 11l6.5 2.5L19 6l-8 8.5.5 6 3-4 5 3.5z"/></svg>',
+  ln:'<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>',
+  more:'<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>'};
+function shareCard(){return `<div class="card sharecard"><div class="sc-in">
+    <div class="sc-t"><b>شارك ختمة مع أحبابك</b><span class="sub">«الدالّ على الخير كفاعله»</span></div>
+    <button class="btn btn-main sm" data-share="open">${SH_ICON}<span>مشاركة</span></button></div></div>`}
+function shareSheet(){const L=$('#layer');
+  L.innerHTML=`<div class="modal sheetwrap" id="shm"><div class="sheet" role="dialog" aria-label="مشاركة التطبيق">
+    <div class="grab"></div>
+    <div class="sh-head"><img src="/icon-192.png" alt="" width="44" height="44"><div><b>ختمة</b><span class="sub">نقرأ نفس الورد… ونختم القرآن معاً</span></div></div>
+    <div class="sh-grid">
+      <a class="sh-o" style="--c:#1fa855" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(shareText())}"><span class="sh-i">${IC.wa}</span>واتساب</a>
+      <a class="sh-o" style="--c:#1877f2" target="_blank" rel="noopener" href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(APP_URL)}"><span class="sh-i">${IC.fb}</span>فيسبوك</a>
+      <a class="sh-o" style="--c:#2aa3df" target="_blank" rel="noopener" href="https://t.me/share/url?url=${encodeURIComponent(APP_URL)}&text=${encodeURIComponent(SHARE_MSG)}"><span class="sh-i">${IC.tg}</span>تليجرام</a>
+      <button class="sh-o" style="--c:var(--lapis)" id="sh-copy" type="button"><span class="sh-i">${IC.ln}</span>نسخ الرابط</button>
+      ${navigator.share?`<button class="sh-o" style="--c:var(--gold)" id="sh-more" type="button"><span class="sh-i">${IC.more}</span>المزيد</button>`:''}
+    </div>
+    <div class="sh-link" dir="ltr">${APP_URL.replace('https://','')}</div>
+    <button class="btn btn-ghost" id="sh-close" style="width:100%">إغلاق</button></div></div>`;
+  const close=()=>{L.innerHTML=''};
+  $('#shm').onclick=e=>{if(e.target.id==='shm')close()};$('#sh-close').onclick=close;
+  L.querySelectorAll('a.sh-o').forEach(a=>a.addEventListener('click',()=>setTimeout(close,300)));
+  $('#sh-copy').onclick=async()=>{try{await navigator.clipboard.writeText(shareText());toast('نُسخت رسالة المشاركة مع الرابط')}catch(e){toast(APP_URL)}close()};
+  const m=$('#sh-more');if(m)m.onclick=async()=>{try{await navigator.share({title:'ختمة',text:shareText().replace(APP_URL,'').trim(),url:APP_URL})}catch(e){}close()};
+}
+function bindShareCard(){document.querySelectorAll('[data-share]').forEach(b=>b.onclick=shareSheet)}
+
 /* ---------- المرحلة التجريبية: ملاحظات، أخطاء، إشعارات، مصحف ورقي ---------- */
 let paperFor=null, bannerHidden=false;
 // قرأته من مصحفي
@@ -1348,9 +1543,9 @@ function render(){
   const toFb=()=>{const f=$('#to-fb');if(f)f.onclick=()=>go('feedback')};
   if(recovery||!A){$('#view').innerHTML=err+authView()+(recovery?'':`<div class="fbauth">${feedbackRow()}</div>`);bindAuth();toFb();return}
   if(VIEW==='notes'){$('#view').innerHTML=err+notesView();bindNotes();return}
-  if(!G){VIEW='home';$('#view').innerHTML=err+joinCard()+noGroupView()+appCard()+modeCard()+`<div class="card">${feedbackRow()}</div>`;bindJoinCard();bindNoGroup();bindAppCard();toFb();return}
+  if(!G){VIEW='home';$('#view').innerHTML=err+joinCard()+noGroupView()+appCard()+modeCard()+shareCard()+`<div class="card">${feedbackRow()}</div>`;bindJoinCard();bindNoGroup();bindAppCard();toFb();bindShareCard();return}
   if(VIEW==='settings'&&A.role==='admin'){$('#view').innerHTML=err+settingsView();bindSettings();return}
-  $('#view').innerHTML=err+joinCard()+pushBanner()+groupBar()+(A.role==='admin'?adminView():memberView())+appCard()+modeCard()+`<div class="card">${feedbackRow()}</div>`;
+  $('#view').innerHTML=err+joinCard()+pushBanner()+groupBar()+(A.role==='admin'?adminView():memberView())+appCard()+modeCard()+shareCard()+`<div class="card">${feedbackRow()}</div>`;bindShareCard();
   bindJoinCard();bindPushBanner();bindGroupBar();A.role==='admin'?bindAdmin():bindMember();bindAppCard();bindModeCard();toFb();
 }
 const THEMES=[{k:'auto',i:'◐',t:'تلقائي'},{k:'light',i:'☀',t:'فاتح'},{k:'dark',i:'☾',t:'داكن'}];
@@ -1360,6 +1555,7 @@ function applyTheme(){const r=document.documentElement;if(theme==='auto')r.remov
   b.setAttribute('aria-label','المظهر: '+c.t+'. اضغط للتغيير');b.title='المظهر: '+c.t;
   const dark=theme==='dark'||(theme==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);
   const m=document.querySelector('meta[name=theme-color]');if(m)m.content=dark?'#162027':'#1c4f7c'}
+$('#sharebtn').onclick=()=>{if(R)return;shareSheet()};
 $('#theme').onclick=()=>{const i=THEMES.findIndex(x=>x.k===theme);theme=THEMES[(i+1)%3].k;
   try{localStorage.setItem('khatma-theme',theme)}catch(e){}applyTheme();toast('المظهر: '+THEMES.find(x=>x.k===theme).t)};
 try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme)}catch(e){}
@@ -1369,9 +1565,11 @@ if(PJ&&!lsGet('sb-yiumqwysldbrszadizjo-auth-token'))AU={role:'member',tab:'regis
 $('#brand').onclick=()=>{if(A)goHome()};
 const prefetched=new Set();
 function prefetchWird(){try{
-  if(!A||!G||R||!navigator.onLine||mushaf!=='madinah')return;const w=cur();
-  if(!w||prefetched.has(w.id)||w.done[A.mid]||!(A.role==='member'||selfReads()))return;
-  prefetched.add(w.id);readerPages(w,'madinah').forEach(p=>loadPage4(p).catch(()=>{}))}catch(e){}}
+  if(!A||!G||!navigator.onLine||!(A.role==='member'||selfReads()))return;
+  const c=cur(), list=[c,...wirdsFor(A.mid).filter(x=>x!==c&&!x.done[A.mid]&&inKh(x)).reverse()].filter(w=>w&&!w.done[A.mid]&&!prefetched.has(w.id));
+  let n=0;for(const w of list){const ps=readerPages(w,'madinah');if(n+ps.length>60)break;n+=ps.length;prefetched.add(w.id);
+    ps.reduce((pr,p)=>pr.then(()=>loadPage4(p).catch(()=>{})),Promise.resolve())}
+}catch(e){}}
 // فتح فوري: اعرض آخر بيانات محفوظة، وحدّثها في الخلفية
 if(remember()&&!recovery&&restoreCache()){OFF=null;loading=false;DIAG.cached=true}
 render();refresh().then(()=>{const idle=window.requestIdleCallback||(f=>setTimeout(f,1500));if(A)idle(()=>{prefetchWird();ensureText().catch(()=>{})})});resolvePJ();

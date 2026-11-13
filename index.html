@@ -336,6 +336,12 @@ textarea:focus{border-color:var(--lapis);outline:none;box-shadow:0 0 0 3px var(-
 .kahf .kq{font-family:var(--f-quran);font-size:17px;line-height:1.9;color:var(--ink);margin-top:2px}
 .kahf .kd{font-weight:500;color:var(--ink)}
 .kahf.kdone{background:var(--surface);border-color:var(--line)}
+.ostats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+@media (max-width:420px){.ostats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ostats .stat{background:var(--bg);border-radius:10px;padding:10px 6px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.ostats .stat b{font-size:20px}.ostats .stat span{font-size:12px;color:var(--muted)}
+.olist .otext{margin-top:6px;background:var(--bg);border-radius:8px;padding:8px 10px;white-space:pre-wrap;word-break:break-word;font-size:14px}
+.ownrow{border-style:dashed}
 /* share */
 .sharebtn{width:36px;padding:0;justify-content:center;color:var(--lapis)}
 .sharebtn svg{display:block}
@@ -381,7 +387,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-13b'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-13c'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -424,7 +430,7 @@ async function load(){
   if(error)throw error;
   if(!st||!st.profile){A=null;G=null;GROUPS=[];NOTES=[];return}
   if(!getMode())setMode(st.mode);
-  A={u:st.profile.email,name:st.profile.name,role:st.mode,mid:USER.id};
+  A={u:st.profile.email,name:st.profile.name,role:st.mode,mid:USER.id,owner:!!st.owner};
   GROUPS=st.groups||[];TRASH=st.trash||[];
   NOTES=(st.notes||[]).map(n=>({id:n.id,t:Date.parse(n.t),text:n.text,read:n.read}));
   if(!st.group){G=null;return}
@@ -486,7 +492,7 @@ function back(){if(history.state&&history.state.n)history.back();else{if(R){$('#
 function goHome(){const n=(history.state&&history.state.n)||0;if(n>0)history.go(-n);else{if(R){$('#layer').innerHTML='';R=null;readerClosed()}VIEW='home';delOpen=false;render();scrollTo(0,0)}}
 window.addEventListener('popstate',e=>{const k=e.state&&e.state.k;
   if(R&&k!=='read'){$('#layer').innerHTML='';R=null;readerClosed()}
-  VIEW=(k==='notes'||k==='settings'||k==='feedback')?k:'home';if(VIEW!=='settings')delOpen=false;render();if(k!=='read')scrollTo(0,0)});
+  VIEW=(k==='notes'||k==='settings'||k==='feedback'||k==='owner')?k:'home';if(VIEW!=='settings')delOpen=false;render();if(k!=='read')scrollTo(0,0)});
 const screenHead=t=>`<div class="shead"><button class="back" id="sback" type="button">› رجوع</button><h2>${t}</h2></div>`;
 
 /* ---- تقدّم الختمة الجماعي ---- */
@@ -1546,6 +1552,40 @@ function kahfFinish(fromR){lsSet(kahfKey(),'1');try{localStorage.removeItem('kha
 function syncTz(){try{if(!A)return;const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;if(!tz)return;const k=A.mid+'|'+tz;
   if(lsGet('khatma-tz')===k)return;sb.rpc('set_tz',{p_tz:tz}).then(({error})=>{if(!error)lsSet('khatma-tz',k)},()=>{})}catch(e){}}
 
+
+/* ---------- لوحة المالك (تظهر لحساب المالك فقط، والسيرفر يتحقق بنفسه) ---------- */
+let OWN=null,ownBusy=false,ownErr='';
+const ownerRow=()=>A&&A.owner?`<div class="card ownrow"><div class="row"><span class="grow"><b>🛠 لوحة المالك</b><br><span class="sub">الأرقام، الحسابات المعلقة، الرسائل والأخطاء</span></span><button class="btn btn-ghost sm" id="to-owner">فتح</button></div></div>`:'';
+function bindOwnerRow(){const b=$('#to-owner');if(b)b.onclick=()=>{OWN=null;go('owner');loadOwner()}}
+async function loadOwner(){if(ownBusy)return;ownBusy=true;ownErr='';if(VIEW==='owner')render();
+  try{const {data,error}=await sb.rpc('owner_stats');if(error)throw error;OWN=data}catch(e){ownErr=isNetErr(e)?'محتاج اتصال بالإنترنت.':errMsg(e)}
+  ownBusy=false;if(VIEW==='owner')render()}
+const dt=t=>{try{return new Date(t).toLocaleString('ar-EG',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'})}catch(e){return ''}};
+const dev=ua=>!ua?'':/iphone|ipad/i.test(ua)?'آيفون':/android/i.test(ua)?'أندرويد':'كمبيوتر';
+function ownerView(){const o=OWN;
+  let h=screenHead('لوحة المالك');
+  if(!o)return h+`<div class="card"><p class="sub" style="margin:0">${ownErr?esc(ownErr):'جارٍ التحميل…'}</p>${ownErr?'<button class="btn btn-ghost sm" id="own-re" style="margin-top:10px">إعادة المحاولة</button>':''}</div>`;
+  const st=(n,l)=>`<div class="stat"><b class="num">${AR(n)}</b><span>${l}</span></div>`;
+  h+=`<div class="card"><p class="h"><span>الأرقام</span><button class="back" id="own-re" type="button">↻ تحديث</button></p>
+    <div class="ostats">${st(o.users,'كل المسجلين')}${st(o.members,'أعضاء')}${st(o.admins,'مشرفين')}${st(o.groups,'مجموعات')}
+    ${st(o.active7,'قرأوا آخر ٧ أيام')}${st(o.reads7,'قراءة آخر ٧ أيام')}${st(o.push,'مفعّلين الإشعارات')}${st(o.users-o.confirmed,'غير مفعّلين')}</div></div>`;
+  h+=`<div class="card"><p class="h"><span>حسابات معلقة</span><span class="chip ${o.pending.length?'wait':'ok'}">${AR(o.pending.length)}</span></p>
+    ${o.pending.length?`<p class="sub" style="margin:0 0 6px">سجّلوا ولم يكتبوا رمز التفعيل. «تفعيل» يتيح لهم الدخول بالإيميل وكلمة المرور.</p><ul class="list">${o.pending.map(u=>`<li><span class="grow"><span class="name">${esc(u.name||'بدون اسم')}</span><br><span class="sub" dir="ltr" style="unicode-bidi:plaintext">${esc(u.email)}</span><br><span class="sub">${dt(u.t)}${u.groups?' · '+esc(u.groups):' · بدون مجموعة'}</span></span><button class="btn btn-ghost sm" data-confirm="${u.id}">تفعيل</button></li>`).join('')}</ul>`:'<p class="sub" style="margin:0">لا توجد حسابات معلقة 🌿</p>'}</div>`;
+  h+=`<div class="card"><p class="h"><span>رسائل الأعضاء</span><span class="chip">${AR(o.feedback.length)}</span></p>
+    ${o.feedback.length?`<ul class="list olist">${o.feedback.map(f=>`<li><span class="grow"><span class="name">${esc(f.name||'غير مسجّل')}</span> <span class="sub">${dt(f.t)} · ${dev(f.ua)} · <bdi dir="ltr">${esc(f.v||'')}</bdi></span>${f.email?`<br><span class="sub" dir="ltr" style="unicode-bidi:plaintext">${esc(f.email)}</span>`:''}<div class="otext">${esc(f.text)}</div></span></li>`).join('')}</ul>`:'<p class="sub" style="margin:0">لا توجد رسائل بعد.</p>'}</div>`;
+  h+=`<div class="card"><p class="h"><span>الأخطاء (آخر ١٤ يوماً)</span><span class="chip ${o.errors.length?'wait':'ok'}">${AR(o.errors.length)}</span></p>
+    ${o.errors.length?`<ul class="list olist">${o.errors.map(e=>`<li><span class="grow"><div class="otext" dir="ltr" style="unicode-bidi:plaintext;text-align:left">${esc(e.msg)}</div><span class="sub">تكرر ${AR(e.n)} · ${AR(e.users)} ${e.users>2&&e.users<11?'أشخاص':'شخص'} · آخر مرة ${dt(e.last)} · <bdi dir="ltr">${esc(e.v||'')}</bdi></span></span></li>`).join('')}</ul>`:'<p class="sub" style="margin:0">لا توجد أخطاء 🌿</p>'}</div>`;
+  h+=`<div class="card"><p class="h"><span>المجموعات</span></p><ul class="list">${o.groups_list.map(g=>`<li><span class="grow"><span class="name">${esc(g.name)}</span><br><span class="sub">المشرف: ${esc(g.admin)} · ${AR(g.members)} عضو${g.last?' · آخر ورد '+dt(g.last):''}</span></span></li>`).join('')}</ul></div>`;
+  h+=`<div class="card"><p class="h"><span>آخر المسجلين</span></p><ul class="list">${o.recent.map(u=>`<li><span class="grow"><span class="name">${esc(u.name||'بدون اسم')}</span> ${u.ok?'':'<span class="chip wait">غير مفعّل</span>'}<br><span class="sub" dir="ltr" style="unicode-bidi:plaintext">${esc(u.email)}</span> <span class="sub">· ${dt(u.t)}</span></span></li>`).join('')}</ul></div>`;
+  return h}
+function bindOwner(){$('#sback').onclick=back;const r=$('#own-re');if(r)r.onclick=()=>{OWN=null;loadOwner()};
+  if(!OWN&&!ownBusy&&!ownErr)loadOwner();
+  document.querySelectorAll('[data-confirm]').forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent='جارٍ…';
+    const {error}=await sb.rpc('owner_confirm',{p_user:b.dataset.confirm});
+    if(error){b.disabled=false;b.textContent='تفعيل';return toast(errMsg(error))}
+    const u=OWN.pending.find(x=>x.id===b.dataset.confirm);OWN.pending=OWN.pending.filter(x=>x!==u);OWN.confirmed++;render();
+    toast(`تم تفعيل حساب ${u&&u.name?u.name:''}. يقدر يدخل الآن بالإيميل وكلمة المرور.`)})}
+
 /* ---------- المرحلة التجريبية: ملاحظات، أخطاء، إشعارات، مصحف ورقي ---------- */
 let paperFor=null, bannerHidden=false;
 // قرأته من مصحفي
@@ -1619,9 +1659,10 @@ function render(){
   const toFb=()=>{const f=$('#to-fb');if(f)f.onclick=()=>go('feedback')};
   if(recovery||!A){$('#view').innerHTML=err+authView()+(recovery?'':`<div class="fbauth">${feedbackRow()}</div>`);bindAuth();toFb();return}
   if(VIEW==='notes'){$('#view').innerHTML=err+notesView();bindNotes();return}
-  if(!G){VIEW='home';$('#view').innerHTML=err+joinCard()+kahfCard()+noGroupView()+trashCard()+appCard()+modeCard()+shareCard()+`<div class="card">${feedbackRow()}</div>`;bindJoinCard();bindKahf();bindNoGroup();bindTrash();bindAppCard();toFb();bindShareCard();return}
+  if(VIEW==='owner'&&A.owner){$('#view').innerHTML=err+ownerView();bindOwner();return}
+  if(!G){VIEW='home';$('#view').innerHTML=err+joinCard()+kahfCard()+noGroupView()+trashCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;bindOwnerRow();bindJoinCard();bindKahf();bindNoGroup();bindTrash();bindAppCard();toFb();bindShareCard();return}
   if(VIEW==='settings'&&A.role==='admin'){$('#view').innerHTML=err+settingsView();bindSettings();return}
-  $('#view').innerHTML=err+joinCard()+pushBanner()+groupBar()+kahfCard()+(A.role==='admin'?adminView():memberView())+trashCard()+appCard()+modeCard()+shareCard()+`<div class="card">${feedbackRow()}</div>`;bindShareCard();
+  $('#view').innerHTML=err+joinCard()+pushBanner()+groupBar()+kahfCard()+(A.role==='admin'?adminView():memberView())+trashCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;bindShareCard();bindOwnerRow();
   bindJoinCard();bindPushBanner();bindGroupBar();bindKahf();A.role==='admin'?bindAdmin():bindMember();bindAppCard();bindModeCard();toFb();
 }
 const THEMES=[{k:'auto',i:'◐',t:'تلقائي'},{k:'light',i:'☀',t:'فاتح'},{k:'dark',i:'☾',t:'داكن'}];

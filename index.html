@@ -332,6 +332,10 @@ textarea:focus{border-color:var(--lapis);outline:none;box-shadow:0 0 0 3px var(-
 .pwhint[data-s="2"] .pwbar i:nth-child(-n+2){background:#b7950b}
 .pwhint[data-s="3"] .pwbar i{background:#1e8449}
 .pwlbl{font-weight:500;color:var(--ink)}
+.kahf{background:linear-gradient(135deg,var(--gold-soft),var(--lapis-soft));border-color:transparent}
+.kahf .kq{font-family:var(--f-quran);font-size:17px;line-height:1.9;color:var(--ink);margin-top:2px}
+.kahf .kd{font-weight:500;color:var(--ink)}
+.kahf.kdone{background:var(--surface);border-color:var(--line)}
 /* share */
 .sharebtn{width:36px;padding:0;justify-content:center;color:var(--lapis)}
 .sharebtn svg{display:block}
@@ -377,7 +381,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-12i'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-13a'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -439,7 +443,7 @@ async function load(){
   applyQueue();
 }
 async function refresh(){
-  try{await flushQueue();await load();netErr='';OFF=null;lastLoadAt=Date.now();saveCache();if(A)markTrusted(A.u);resolvePJ();setTimeout(prefetchWird,2500)}
+  try{await flushQueue();await load();netErr='';OFF=null;lastLoadAt=Date.now();saveCache();if(A)markTrusted(A.u);resolvePJ();setTimeout(prefetchWird,2500);syncTz()}
   catch(e){console.error(e);if(navigator.onLine&&!isNetErr(e))reportError('refresh: '+(e&&e.message||e));if(restoreCache())netErr='';else netErr='تعذّر تحميل البيانات. تأكد من الإنترنت ثم حدّث الصفحة.'}
   loading=false;render();
 }
@@ -937,7 +941,7 @@ function drawReader(){
       <span class="grow sub num">صفحة ${AR(i+1)} من ${AR(total)}</span>
       <button class="fullbtn" id="fexit"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg><span>خروج من ملء الشاشة</span></button></div></div>`:''}
     <div class="r-head"><div class="r-in"><button class="x" id="rclose" aria-label="إغلاق">✕</button>
-      <div class="r-title"><b>${w!==cur()?'قضاء: ':''}${ref(w.start)} ← ${ref(w.end)}</b><span class="sub num">صفحة ${AR(i+1)} من ${AR(total)}</span></div>
+      <div class="r-title"><b>${w.kahf?'سورة الكهف':`${w!==cur()?'قضاء: ':''}${ref(w.start)} ← ${ref(w.end)}`}</b><span class="sub num">صفحة ${AR(i+1)} من ${AR(total)}</span></div>
       <div class="seg mseg" role="group" aria-label="نوع المصحف"><button data-m="madinah" aria-pressed="${md}">المدينة</button><button data-m="text" aria-pressed="${!md}">نص</button></div></div>
       <div class="r-in fsz"><button class="fullbtn" id="fullbtn" style="margin-inline-end:auto"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>ملء الشاشة</span></button><span class="sub">حجم الخط</span><button id="fs-down" aria-label="تصغير الخط" ${!md&&FS<=0.8?'disabled':''}>أ−</button><button id="fs-up" aria-label="تكبير الخط" ${!md&&FS>=1.8?'disabled':''}>أ+</button></div>
       <div class="r-in" style="margin-top:8px"><div class="bar" style="flex:1"><i style="width:${100*(i+1)/total}%"></i></div></div>
@@ -948,7 +952,7 @@ function drawReader(){
       <div class="pg num">${AR(p)}</div></div></div>
     <div class="r-foot"><div class="r-in">
       <button class="btn btn-ghost" id="prev" ${i===0?'disabled':''}>السابقة</button>
-      ${last?(A.role==='member'||selfReads()?`<button class="btn btn-ok" id="done" style="flex:1" ${done?'disabled':''}>${done?'تم تسجيل قراءتك ✓':'تم بحمد الله'}</button>`:`<button class="btn btn-ghost" id="rclose2" style="flex:1">إغلاق</button>`)
+      ${last?(w.kahf||A.role==='member'||selfReads()?`<button class="btn btn-ok" id="done" style="flex:1" ${done?'disabled':''}>${done?'تم تسجيل قراءتك ✓':'تم بحمد الله'}</button>`:`<button class="btn btn-ghost" id="rclose2" style="flex:1">إغلاق</button>`)
             :`<button class="btn btn-main" id="next" style="flex:1">الصفحة التالية</button>`}
     </div></div></div>`;
   $('#rbody').scrollTop=0;
@@ -1015,6 +1019,7 @@ let undoT=0;
 async function finish(wArg){
   if(wArg&&!wArg.done)wArg=null;
   const fromR=!wArg&&!!R, w=wArg||R.w, t=Date.now(), online=navigator.onLine;
+  if(w.kahf){kahfFinish(fromR);return}
   // يظهر التأكيد فوراً، والإرسال يتم في الخلفية (ويُعاد تلقائياً لو النت فصل)
   if(!w.done[A.mid])setQ([...getQ().filter(x=>!(x.wird_id===w.id&&x.user_id===A.mid)),{wird_id:w.id,user_id:A.mid,done_at:new Date(t).toISOString()}]);
   w.done[A.mid]=w.done[A.mid]||t;saveCache();try{localStorage.removeItem(posKey(w))}catch(e){}
@@ -1517,6 +1522,30 @@ function shareSheet(){const L=$('#layer');
 }
 function bindShareCard(){document.querySelectorAll('[data-share]').forEach(b=>b.onclick=shareSheet)}
 
+
+/* ---------- سورة الكهف يوم الجمعة (٧ الصبح لـ ٧ بالليل بتوقيت الموبايل) ---------- */
+const KAHF_H='«من قرأ سورة الكهف يوم الجمعة أضاء له من النور ما بين الجمعتين»';
+const kahfDay=()=>{const d=new Date();return d.getDay()===5&&d.getHours()>=7&&d.getHours()<19};
+const kahfKey=()=>{const d=new Date();return `khatma-kahf-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`};
+const kahfDone=()=>!!lsGet(kahfKey());
+function kahfW(){const s=Q.s[17][1],e=Q.s[18][1]-1;
+  return {id:'kahf',kahf:true,start:s,end:e,p1:pageOf(s),p2:pageOf(e),startRub:0,endRub:0,count:0,at:0,hours:0,done:kahfDone()&&A?{[A.mid]:1}:{}}}
+function kahfCard(){if(!A||!kahfDay())return '';const d=kahfDone();
+  return `<div class="card kahf ${d?'kdone':''}"><p class="h"><span>🌙 سورة الكهف · سنة يوم الجمعة</span>${d?'<span class="chip ok">تم</span>':''}</p>
+    ${d?'<div class="kd">✓ قرأت سورة الكهف · تقبّل الله منك</div>'
+      :`<div class="kq">${KAHF_H}</div>
+    <div class="row" style="margin-top:12px;gap:8px"><button class="btn btn-main" id="kahf-read" style="flex:1">اقرأ سورة الكهف</button><button class="btn btn-ghost" id="kahf-ok">تم بحمد الله</button></div>`}</div>`}
+function bindKahf(){const r=$('#kahf-read');if(r)r.onclick=()=>openReader(kahfW());const o=$('#kahf-ok');if(o)o.onclick=()=>kahfFinish(false)}
+function kahfFinish(fromR){lsSet(kahfKey(),'1');try{localStorage.removeItem('khatma-pos-kahf')}catch(e){}
+  if(R&&R.w.kahf)R.w.done[A.mid]=1;
+  $('#layer').innerHTML=`<div class="modal"><div class="dlg"><div class="big">تقبّل الله منك</div>
+    <div class="sub">✓ قرأت سورة الكهف</div><div class="q">${KAHF_H}</div>
+    <button class="btn btn-main" id="ok">الحمد لله</button></div></div>`;
+  $('#ok').onclick=()=>{if(fromR)back();else{$('#layer').innerHTML='';render()}}}
+// توقيت الموبايل للسيرفر (عشان إشعار الجمعة يوصل الساعة ٧ عند كل واحد)
+function syncTz(){try{if(!A)return;const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;if(!tz)return;const k=A.mid+'|'+tz;
+  if(lsGet('khatma-tz')===k)return;sb.rpc('set_tz',{p_tz:tz}).then(({error})=>{if(!error)lsSet('khatma-tz',k)},()=>{})}catch(e){}}
+
 /* ---------- المرحلة التجريبية: ملاحظات، أخطاء، إشعارات، مصحف ورقي ---------- */
 let paperFor=null, bannerHidden=false;
 // قرأته من مصحفي
@@ -1590,10 +1619,10 @@ function render(){
   const toFb=()=>{const f=$('#to-fb');if(f)f.onclick=()=>go('feedback')};
   if(recovery||!A){$('#view').innerHTML=err+authView()+(recovery?'':`<div class="fbauth">${feedbackRow()}</div>`);bindAuth();toFb();return}
   if(VIEW==='notes'){$('#view').innerHTML=err+notesView();bindNotes();return}
-  if(!G){VIEW='home';$('#view').innerHTML=err+joinCard()+noGroupView()+trashCard()+appCard()+modeCard()+shareCard()+`<div class="card">${feedbackRow()}</div>`;bindJoinCard();bindNoGroup();bindTrash();bindAppCard();toFb();bindShareCard();return}
+  if(!G){VIEW='home';$('#view').innerHTML=err+joinCard()+kahfCard()+noGroupView()+trashCard()+appCard()+modeCard()+shareCard()+`<div class="card">${feedbackRow()}</div>`;bindJoinCard();bindKahf();bindNoGroup();bindTrash();bindAppCard();toFb();bindShareCard();return}
   if(VIEW==='settings'&&A.role==='admin'){$('#view').innerHTML=err+settingsView();bindSettings();return}
-  $('#view').innerHTML=err+joinCard()+pushBanner()+groupBar()+(A.role==='admin'?adminView():memberView())+trashCard()+appCard()+modeCard()+shareCard()+`<div class="card">${feedbackRow()}</div>`;bindShareCard();
-  bindJoinCard();bindPushBanner();bindGroupBar();A.role==='admin'?bindAdmin():bindMember();bindAppCard();bindModeCard();toFb();
+  $('#view').innerHTML=err+joinCard()+pushBanner()+groupBar()+kahfCard()+(A.role==='admin'?adminView():memberView())+trashCard()+appCard()+modeCard()+shareCard()+`<div class="card">${feedbackRow()}</div>`;bindShareCard();
+  bindJoinCard();bindPushBanner();bindGroupBar();bindKahf();A.role==='admin'?bindAdmin():bindMember();bindAppCard();bindModeCard();toFb();
 }
 const THEMES=[{k:'auto',i:'◐',t:'تلقائي'},{k:'light',i:'☀',t:'فاتح'},{k:'dark',i:'☾',t:'داكن'}];
 let theme='auto';try{theme=localStorage.getItem('khatma-theme')||'auto'}catch(e){}
@@ -1613,6 +1642,8 @@ restoreOtp();
 $('#brand').onclick=()=>{if(A)goHome()};
 const prefetched=new Set();
 function prefetchWird(){try{
+  {const dy=new Date().getDay();if(A&&navigator.onLine&&(dy===4||dy===5)&&!prefetched.has('kahf')){prefetched.add('kahf');
+    readerPages(kahfW(),'madinah').reduce((pr,p)=>pr.then(()=>loadPage4(p).catch(()=>{})),Promise.resolve())}}
   if(!A||!G||!navigator.onLine||!(A.role==='member'||selfReads()))return;
   const c=cur(), list=[c,...wirdsFor(A.mid).filter(x=>x!==c&&!x.done[A.mid]&&inKh(x)).reverse()].filter(w=>w&&!w.done[A.mid]&&!prefetched.has(w.id));
   let n=0;for(const w of list){const ps=readerPages(w,'madinah');if(n+ps.length>60)break;n+=ps.length;prefetched.add(w.id);

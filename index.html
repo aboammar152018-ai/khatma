@@ -384,6 +384,12 @@ input.bad{border-color:#c0392b!important}
 .sh-link{text-align:center;font-size:13px;color:var(--muted);background:var(--bg);border-radius:10px;padding:8px}
 @media (prefers-reduced-motion:reduce){.sheet{animation:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.gwrap{margin:4px 0 14px}.gbtn{position:relative;min-height:44px;display:flex;justify-content:center}
+.gfb{width:100%;height:44px;border-radius:10px;border:1px solid var(--line,#d0d7de);background:#fff;color:#1f1f1f;font:inherit;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer}
+.gfb:disabled{opacity:.6}.gofficial{display:flex;justify-content:center;width:100%}
+.gsub{text-align:center;margin:6px 0 0!important;font-size:12.5px}
+.gnote{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--gold-soft);color:var(--ink);font-size:13.5px;line-height:1.8}
+.or{display:flex;align-items:center;gap:10px;margin:14px 0 2px;color:var(--muted,#888);font-size:13px}.or:before,.or:after{content:"";flex:1;border-top:1px solid var(--line,#ddd)}
 </style>
 </head>
 <body>
@@ -404,7 +410,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-14d'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-14e'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -426,6 +432,7 @@ function makeWird(startRub,count,hours,at){
 }
 function unitName(c){const u=UNITS.find(u=>u.n===c);return u?u.t:AR(c)+' أرباع'}
 
+const GCID='472898785217-ko3ppjnnp5rk7pecd8ooqgk62gv7ju8k.apps.googleusercontent.com';// معرّف Google (Client ID) — عام وآمن
 const SB_URL='https://yiumqwysldbrszadizjo.supabase.co', SB_KEY='sb_publishable_ljPLlGOLaq0eX78i0134dw_gIEm9klO';
 if(!window.supabase){document.getElementById('view').innerHTML='<div class="hero"><div class="logo">ختمة</div><p class="sub">تعذّر تشغيل التطبيق بدون إنترنت هذه المرة. اتصل بالإنترنت وافتحه مرة واحدة، وبعدها يعمل بدون اتصال.</p></div>';return}
 const authStore={getItem:k=>{try{return sessionStorage.getItem(k)??localStorage.getItem(k)}catch(e){return null}},
@@ -1351,6 +1358,74 @@ function verifyView(){
       <p class="sub" style="margin:10px 0 0">لم تصلك الرسالة؟ افحص مجلد الرسائل غير المرغوب فيها (Spam).</p>
     </form></div>`;
 }
+// ---- الدخول بحساب Google ----
+const GLOGO='<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.2 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.4 5.7c4.3-4 6.9-9.9 6.9-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.8-5.8l-7.4-5.7c-2.1 1.4-4.8 2.3-8.4 2.3-6.2 0-11.5-4.1-13.4-9.8l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg>';
+const gUseRedirect=()=>isIOS&&standalone();
+let gisP=null,gNonce=null,gReady=false;
+function loadGis(){return gisP||(gisP=new Promise((res,rej)=>{const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;
+  s.onload=()=>window.google&&google.accounts?res():rej(new Error('gis'));s.onerror=()=>{gisP=null;rej(new Error('gis'))};document.head.append(s)}))}
+async function gInit(){if(gReady)return;const raw=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');
+  const h=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw))),b=>b.toString(16).padStart(2,'0')).join('');
+  gNonce=raw;google.accounts.id.initialize({client_id:GCID,callback:gCallback,nonce:h,ux_mode:'popup',auto_select:false,cancel_on_tap_outside:true,itp_support:true,context:'use'});gReady=true}
+function gBlock(){if(!GCID)return '';
+  return `<div class="gwrap"><div id="gbtn" class="gbtn"><button type="button" class="gfb" id="gcustom">${GLOGO}<span>المتابعة بحساب Google</span></button></div>
+    <p class="sub gsub">دون كلمة مرور ودون رمز تفعيل</p>
+    ${AU.gnote?`<div class="gnote" role="alert">جوجل لا يسمح بالدخول من داخل فيسبوك. اضغط <b>⋮</b> في الأعلى ثم <b>«فتح في المتصفح»</b>، أو ادخل بالإيميل وكلمة المرور بالأسفل.</div>`:''}
+    <div class="or"><span>أو بالإيميل</span></div></div>`}
+function gRemember(){const c=$('#f-remember');const rem=c?c.checked:true;lsSet('khatma-remember',rem?'1':'0');if(!rem)clearLocal()}
+function gPend(){lsSet('khatma-gpend',JSON.stringify({role:AU.role||'member',t:Date.now()}))}
+function bindG(){const c=$('#gcustom');if(!c)return;
+  c.onclick=async()=>{if(inApp){AU.gnote=true;AU.err='';render();return}
+    gRemember();gPend();c.disabled=true;
+    const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/'}});
+    if(error){c.disabled=false;lsSet('khatma-gpend',null);AU.err=errMsg(error);render()}};
+  if(inApp||gUseRedirect()||!navigator.onLine)return;
+  loadGis().then(gInit).then(()=>{const box=$('#gbtn');if(!box||!box.isConnected)return;
+    const w=Math.max(200,Math.min(400,Math.round(box.getBoundingClientRect().width)));const holder=document.createElement('div');holder.className='gofficial';
+    box.append(holder);google.accounts.id.renderButton(holder,{type:'standard',theme:'outline',size:'large',text:'continue_with',shape:'rectangular',logo_alignment:'center',width:w,locale:'ar'});
+    setTimeout(()=>{if(holder.isConnected&&holder.querySelector('iframe,div[role=button]')){const cc=$('#gcustom');if(cc)cc.remove()}else holder.remove()},700)}).catch(()=>{})}
+async function gCallback(resp){if(busy)return;busy=true;gRemember();gPend();
+  const {error}=await sb.auth.signInWithIdToken({provider:'google',token:resp.credential,nonce:gNonce});busy=false;
+  if(error){lsSet('khatma-gpend',null);AU.err=errMsg(error);AU.info='';render();return}
+  await gDone()}
+let GSET=(()=>{try{return JSON.parse(lsGet('khatma-gset')||'null')}catch(e){return null}})();
+function setGset(v){GSET=v;lsSet('khatma-gset',v?JSON.stringify(v):null)}
+async function gDone(){let p=null;try{p=JSON.parse(lsGet('khatma-gpend')||'null')}catch(e){}lsSet('khatma-gpend',null);
+  if(p&&p.role)setMode(p.role);AU={role:null,tab:'login',err:'',info:''};comp={mode:'continue',pick:null};showNotes=false;
+  loading=true;render();await refresh();
+  if(A&&!G&&!GROUPS.length){let adm=false,mem=false;
+    try{const q=await sb.from('groups').select('id').eq('admin_id',A.mid).limit(1);adm=!!(q.data&&q.data.length)}catch(e){}
+    try{const q=await sb.from('memberships').select('group_id').eq('user_id',A.mid).limit(1);mem=!!(q.data&&q.data.length)}catch(e){}
+    if(adm&&A.role!=='admin'){setMode('admin');await refresh()}
+    else if(mem&&A.role!=='member'){setMode('member');await refresh()}
+    else if(!adm&&!mem)setGset({role:PJ?'member':((p&&p.role)||'member'),name:A.name||'',code:PJ?PJ.code:'',group:''});}
+  loading=false;render();scrollTo(0,0);if(A&&!GSET)toast(`أهلاً ${A.name}`)}
+function gsetView(){const g=GSET,adm=g.role==='admin',first=(A.name||'').trim().split(/\s+/)[0];
+  return `<div class="card auth"><h2>أهلاً${first?' يا '+esc(first):''} 👋</h2><p class="sub" style="margin:2px 0 14px">بقيت خطوة واحدة لتبدأ</p>
+    ${PJ&&!PJ.bad&&!adm?`<div class="rinfo">ستنضم إلى ${PJ.name?`«${esc(PJ.name)}»`:'المجموعة التي دعاك إليها المشرف'}.</div>`:''}
+    <div class="field"><label for="gs-name">اسمك كما سيظهر في المجموعة</label><input type="text" id="gs-name" autocomplete="name" value="${esc(g.name||'')}"></div>
+    <div class="field"><label>كيف ستستخدم التطبيق؟</label><div class="seg tabs" role="group" style="margin:0"><button type="button" data-gr="member" aria-pressed="${!adm}">عضو في مجموعة</button><button type="button" data-gr="admin" aria-pressed="${adm}">مشرف مجموعة</button></div></div>
+    ${adm?`<div class="field"><label for="gs-group">اسم المجموعة</label><input type="text" id="gs-group" placeholder="مثلاً: ختمة العائلة" value="${esc(g.group||'')}"></div>`
+      :`<div class="field"><label for="gs-code">كود المجموعة (من المشرف)</label><input type="text" id="gs-code" dir="ltr" autocapitalize="characters" placeholder="KH-ABCD-1234" value="${esc(g.code||'')}"><span class="sub">اطلبه من مشرف مجموعتك، أو افتح رابط الدعوة</span></div>`}
+    ${g.err?`<p class="err" role="alert">${esc(g.err)}</p>`:''}
+    <button class="btn btn-main" id="gs-go" style="width:100%;margin-top:16px">ابدأ</button></div>`}
+function bindGset(){const keep=()=>{const v=id=>{const e=$(id);return e?e.value.trim():null};const n=v('#gs-name'),c=v('#gs-code'),gr=v('#gs-group');
+    setGset({...GSET,name:n??GSET.name,code:c??GSET.code,group:gr??GSET.group})};
+  document.querySelectorAll('[data-gr]').forEach(b=>b.onclick=()=>{keep();setGset({...GSET,role:b.dataset.gr,err:''});render()});
+  const c=$('#gs-code');if(c&&/كود/.test(GSET.err||'')){c.classList.add('bad');c.oninput=()=>c.classList.remove('bad')}
+  const go=$('#gs-go');go.onclick=async()=>{keep();const g=GSET,fail=m=>{setGset({...GSET,err:m});render()};
+    if(!g.name)return fail('اكتب اسمك.');
+    if(g.role==='admin'&&!g.group)return fail('اكتب اسم المجموعة.');
+    if(g.role==='member'&&!g.code)return fail('اكتب كود المجموعة، أو افتح رابط الدعوة الذي أرسله لك المشرف.');
+    go.disabled=true;go.textContent='لحظة…';
+    try{if(g.name!==A.name){const {error}=await sb.from('profiles').update({name:g.name}).eq('id',A.mid);if(error)throw error;A.name=g.name}
+      let gid;
+      if(g.role==='admin'){const {data,error}=await sb.rpc('create_group',{p_name:g.group});if(error)throw error;gid=data}
+      else{const {data,error}=await sb.rpc('join_group',{p_code:g.code});if(error)throw error;if(!data)return fail('كود المجموعة غير صحيح. تأكد منه مع المشرف.');gid=data;
+        if(PJ&&g.code.toUpperCase()===PJ.code)clearPJ()}
+      setMode(g.role);setSelGroup(gid);setGset(null);loading=true;render();await refresh();scrollTo(0,0);
+      toast(g.role==='admin'&&G?`أُنشئت المجموعة. كود الدعوة: ${G.code}`:'أهلاً بك في المجموعة')}
+    catch(e){fail(isNetErr(e)?'محتاج اتصال بالإنترنت.':errMsg(e))}}}
 function authView(){
   if(recovery) return `<div class="card auth"><h2>كلمة مرور جديدة</h2>
     <form id="recform" novalidate>${pwField('f-np','كلمة المرور الجديدة','new-password','')}${pwHint('f-np')}${pwField('f-np2','تأكيد كلمة المرور','new-password')}
@@ -1370,6 +1445,7 @@ function authView(){
     <p class="sub" style="margin:4px 0 0">${reg?'أنشئ حسابك وستنضم للمجموعة مباشرة.':'ادخل بحسابك، وبعدها تنضم للمجموعة بضغطة.'}</p></div>`:''}
   <div class="card auth">
     <h2>${adm?'المشرف':'العضو'}</h2>
+    ${gBlock()}
     <div class="seg tabs" role="group"><button data-tab="login" aria-pressed="${!reg}">دخول</button><button data-tab="register" aria-pressed="${reg}">حساب جديد</button></div>
     ${reg?(adm?`<div class="rinfo">ℹ️ <b>حساب المشرف:</b> تنشئ مجموعة لعائلتك أو أصحابك، وتنشر الورد، وترسل رابط الدعوة للأعضاء، وتتابع قراءتهم. ويمكنك أن تقرأ معهم أيضاً.</div>`
       :(PJ?'':`<div class="rinfo">ℹ️ للانضمام كعضو تحتاج <b>رابط الدعوة أو كود المجموعة</b> من مشرف مجموعتك. ليس معك كود؟ اطلبه من المشرف، أو أنشئ مجموعتك بنفسك.<br><button class="lk" type="button" id="to-adm">التسجيل كمشرف بدلاً من ذلك ‹</button></div>`)):''}
@@ -1422,7 +1498,7 @@ function bindAuth(){
   bindShareCard();document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{AU={role:b.dataset.role,tab:'login',err:'',info:''};render()});
   const bk=$('#back');if(bk)bk.onclick=()=>{if(AU.stage==='verify'){clearOtp();AU={role:AU.role,tab:AU.tab,err:'',info:''}}else AU={role:null,tab:'login',err:'',info:''};render()};
   document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{AU.tab=b.dataset.tab;AU.err='';AU.info='';render()});
-  tickResend();bindPwHint();
+  tickResend();bindPwHint();bindG();
   const fc=$('#f-code');if(fc&&PJ&&!fc.value)fc.value=PJ.code;
   {const c=$('#f-code');if(c&&/كود المجموعة/.test(AU.err||'')){c.classList.add('bad');c.oninput=()=>c.classList.remove('bad')}}
   const ta=$('#to-adm');if(ta)ta.onclick=()=>{AU={...AU,role:'admin',tab:'register',err:'',info:''};render();scrollTo(0,0)};
@@ -1753,7 +1829,7 @@ function render(){
   const bl=$('#bell');if(bl)bl.onclick=()=>{if(VIEW==='notes')back();else go('notes')};
   const lo=$('#logout');if(lo)lo.onclick=async()=>{
     if(getQ().length&&!navigator.onLine)return toast('عندك قراءات لم تُرسل بعد. اتصل بالإنترنت أولاً ثم اخرج.');
-    await flushQueue();await disablePush();await sb.auth.signOut();clearLocal();clearOtp();A=null;G=null;USER=null;GROUPS=[];NOTES=[];gAdd=false;OFF=null;VIEW='home';AU={role:null,tab:'login',err:'',info:''};render();scrollTo(0,0)};
+    await flushQueue();await disablePush();await sb.auth.signOut();clearLocal();clearOtp();setGset(null);A=null;G=null;USER=null;GROUPS=[];NOTES=[];gAdd=false;OFF=null;VIEW='home';AU={role:null,tab:'login',err:'',info:''};render();scrollTo(0,0)};
   const qn=getQ().length;
   const err=(netErr?`<p class="err" role="alert">${esc(netErr)}</p>`:'')+(A&&OFF?`<p class="offbar" role="status">غير متصل بالإنترنت · آخر تحديث ${ago(OFF)}${qn?` · ${AR(qn)} ${qn>2?'قراءات':'قراءة'} في انتظار الإرسال`:''}</p>`:'');
   if(loading){$('#view').innerHTML=`<div class="hero"><div class="logo">ختمة</div><p class="sub">جارٍ التحميل…</p></div>`;return}
@@ -1764,6 +1840,8 @@ function render(){
   if(recovery||!A){$('#view').innerHTML=err+authView()+(recovery?'':`<div class="fbauth">${feedbackRow()}</div>`);bindAuth();toFb();return}
   if(VIEW==='notes'){$('#view').innerHTML=err+notesView();bindNotes();return}
   if(VIEW==='owner'&&A.owner){$('#view').innerHTML=err+ownerView();bindOwner();return}
+  if(!G&&GSET){VIEW='home';$('#view').innerHTML=err+gsetView();bindGset();return}
+  if(G&&GSET)setGset(null);
   if(!G){VIEW='home';$('#view').innerHTML=err+joinCard()+kahfCard()+noGroupView()+trashCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;bindOwnerRow();bindJoinCard();bindKahf();bindNoGroup();bindTrash();bindAppCard();toFb();bindShareCard();return}
   if(VIEW==='settings'&&A.role==='admin'){$('#view').innerHTML=err+settingsView();bindSettings();return}
   $('#view').innerHTML=err+joinCard()+pushBanner()+groupBar()+kahfCard()+(A.role==='admin'?adminView():memberView())+trashCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;bindShareCard();bindOwnerRow();
@@ -1796,7 +1874,7 @@ function prefetchWird(){try{
 }catch(e){}}
 // فتح فوري: اعرض آخر بيانات محفوظة، وحدّثها في الخلفية
 if(remember()&&!recovery&&restoreCache()){OFF=null;loading=false;DIAG.cached=true}
-render();refresh().then(()=>{const idle=window.requestIdleCallback||(f=>setTimeout(f,1500));if(A)idle(()=>{prefetchWird();ensureText().catch(()=>{})})});resolvePJ();
+render();refresh().then(async()=>{{const gp=lsGet('khatma-gpend');if(gp){if(A)await gDone();else{try{if(Date.now()-JSON.parse(gp).t>6e5)lsSet('khatma-gpend',null)}catch(e){lsSet('khatma-gpend',null)}}}}const idle=window.requestIdleCallback||(f=>setTimeout(f,1500));if(A)idle(()=>{prefetchWird();ensureText().catch(()=>{})})});resolvePJ();
 setInterval(()=>{if(A&&G&&!R&&!busy&&VIEW==='home'&&document.visibilityState==='visible')refresh()},60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&A&&!R&&VIEW==='home')refresh()});
 })();

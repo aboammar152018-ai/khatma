@@ -358,6 +358,7 @@ input.bad{border-color:#c0392b!important}
 .tdots{display:flex;gap:5px;flex:1}.tdots i{width:7px;height:7px;border-radius:50%;background:var(--line)}.tdots i.on{background:var(--lapis);width:18px;border-radius:9px}
 .tbub .arrow{position:absolute;width:14px;height:14px;background:var(--surface);transform:rotate(45deg)}
 @media (prefers-reduced-motion:reduce){.tspot{transition:none}}
+.bkdue{border-color:var(--gold)}
 /* share */
 .sharebtn{width:36px;padding:0;justify-content:center;color:var(--lapis)}
 .sharebtn svg{display:block}
@@ -403,7 +404,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-14b'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-14c'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1584,7 +1585,7 @@ function syncTz(){try{if(!A)return;const tz=Intl.DateTimeFormat().resolvedOption
 
 /* ---------- لوحة المالك (تظهر لحساب المالك فقط، والسيرفر يتحقق بنفسه) ---------- */
 let OWN=null,ownBusy=false,ownErr='';
-const ownerRow=()=>A&&A.owner?`<div class="card ownrow"><div class="row"><span class="grow"><b>🛠 لوحة المالك</b><br><span class="sub">الأرقام، الحسابات المعلقة، الرسائل والأخطاء</span></span><button class="btn btn-ghost sm" id="to-owner">فتح</button></div></div>`:'';
+const ownerRow=()=>A&&A.owner?`<div class="card ownrow"><div class="row"><span class="grow"><b>🛠 لوحة المالك</b><br><span class="sub">الأرقام، الحسابات المعلقة، الرسائل والأخطاء${(Date.now()-(+lsGet('khatma-backup-at')||0))>=7*864e5?' · <b style="color:var(--gold)">حان وقت النسخة الاحتياطية</b>':''}</span></span><button class="btn btn-ghost sm" id="to-owner">فتح</button></div></div>`:'';
 function bindOwnerRow(){const b=$('#to-owner');if(b)b.onclick=()=>{OWN=null;go('owner');loadOwner()}}
 async function loadOwner(){if(ownBusy)return;ownBusy=true;ownErr='';if(VIEW==='owner')render();
   try{const {data,error}=await sb.rpc('owner_stats');if(error)throw error;OWN=data}catch(e){ownErr=isNetErr(e)?'محتاج اتصال بالإنترنت.':errMsg(e)}
@@ -1598,6 +1599,11 @@ function ownerView(){const o=OWN;
   h+=`<div class="card"><p class="h"><span>الأرقام</span><button class="back" id="own-re" type="button">↻ تحديث</button></p>
     <div class="ostats">${st(o.users,'كل المسجلين')}${st(o.members,'أعضاء')}${st(o.admins,'مشرفين')}${st(o.groups,'مجموعات')}
     ${st(o.active7,'قرأوا آخر ٧ أيام')}${st(o.reads7,'قراءة آخر ٧ أيام')}${st(o.push,'مفعّلين الإشعارات')}${st(o.users-o.confirmed,'غير مفعّلين')}</div></div>`;
+  {const last=+lsGet('khatma-backup-at')||0,days=last?Math.floor((Date.now()-last)/864e5):null,due=days==null||days>=7;
+  h+=`<div class="card ${due?'bkdue':''}"><p class="h"><span>نسخة احتياطية</span>${due?'<span class="chip wait">حان وقتها</span>':'<span class="chip ok">محدّثة</span>'}</p>
+    <p class="sub" style="margin:0 0 10px">ملف فيه كل بيانات التطبيق: المجموعات والأعضاء والأوراد والقراءات. احفظه في Google Drive أو على جهازك مرة كل أسبوع. ${last?`آخر نسخة: ${days===0?'اليوم':days===1?'أمس':'منذ '+AR(days)+' أيام'}.`:'لم تنزّل نسخة بعد.'}</p>
+    <button class="btn btn-main sm" id="own-bk">⬇ تنزيل نسخة احتياطية</button>
+    <p class="sub" style="margin:8px 0 0">⚠️ الملف فيه أسماء وإيميلات المشتركين، فاحفظه في مكان خاص.</p></div>`}
   h+=`<div class="card"><p class="h"><span>حسابات معلقة</span><span class="chip ${o.pending.length?'wait':'ok'}">${AR(o.pending.length)}</span></p>
     ${o.pending.length?`<p class="sub" style="margin:0 0 6px">سجّلوا ولم يكتبوا رمز التفعيل. «تفعيل» يتيح لهم الدخول بالإيميل وكلمة المرور.</p><ul class="list">${o.pending.map(u=>`<li><span class="grow"><span class="name">${esc(u.name||'بدون اسم')}</span><br><span class="sub" dir="ltr" style="unicode-bidi:plaintext">${esc(u.email)}</span><br><span class="sub">${dt(u.t)}${u.groups?' · '+esc(u.groups):' · بدون مجموعة'}</span></span><button class="btn btn-ghost sm" data-confirm="${u.id}">تفعيل</button></li>`).join('')}</ul>`:'<p class="sub" style="margin:0">لا توجد حسابات معلقة 🌿</p>'}</div>`;
   h+=`<div class="card"><p class="h"><span>رسائل الأعضاء</span><span class="chip">${AR(o.feedback.length)}</span></p>
@@ -1607,7 +1613,16 @@ function ownerView(){const o=OWN;
   h+=`<div class="card"><p class="h"><span>المجموعات</span></p><ul class="list">${o.groups_list.map(g=>`<li><span class="grow"><span class="name">${esc(g.name)}</span><br><span class="sub">المشرف: ${esc(g.admin)} · ${AR(g.members)} عضو${g.last?' · آخر ورد '+dt(g.last):''}</span></span></li>`).join('')}</ul></div>`;
   h+=`<div class="card"><p class="h"><span>آخر المسجلين</span></p><ul class="list">${o.recent.map(u=>`<li><span class="grow"><span class="name">${esc(u.name||'بدون اسم')}</span> ${u.ok?'':'<span class="chip wait">غير مفعّل</span>'}<br><span class="sub" dir="ltr" style="unicode-bidi:plaintext">${esc(u.email)}</span> <span class="sub">· ${dt(u.t)}</span></span></li>`).join('')}</ul></div>`;
   return h}
-function bindOwner(){$('#sback').onclick=back;const r=$('#own-re');if(r)r.onclick=()=>{OWN=null;loadOwner()};
+async function ownerBackup(b){b.disabled=true;b.textContent='جارٍ التجهيز…';
+  try{const {data,error}=await sb.rpc('owner_backup');if(error)throw error;
+    const d=new Date(),name=`khatma-backup-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}.json`;
+    const blob=new Blob([JSON.stringify(data)],{type:'application/json'});let done=false;
+    try{const f=new File([blob],name,{type:'application/json'});
+      if(/android|iphone|ipad/i.test(navigator.userAgent)&&navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});done=true}}catch(e){if(e&&e.name==='AbortError'){b.disabled=false;b.textContent='⬇ تنزيل نسخة احتياطية';return}}
+    if(!done){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+    lsSet('khatma-backup-at',String(Date.now()));render();toast(`تم تجهيز النسخة (${(blob.size/1024).toFixed(0)} ك.ب). احفظها في مكان آمن.`)}
+  catch(e){b.disabled=false;b.textContent='⬇ تنزيل نسخة احتياطية';toast(isNetErr(e)?'محتاج اتصال بالإنترنت.':errMsg(e))}}
+function bindOwner(){$('#sback').onclick=back;const bk=$('#own-bk');if(bk)bk.onclick=()=>ownerBackup(bk);const r=$('#own-re');if(r)r.onclick=()=>{OWN=null;loadOwner()};
   if(!OWN&&!ownBusy&&!ownErr)loadOwner();
   document.querySelectorAll('[data-confirm]').forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent='جارٍ…';
     const {error}=await sb.rpc('owner_confirm',{p_user:b.dataset.confirm});

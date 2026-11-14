@@ -387,7 +387,7 @@ input.bad{border-color:#c0392b!important}
 .eta{margin:8px 0 0!important;color:var(--gold)}
 .gwrap{margin:4px 0 14px}.gbtn{position:relative;height:44px;overflow:hidden}
 .gfb{position:absolute;inset:2px 0;width:100%;height:40px;border-radius:4px;border:1px solid #dadce0;background:#fff;color:#3c4043;font-family:"Google Sans",Roboto,arial,sans-serif;font-size:14px;font-weight:500;letter-spacing:.25px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;padding:0 12px}
-.gfb:disabled{opacity:.6}.gofficial{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity .2s}.gofficial.on{opacity:1;pointer-events:auto}
+.gfb:disabled{opacity:.6}.gofficial{position:absolute;inset:0;height:44px;overflow:hidden;display:flex;justify-content:center;align-items:flex-start;opacity:0;pointer-events:none}.gofficial.on{opacity:1;pointer-events:auto}
 .gsub{text-align:center;margin:6px 0 0!important;font-size:12.5px}
 .gnote{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--gold-soft);color:var(--ink);font-size:13.5px;line-height:1.8}
 .or{display:flex;align-items:center;gap:10px;margin:14px 0 2px;color:var(--muted,#888);font-size:13px}.or:before,.or:after{content:"";flex:1;border-top:1px solid var(--line,#ddd)}
@@ -411,7 +411,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-14h'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-14i'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1399,7 +1399,12 @@ function bindG(){const c=$('#gcustom');if(!c)return;
   loadGis().then(gInit).then(()=>{const box=$('#gbtn');if(!box||!box.isConnected)return;
     const w=Math.max(200,Math.min(400,Math.round(box.getBoundingClientRect().width)));const holder=document.createElement('div');holder.className='gofficial';
     box.append(holder);google.accounts.id.renderButton(holder,{type:'standard',theme:'outline',size:'large',text:'continue_with',shape:'rectangular',logo_alignment:'center',width:w,locale:'ar'});
-    let n=0;const iv=setInterval(()=>{if(!holder.isConnected)return clearInterval(iv);if(holder.querySelector('iframe,div[role=button]')){clearInterval(iv);setTimeout(()=>{if(!holder.isConnected)return;holder.classList.add('on');const cc=$('#gcustom');if(cc)setTimeout(()=>{cc.style.visibility='hidden'},220)},250)}else if(++n>25){clearInterval(iv);holder.remove()}},100)}).catch(()=>{})}
+    let n=0,ok=0,loaded=false;const iv=setInterval(()=>{if(!holder.isConnected)return clearInterval(iv);const fr=holder.querySelector('iframe'),el=fr||holder.querySelector('div[role=button]');
+      if(fr&&!fr.__w){fr.__w=1;fr.addEventListener('load',()=>{loaded=true})}
+      const h=holder.firstElementChild?holder.firstElementChild.getBoundingClientRect().height:0;
+      if(el&&h>30&&h<=50&&(!fr||loaded||n>20))ok++;else ok=0;
+      if(ok>=4){clearInterval(iv);holder.classList.add('on');const cc=$('#gcustom');if(cc)cc.style.visibility='hidden'}
+      else if(++n>40){clearInterval(iv);holder.remove()}},100)}).catch(()=>{})}
 async function gCallback(resp){if(busy)return;busy=true;gRemember();gPend();
   const {error}=await sb.auth.signInWithIdToken({provider:'google',token:resp.credential,nonce:gNonce});busy=false;
   if(error){lsSet('khatma-gpend',null);AU.err=errMsg(error);AU.info='';render();return}

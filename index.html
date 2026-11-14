@@ -384,9 +384,10 @@ input.bad{border-color:#c0392b!important}
 .sh-link{text-align:center;font-size:13px;color:var(--muted);background:var(--bg);border-radius:10px;padding:8px}
 @media (prefers-reduced-motion:reduce){.sheet{animation:none}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-.gwrap{margin:4px 0 14px}.gbtn{position:relative;min-height:44px;display:flex;justify-content:center}
+.eta{margin:8px 0 0!important;color:var(--gold)}
+.gwrap{margin:4px 0 14px}.gbtn{position:relative;height:44px;overflow:hidden}
 .gfb{width:100%;height:44px;border-radius:10px;border:1px solid var(--line,#d0d7de);background:#fff;color:#1f1f1f;font:inherit;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;cursor:pointer}
-.gfb:disabled{opacity:.6}.gofficial{display:flex;justify-content:center;width:100%}
+.gfb:disabled{opacity:.6}.gofficial{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;opacity:0;pointer-events:none}.gofficial.on{opacity:1;pointer-events:auto}
 .gsub{text-align:center;margin:6px 0 0!important;font-size:12.5px}
 .gnote{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--gold-soft);color:var(--ink);font-size:13.5px;line-height:1.8}
 .or{display:flex;align-items:center;gap:10px;margin:14px 0 2px;color:var(--muted,#888);font-size:13px}.or:before,.or:after{content:"";flex:1;border-top:1px solid var(--line,#ddd)}
@@ -410,7 +411,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-14e'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-14g'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -526,6 +527,21 @@ function khSeg(){const c=cur();if(!c)return [];let b=-1;
   for(let i=G.wirds.length-2;i>=0;i--)if(G.wirds[i].endRub>=240){b=i;break}
   return G.wirds.filter((w,i)=>i>b&&(!G.khStart||w.at>G.khStart))}
 const inKh=w=>khSeg().includes(w);
+// من أين بدأت الختمة الحالية (لو بدأ المشرف من منتصف المصحف يُحسب الشريط على ما سيُقرأ فعلاً)
+const KHF={};
+function khFrom(){const seg=khSeg();if(!seg.length)return 1;
+  if(!G.khTotal||seg.length>=G.khTotal)return seg[0].startRub||1;
+  const key=G.id+':'+(G.khStart||0);if(KHF[key]!=null)return KHF[key]||1;
+  const c=+lsGet('khatma-khf-'+key);if(c){KHF[key]=c;return c}
+  KHF[key]=0;if(navigator.onLine){let q=sb.from('wirds').select('start_rub').eq('group_id',G.id);if(G.khStart)q=q.gt('created_at',new Date(G.khStart).toISOString());
+    Promise.resolve(q.order('created_at',{ascending:true}).limit(1)).then(x=>{const v=x&&x.data&&x.data[0]&&x.data[0].start_rub;if(v){KHF[key]=v;lsSet('khatma-khf-'+key,String(v));if(v>1&&VIEW==='home'&&!R)render()}else delete KHF[key]}).catch(()=>{delete KHF[key]})}
+  return 1}
+const khSpan=()=>240-khFrom()+1;
+const khPct=rub=>Math.max(0,Math.min(100,Math.round(100*(rub-khFrom()+1)/khSpan())));
+const daysTxt=n=>n===1?'يوم واحد':n===2?'يومين':n<=10?`${AR(n)} أيام`:`${AR(n)} يوماً`;
+function etaLine(startRub,unit,perWeek){const left=240-startRub+1;if(left<=0||!unit)return '';const wirds=Math.ceil(left/unit);
+  if(perWeek){const d=Math.ceil(wirds*7/perWeek);return `<p class="sub eta">بهذا الورد تختمون في نحو ${daysTxt(d)}.</p>`}
+  return `<p class="sub eta">بهذا الورد، مع نشر ورد كل يوم، تختمون في نحو ${daysTxt(wirds)}.</p>`}
 const plW=n=>n===1?'ورد':n===2?'وردين':n<=10?'أوراد':'ورداً';
 const numW=n=>n===1?'ورد واحد':n===2?'وردين':`${AR(n)} ${plW(n)}`;
 // حال العضو في الختمة: المتبقي محسوب محلياً (كل أوراده الفائتة بتتحمّل)، والباقي من السيرفر
@@ -535,12 +551,12 @@ function myKh(mid){const c=cur(), asg=wirdsFor(mid).filter(inKh), rem=asg.filter
   return {asg,rem,complete:!!c&&c.endRub>=240&&asg.length>0&&rem.length===0,full,k}}
 function khatmaCard(){
   const w=cur(), last=w&&w.endRub>=240, num=last?G.khatmas:G.khatmas+1;
-  const gpct=w?Math.round(100*w.endRub/240):0, prev=last?G.khatmas-1:G.khatmas;
+  const gpct=w?khPct(w.endRub):0, part=khFrom()>1, prev=last?G.khatmas-1:G.khatmas;
   const prevTxt=prev>0?` · أتممنا ${AR(prev)} ${prev>2&&prev<11?'ختمات':'ختمة'} قبلها`:'';
   if(A.role==='admin'){
     const ms=G.members, known=ms.filter(m=>m.kh), comp=known.filter(m=>m.kh.complete).length, clean=known.filter(m=>!m.kh.missed).length;
     if(last&&ms.length&&known.length===ms.length&&comp===ms.length)return `<div class="card khatm"><p class="h"><span>الختمة رقم ${AR(num)}</span><span>١٠٠٪</span></p>
-      <div class="big">ختم كل الأعضاء القرآن الكريم</div><div class="q">${DUA}</div>
+      <div class="big">${part?'أتمّ كل الأعضاء أوراد الختمة':'ختم كل الأعضاء القرآن الكريم'}</div><div class="q">${DUA}</div>
       <p class="sub" style="margin:6px 0 0">الورد القادم يبدأ ختمة جديدة من سورة الفاتحة.</p></div>`;
     return `<div class="card prog"><p class="h"><span>الختمة رقم ${AR(num)}</span><span class="num">${AR(gpct)}٪</span></p>
       <div class="bar gold"><i style="width:${gpct}%"></i></div>
@@ -549,11 +565,11 @@ function khatmaCard(){
   }
   const mk=myKh(A.mid);
   if(mk.complete)return `<div class="card khatm"><p class="h"><span>الختمة رقم ${AR(num)}</span><span>١٠٠٪</span></p>
-    <div class="big">${mk.full?'ختمت القرآن الكريم':'أتممت أوراد الختمة'}</div><div class="q">${DUA}</div>
+    <div class="big">${mk.full&&!part?'ختمت القرآن الكريم':'أتممت أوراد الختمة'}</div><div class="q">${DUA}</div>
     <p class="sub" style="margin:6px 0 0">${mk.full?'تقبّل الله منك.':'كل الأوراد منذ انضمامك، تقبّل الله منك.'} الورد القادم يبدأ ختمة جديدة من سورة الفاتحة.</p></div>`;
   const q=khSeg().filter(x=>x.done[A.mid]&&isQueued(x)), k=mk.k;
   const rubs=k?k.rubs+q.reduce((a,x)=>a+x.endRub-x.startRub+1,0):mk.asg.filter(x=>x.done[A.mid]).reduce((a,x)=>a+x.endRub-x.startRub+1,0);
-  const done=k?k.done+q.length:mk.asg.length-mk.rem.length, asg=k?Math.max(k.assigned,done):mk.asg.length, pct=Math.min(100,Math.round(100*rubs/240));
+  const done=k?k.done+q.length:mk.asg.length-mk.rem.length, asg=k?Math.max(k.assigned,done):mk.asg.length, pct=Math.min(100,Math.round(100*rubs/khSpan()));
   return `<div class="card prog"><p class="h"><span>ختمتك · الختمة رقم ${AR(num)}</span><span class="num">${AR(pct)}٪</span></p>
     <div class="bar gold"><i style="width:${pct}%"></i></div>
     <p class="sub" style="margin:6px 0 0">${w?`قرأت ${AR(done)} من ${AR(asg)} ${plW(asg)} في هذه الختمة${mk.rem.length>(w.done[A.mid]?0:1)?` · فاتك ${numW(mk.rem.length-(w.done[A.mid]?0:1))}`:''}`:'تبدأ الختمة مع أول ورد'}</p>
@@ -621,7 +637,7 @@ function adminView(){
   <div class="card" id="composer">
     <h2>نشر ورد جديد</h2>
     <div class="field"><span class="lbl">مقدار الورد</span>
-      <div class="opts">${UNITS.map(u=>`<button data-unit="${u.n}" aria-pressed="${G.unit===u.n}">${u.t}<small>${u.s}</small></button>`).join('')}</div></div>
+      <div class="opts">${UNITS.map(u=>`<button data-unit="${u.n}" aria-pressed="${G.unit===u.n}">${u.t}<small>${u.s}</small></button>`).join('')}</div>${etaLine(startRub,G.unit,0)}</div>
     <div class="field"><span class="lbl">من أين يبدأ؟</span>
       <label class="radio"><input type="radio" name="mode" id="mode-c" value="continue" ${comp.mode==='continue'?'checked':''}>
         <span>إكمال من حيث توقفنا<br><span class="sub">${rubLabel(G.nextRub)} — ${ref(rubStart(G.nextRub))}</span></span></label>
@@ -1004,7 +1020,7 @@ function drawReader(){
   const fc=$('#fclose');if(fc)fc.onclick=close;
   $('#rbody').addEventListener('click',e=>{if(!FULL||e.target.closest('button'))return;const r=$('.reader');if(!r)return;
     r.classList.toggle('ctl');clearTimeout(ctlT);if(r.classList.contains('ctl'))ctlT=setTimeout(()=>{const x=$('.reader');if(x)x.classList.remove('ctl')},3500)});
-  if(total>1&&!lsGet('khatma-swipe-hint')){lsSet('khatma-swipe-hint','1');setTimeout(()=>toast('يمكنك تقليب الصفحات بسحب الشاشة يمين ويسار، أو من زر «الصفحة التالية».'),600)}
+  if(!FULL&&!TOUR&&!lsGet('khatma-rhint'))setTimeout(()=>{if(R&&!FULL&&!TOUR&&!lsGet('khatma-rhint')&&$('.reader'))startRHint()},900);
   const dn=$('#done');if(dn)dn.onclick=()=>finish();
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
     const m=b.dataset.m;if(m===R.mode)return;
@@ -1191,7 +1207,7 @@ function autoCard(){
     <div class="switch"><label for="au-on">ينشر التطبيق الورد بنفسه في موعده</label><input type="checkbox" id="au-on" ${a.enabled?'checked':''}></div>
     <div class="field"><label for="au-time">الساعة</label><input type="time" id="au-time" value="${a.time}"></div>
     <div class="field"><span class="lbl">الأيام</span><div class="days">${DAYS.map((d,i)=>`<button type="button" data-day="${i}" aria-pressed="${a.days.includes(i)}" aria-label="${d[1]}" title="${d[1]}">${d[0]}</button>`).join('')}</div></div>
-    <div class="field"><span class="lbl">مقدار الورد</span><div class="opts">${UNITS.map(u=>`<button type="button" data-aunit="${u.n}" aria-pressed="${a.unit===u.n}">${u.t}<small>${u.s}</small></button>`).join('')}</div></div>
+    <div class="field"><span class="lbl">مقدار الورد</span><div class="opts">${UNITS.map(u=>`<button type="button" data-aunit="${u.n}" aria-pressed="${a.unit===u.n}">${u.t}<small>${u.s}</small></button>`).join('')}</div>${etaLine(G.nextRub,a.unit,(a.days||[]).length||7)}</div>
     <div class="field"><label for="au-hours">مدة القراءة</label><select id="au-hours">${[12,24,48,72].map(h=>`<option value="${h}" ${a.hours===h?'selected':''}>${AR(h)} ساعة</option>`).join('')}</select></div>
     <div class="preview"><div class="sub">الورد التلقائي القادم: <b>${nextRunText(a)}</b></div>
       <div class="q" style="font-size:18px">من ${ref(rubStart(r))} إلى ${ref(rubEnd(e))}</div>
@@ -1383,7 +1399,7 @@ function bindG(){const c=$('#gcustom');if(!c)return;
   loadGis().then(gInit).then(()=>{const box=$('#gbtn');if(!box||!box.isConnected)return;
     const w=Math.max(200,Math.min(400,Math.round(box.getBoundingClientRect().width)));const holder=document.createElement('div');holder.className='gofficial';
     box.append(holder);google.accounts.id.renderButton(holder,{type:'standard',theme:'outline',size:'large',text:'continue_with',shape:'rectangular',logo_alignment:'center',width:w,locale:'ar'});
-    setTimeout(()=>{if(holder.isConnected&&holder.querySelector('iframe,div[role=button]')){const cc=$('#gcustom');if(cc)cc.remove()}else holder.remove()},700)}).catch(()=>{})}
+    let n=0;const iv=setInterval(()=>{if(!holder.isConnected)return clearInterval(iv);if(holder.querySelector('iframe,div[role=button]')){clearInterval(iv);setTimeout(()=>{if(!holder.isConnected)return;holder.classList.add('on');const cc=$('#gcustom');if(cc)cc.style.visibility='hidden'},250)}else if(++n>25){clearInterval(iv);holder.remove()}},100)}).catch(()=>{})}
 async function gCallback(resp){if(busy)return;busy=true;gRemember();gPend();
   const {error}=await sb.auth.signInWithIdToken({provider:'google',token:resp.credential,nonce:gNonce});busy=false;
   if(error){lsSet('khatma-gpend',null);AU.err=errMsg(error);AU.info='';render();return}
@@ -1738,11 +1754,16 @@ const MTSTEPS=[
   {sel:'.card.prog, .card.khatm',t:'ختمتك',d:'هنا تتابع تقدمك في الختمة: كم ورداً قرأت، وأين وصلت المجموعة. وعندما تُتم كل أوراد الختمة تكون قد ختمت القرآن بإذن الله.'},
   {sel:'.card.qada',t:'أوراد فاتتك',d:'إذا فاتك ورد، تجده هنا لتقضيه في أي وقت.'},
   appStep(false)];
+const RTSTEPS=[
+  {sel:'.reader .mseg',t:'شكل المصحف',d:'«المدينة» لمصحف طبعة المدينة، و«نص» لتتحكم في حجم الخط.'},
+  {sel:'.reader .r-in.fsz',t:'حجم الخط وملء الشاشة',d:'«أ+» و«أ−» لتكبير الخط وتصغيره في وضع «نص»، و«ملء الشاشة» لعرض الصفحة كاملة.'},
+  {sel:'.reader .r-foot .r-in',t:'تقليب الصفحات',d:'اسحب الشاشة لتقليب الصفحات، وفي آخر صفحة اضغط «تم بحمد الله».'}];
+function startRHint(){const list=RTSTEPS.filter(st=>$(st.sel));if(!list.length)return;document.querySelectorAll('.toast').forEach(t=>t.remove());TOUR={list,i:0,role:A.role,reader:true};tourShow()}
 const tv=v=>typeof v==='function'?v():v;
 function startTour(){if(!A||!G)return;const steps=A.role==='admin'?ATSTEPS:MTSTEPS;
   const list=steps.filter(st=>(!st.when||st.when())&&(st.view||$(st.sel)));if(!list.length)return;TOUR={list,i:0,role:A.role};tourShow()}
-function tourEnd(){document.querySelectorAll('.tblock,.tspot,.tbub').forEach(e=>e.remove());removeEventListener('resize',tourPlace);lsSet(tourKey(TOUR&&TOUR.role),'1');TOUR=null;if(VIEW!=='home')goHome()}
-function tourShow(){if(!TOUR)return;const st=TOUR.list[TOUR.i];const want=st.view||'home';
+function tourEnd(){document.querySelectorAll('.tblock,.tspot,.tbub').forEach(e=>e.remove());removeEventListener('resize',tourPlace);if(TOUR&&TOUR.reader){lsSet('khatma-rhint','1');TOUR=null;return}lsSet(tourKey(TOUR&&TOUR.role),'1');TOUR=null;if(VIEW!=='home')goHome()}
+function tourShow(){if(!TOUR)return;const st=TOUR.list[TOUR.i];if(TOUR.reader){if(!R||!$(st.sel))return tourEnd();return tourPlace()}const want=st.view||'home';
   if(VIEW!==want){if(want==='home')goHome();else go(want);setTimeout(tourShow,450);return}
   let el=$(st.sel);if(el&&st.card)el=el.closest('.card')||el;
   if(!el){TOUR.i++;if(TOUR.i>=TOUR.list.length)return tourEnd();return tourShow()}
@@ -1755,7 +1776,7 @@ function tourPlace(){if(!TOUR)return;const st=TOUR.list[TOUR.i];let el=$(st.sel)
   Object.assign(sp.style,{left:(r.left+sx-6)+'px',top:(r.top+sy-6)+'px',width:(r.width+12)+'px',height:(r.height+12)+'px'});document.body.append(sp);
   const b=document.createElement('div');b.className='tbub';b.setAttribute('role','dialog');
   b.innerHTML=`<div class="arrow"></div><h3>${tv(st.t)}</h3><p>${tv(st.d)}</p><div class="tf"><span class="tdots">${Array.from({length:n},(_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</span>
-    ${i<n-1?'<button class="back" id="t-skip">تخطي</button>':''}<button class="btn btn-main sm" id="t-next">${i<n-1?'التالي ‹':'ابدأ الآن'}</button></div>`;
+    ${i<n-1?'<button class="back" id="t-skip">تخطي</button>':''}<button class="btn btn-main sm" id="t-next">${i<n-1?'التالي ‹':TOUR.reader?'فهمت':'ابدأ الآن'}</button></div>`;
   document.body.append(b);const bh=b.offsetHeight,vh=innerHeight;
   const below=r.bottom+18+bh<vh||r.top-18-bh<0;
   b.style.top=(below?r.bottom+sy+18:r.top+sy-18-bh)+'px';

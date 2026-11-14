@@ -52,7 +52,7 @@ self.addEventListener('fetch', (e) => {
   }
 
   // الصفحة: تفتح فوراً من النسخة المحفوظة، وتتحدث في الخلفية للمرة القادمة
-  if (r.mode === 'navigate' && u.origin === location.origin) {
+  if (r.mode === 'navigate' && u.origin === location.origin && u.pathname !== '/privacy.html') {
     e.respondWith(caches.open(CACHE).then(async (c) => {
       const hit = await c.match('/');
       const net = fetch(r).then((res) => { if (res.ok) c.put('/', res.clone()); return res; });

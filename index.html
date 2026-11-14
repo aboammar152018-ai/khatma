@@ -342,6 +342,22 @@ textarea:focus{border-color:var(--lapis);outline:none;box-shadow:0 0 0 3px var(-
 .ostats .stat b{font-size:20px}.ostats .stat span{font-size:12px;color:var(--muted)}
 .olist .otext{margin-top:6px;background:var(--bg);border-radius:8px;padding:8px 10px;white-space:pre-wrap;word-break:break-word;font-size:14px}
 .ownrow{border-style:dashed}
+.how ol{margin:0;padding-inline-start:22px;line-height:2;font-size:14.5px;list-style:arabic-indic}
+.how ol li::marker{color:var(--gold);font-weight:700}
+.rinfo{background:var(--lapis-soft);border-radius:12px;padding:12px 14px;line-height:1.8;font-size:14px;color:var(--ink);margin:12px 0 2px}
+.rinfo b{color:var(--lapis)}
+.rinfo .lk{display:inline-block;margin-top:6px;color:var(--lapis);font-weight:600;text-decoration:underline;background:none;border:0;padding:0;font:inherit;font-size:14px;cursor:pointer}
+input.bad{border-color:#c0392b!important}
+.ngalt{text-align:center;margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.tblock{position:fixed;inset:0;z-index:49}
+.tspot{position:absolute;border-radius:14px;box-shadow:0 0 0 9999px rgba(10,20,30,.62);z-index:50;pointer-events:none;outline:2px solid #fff;outline-offset:3px;transition:all .2s}
+.tbub{position:absolute;z-index:51;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));max-width:520px;margin:0 auto;background:var(--surface);border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.tbub h3{margin:0 0 6px;font-size:16px;color:var(--lapis)}
+.tbub p{margin:0;line-height:1.8;font-size:14.5px;color:var(--ink)}
+.tbub .tf{display:flex;align-items:center;gap:10px;margin-top:14px}
+.tdots{display:flex;gap:5px;flex:1}.tdots i{width:7px;height:7px;border-radius:50%;background:var(--line)}.tdots i.on{background:var(--lapis);width:18px;border-radius:9px}
+.tbub .arrow{position:absolute;width:14px;height:14px;background:var(--surface);transform:rotate(45deg)}
+@media (prefers-reduced-motion:reduce){.tspot{transition:none}}
 /* share */
 .sharebtn{width:36px;padding:0;justify-content:center;color:var(--lapis)}
 .sharebtn svg{display:block}
@@ -387,7 +403,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-13c'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-14b'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -701,6 +717,7 @@ function settingsView(){
   ${autoCard()}
   ${bonusCard()}
   ${remindCard()}
+  <div class="card"><div class="row"><span class="grow"><b>الجولة التعريفية</b><br><span class="sub">شرح سريع لأهم أزرار المشرف</span></span><button class="btn btn-ghost sm" id="tour-again">إعادة الجولة</button></div></div>
   <div class="card dz"><p class="h"><span>حذف المجموعة</span></p>
     ${delOpen?`<p class="sub" style="margin:0">تُحذف المجموعة بأورادها وقراءاتها، ويصل للأعضاء إشعار بإغلاقها. يمكنك استعادتها كما هي خلال ٧ أيام، وبعدها تُحذف نهائياً. للتأكيد اكتب اسم المجموعة: <b style="color:var(--ink)">${esc(G.group)}</b></p>
       <div class="field"><label for="del-in">اسم المجموعة</label><input type="text" id="del-in" autocomplete="off"></div>
@@ -710,6 +727,7 @@ function settingsView(){
 }
 function bindSettings(){
   $('#sback').onclick=back;
+  const ta=$('#tour-again');if(ta)ta.onclick=()=>{goHome();setTimeout(startTour,500)};
   bindAuto();
   $('#copy').onclick=()=>{const t=inviteLink(),p=navigator.clipboard&&navigator.clipboard.writeText(t);
     const sel=()=>{const r=document.createRange();r.selectNodeContents($('.linkbox'));const s=getSelection();s.removeAllRanges();s.addRange(r);toast('حدّد الرابط وانسخه يدوياً')};
@@ -1249,8 +1267,10 @@ function modeCard(){const adm=A.role==='admin';
       <div class="row" style="margin:10px 0 14px"><button class="btn btn-main sm" id="nm-save">حفظ الاسم</button><button class="btn btn-ghost sm" id="nm-no">إلغاء</button></div>`
     :`<div class="row" style="margin-bottom:12px"><span class="grow">الاسم: <b>${esc(A.name)}</b></span><button class="btn btn-ghost sm" id="nm-edit">تعديل الاسم</button></div>`}
     <div class="row"><span class="grow sub">أنت الآن في <b style="color:var(--ink)">وضع ${adm?'المشرف':'العضو'}</b>. نفس حسابك يعمل كمشرف وكعضو.</span>
-    <button class="btn btn-ghost sm" id="swmode">التبديل لوضع ${adm?'العضو':'المشرف'}</button></div></div>`}
+    <button class="btn btn-ghost sm" id="swmode">التبديل لوضع ${adm?'العضو':'المشرف'}</button></div>
+    ${adm?'':'<div class="row" style="margin-top:12px"><span class="grow sub">شرح سريع لاستخدام التطبيق</span><button class="btn btn-ghost sm" id="tour-m">إعادة الجولة التعريفية</button></div>'}</div>`}
 function bindModeCard(){
+  const tm=$('#tour-m');if(tm)tm.onclick=()=>{scrollTo(0,0);setTimeout(startTour,200)};
   const ne=$('#nm-edit');if(ne)ne.onclick=()=>{editName=true;render();const i=$('#nm-in');if(i){i.focus();i.select()}};
   const nn=$('#nm-no');if(nn)nn.onclick=()=>{editName=false;render()};
   const ns=$('#nm-save');if(ns)ns.onclick=async()=>{const v=$('#nm-in').value.trim().replace(/\s+/g,' ');
@@ -1337,6 +1357,8 @@ function authView(){
   if(AU.stage==='verify')return verifyView();
   if(!AU.role) return `
   <div class="hero"><div class="logo">ختمة</div><p class="sub">ختمة القرآن الكريم مع أهلك وأصحابك: وِرد يصلك، تقرؤه، وتسجّل إتمامه.</p></div>
+  <div class="card how"><p class="h" style="margin-bottom:8px"><span>كيف يعمل التطبيق؟</span></p><ol>
+    <li>المشرف ينشئ مجموعة ويرسل رابط الدعوة</li><li>يصل الورد للجميع بإشعار، والكل يقرأ الورد نفسه</li><li>تختمون القرآن معاً، وكل واحد يتابع ختمته</li></ol></div>
   <button class="rolecard" data-role="admin"><span class="ri">۞</span><span class="grow"><b>المشرف</b><span class="sub">أنشئ مجموعة، انشر الورد، وتابع الأعضاء</span></span><span class="go">‹</span></button>
   <button class="rolecard" data-role="member"><span class="ri">📖</span><span class="grow"><b>العضو</b><span class="sub">انضم لمجموعة بالكود واقرأ وردك</span></span><span class="go">‹</span></button>
   ${shareCard()}`;
@@ -1348,13 +1370,15 @@ function authView(){
   <div class="card auth">
     <h2>${adm?'المشرف':'العضو'}</h2>
     <div class="seg tabs" role="group"><button data-tab="login" aria-pressed="${!reg}">دخول</button><button data-tab="register" aria-pressed="${reg}">حساب جديد</button></div>
+    ${reg?(adm?`<div class="rinfo">ℹ️ <b>حساب المشرف:</b> تنشئ مجموعة لعائلتك أو أصحابك، وتنشر الورد، وترسل رابط الدعوة للأعضاء، وتتابع قراءتهم. ويمكنك أن تقرأ معهم أيضاً.</div>`
+      :(PJ?'':`<div class="rinfo">ℹ️ للانضمام كعضو تحتاج <b>رابط الدعوة أو كود المجموعة</b> من مشرف مجموعتك. ليس معك كود؟ اطلبه من المشرف، أو أنشئ مجموعتك بنفسك.<br><button class="lk" type="button" id="to-adm">التسجيل كمشرف بدلاً من ذلك ‹</button></div>`)):''}
     <form id="authform" novalidate>
       ${reg?`<div class="field"><label for="f-name">الاسم</label><input type="text" id="f-name" autocomplete="name" placeholder="الاسم الذي سيظهر للمجموعة"></div>`:''}
       <div class="field"><label for="f-user">البريد الإلكتروني</label><input type="email" id="f-user" autocomplete="email" inputmode="email" dir="ltr" autocapitalize="none" placeholder="name@example.com"></div>
       ${pwField('f-pass','كلمة المرور',reg?'new-password':'current-password','')}${reg?pwHint('f-pass'):''}
       ${reg?pwField('f-pass2','تأكيد كلمة المرور','new-password'):''}
       ${reg&&adm?`<div class="field"><label for="f-group">اسم المجموعة</label><input type="text" id="f-group" placeholder="مثلاً: ختمة العائلة"></div>`:''}
-      ${reg&&!adm?`<div class="field"><label for="f-code">كود المجموعة</label><input type="text" id="f-code" dir="ltr" autocapitalize="characters" placeholder="KH-ABCD-1234"><span class="sub">اطلبه من مشرف مجموعتك</span></div>`:''}
+      ${reg&&!adm?`<div class="field"><label for="f-code">كود المجموعة</label><input type="text" id="f-code" dir="ltr" autocapitalize="characters" placeholder="KH-ABCD-1234"><span class="sub">اطلبه من مشرف مجموعتك، أو افتح رابط الدعوة</span></div>`:''}
       <label class="check"><input type="checkbox" id="f-remember" ${remember()?'checked':''}> تذكرني على هذا الجهاز (جهازي الشخصي)</label>
       ${msgs()}
       <button class="btn btn-main" type="submit" id="authbtn" style="width:100%;margin-top:16px">${reg?(adm?'إنشاء المجموعة':'إنشاء الحساب والانضمام'):'متابعة'}</button>
@@ -1366,11 +1390,14 @@ function noGroupView(){
   return A.role==='admin'?`<div class="card auth"><h2>أنشئ مجموعتك</h2>
     <div class="field"><label for="f-group">اسم المجموعة</label><input type="text" id="f-group" placeholder="مثلاً: ختمة العائلة"></div>
     <button class="btn btn-main" id="mk" style="width:100%;margin-top:16px">إنشاء المجموعة</button></div>`
-  :`<div class="card auth"><h2>انضم لمجموعة</h2><p class="sub">لم تنضم لأي مجموعة بعد. اكتب الكود الذي أرسله لك المشرف.</p>
+  :`<div class="card auth"><h2>انضم لمجموعة</h2>
+    <div class="rinfo">اطلب من مشرف مجموعتك <b>رابط الدعوة</b>، وافتحه من موبايلك، وستنضم تلقائياً. أو اكتب الكود هنا.</div>
     <div class="field"><label for="f-code">كود المجموعة</label><input type="text" id="f-code" dir="ltr" autocapitalize="characters" placeholder="KH-ABCD-1234"></div>
-    <button class="btn btn-main" id="jn" style="width:100%;margin-top:16px">انضمام</button></div>`;
+    <button class="btn btn-main" id="jn" style="width:100%;margin-top:16px">انضمام</button>
+    <div class="ngalt"><span class="sub">ليس عندك مجموعة؟</span><br><button class="btn btn-ghost sm" id="mkgroup" style="margin-top:8px">أريد إنشاء مجموعة</button></div></div>`;
 }
 function bindNoGroup(){
+  const mg=$('#mkgroup');if(mg)mg.onclick=async()=>{setMode('admin');gAdd=false;loading=true;render();await refresh();scrollTo(0,0);toast(G?'أنت الآن في وضع المشرف':'أنت الآن في وضع المشرف. اكتب اسم مجموعتك.')};
   const mk=$('#mk');if(mk)mk.onclick=async()=>{mk.disabled=true;const {data,error}=await sb.rpc('create_group',{p_name:$('#f-group').value.trim()});
     if(error){mk.disabled=false;return toast(errMsg(error))}setSelGroup(data);await refresh();toast(G?`أُنشئت المجموعة. كود الدعوة: ${G.code}`:'أُنشئت المجموعة')};
   const jn=$('#jn');if(jn)jn.onclick=async()=>{jn.disabled=true;const {data,error}=await sb.rpc('join_group',{p_code:$('#f-code').value.trim()});
@@ -1396,6 +1423,8 @@ function bindAuth(){
   document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{AU.tab=b.dataset.tab;AU.err='';AU.info='';render()});
   tickResend();bindPwHint();
   const fc=$('#f-code');if(fc&&PJ&&!fc.value)fc.value=PJ.code;
+  {const c=$('#f-code');if(c&&/كود المجموعة/.test(AU.err||'')){c.classList.add('bad');c.oninput=()=>c.classList.remove('bad')}}
+  const ta=$('#to-adm');if(ta)ta.onclick=()=>{AU={...AU,role:'admin',tab:'register',err:'',info:''};render();scrollTo(0,0)};
   const rf=$('#recform');if(rf)rf.onsubmit=async e=>{e.preventDefault();const np=$('#f-np').value;
     {const w=pwWeak(np);if(w){AU.err=w;return render()}}
     if(np!==$('#f-np2').value){AU.err='كلمتا المرور غير متطابقتين.';return render()}
@@ -1459,7 +1488,7 @@ function bindAuth(){
     if(AU.role==='admin'&&!keep.group)return fail('اكتب اسم المجموعة.');
     busy=true;const btn=$('#authbtn');btn.disabled=true;btn.textContent='لحظة…';
     if(AU.role==='member'){
-      if(!keep.code)return fail('اكتب كود المجموعة.');
+      if(!keep.code){const c=$('#f-code');if(c){c.classList.add('bad');c.focus()}return fail('اكتب كود المجموعة، أو افتح رابط الدعوة الذي أرسله لك المشرف.')}
       const {data,error}=await sb.rpc('check_group_code',{p_code:keep.code});
       if(error)return fail(errMsg(error));if(!data)return fail('كود المجموعة غير صحيح. تأكد منه مع المشرف.');
     }
@@ -1586,6 +1615,61 @@ function bindOwner(){$('#sback').onclick=back;const r=$('#own-re');if(r)r.onclic
     const u=OWN.pending.find(x=>x.id===b.dataset.confirm);OWN.pending=OWN.pending.filter(x=>x!==u);OWN.confirmed++;render();
     toast(`تم تفعيل حساب ${u&&u.name?u.name:''}. يقدر يدخل الآن بالإيميل وكلمة المرور.`)})}
 
+
+/* ---------- جولة تعريفية للمشرف (مرة واحدة، ويمكن إعادتها من الإعدادات) ---------- */
+let TOUR=null;
+const tourKey=r=>'khatma-tour-'+(r||(A&&A.role))+'-'+(A?A.mid:'');
+// خطوة التثبيت والإشعارات: تظهر فقط لو التطبيق غير مثبّت أو الإشعارات غير مفعّلة
+const appStepOn=()=>!standalone()||pushState!=='on';
+function appStep(adm){const tail=adm?'لتعرف أولاً بأول من قرأ، ويصلك ملخص الجمعة. وشجّع أعضاءك على تفعيلها أيضاً، حتى يصلهم الورد في وقته.':'حتى يصلك الورد في وقته، ويصلك تذكير قبل نهايته.';
+  return {sel:'.appcard',when:appStepOn,
+    t:()=>standalone()?'فعّل الإشعارات 🔔':isIOS?'ثبّت التطبيق وفعّل الإشعارات 🔔':'ثبّت التطبيق وفعّل الإشعارات 🔔',
+    d:()=>standalone()?(adm?'فعّل الإشعارات '+tail:'فعّل الإشعارات '+tail)
+      :isIOS?'أضف «ختمة» إلى الشاشة الرئيسية من زر المشاركة ⬆︎، ثم افتحه من الأيقونة وفعّل الإشعارات، '+tail
+      :'أضف «ختمة» إلى الشاشة الرئيسية ليفتح كتطبيق بضغطة، وفعّل الإشعارات '+tail}}
+const ATSTEPS=[
+  {sel:'.gbar',t:'مجموعتك',d:'هنا اسم مجموعتك. ومن «+ مجموعة جديدة» يمكنك إنشاء مجموعات أخرى لأشخاص آخرين، حتى ٢٠ مجموعة.'},
+  {sel:'#to-invite',t:'دعوة الأعضاء',d:'من هنا تنسخ رابط الدعوة وترسله لأعضاء مجموعتك على واتساب. أي شخص يفتح الرابط ينضم لمجموعتك مباشرةً.'},
+  {sel:'#publish',card:1,t:'نشر الورد',d:'اختر مقدار الورد ومن أين يبدأ، ثم اضغط «نشر». يصل الورد لكل الأعضاء بإشعار، ويقرؤونه معاً.'},
+  {sel:'#remind',card:1,t:'متابعة الورد',d:'هنا ترى من قرأ ومن لم يقرأ بعد، ويمكنك تذكير المتأخرين بضغطة.'},
+  {sel:'#selfread',card:1,t:'أقرأ مع المجموعة',d:'فعّلها إذا أردت أن تقرأ الورد مع الأعضاء وتُحسب قراءتك معهم.'},
+  {view:'settings',sel:'#autocard',t:'النشر التلقائي',d:'يمكنك جعل الورد يُنشر وحده كل يوم في الوقت الذي تختاره، فلا تحتاج لنشره بنفسك.'},
+  {view:'settings',sel:'#bn-on',card:1,t:'التحفيز والتذكير',d:'«مكافأة المبادرين» تعطي نقاطاً إضافية لمن يقرأ مبكراً. وتحتها التذكير التلقائي لمن لم يقرأ قبل نهاية الورد بساعة.'},
+  {view:'settings',sel:'#pts-on',card:1,t:'الأعضاء والنقاط',d:'من هنا تحذف عضواً أو تنقله لمجموعة أخرى، وتختار هل يرى الأعضاء النقاط والترتيب. وستجد في الجرس 🔔 ملخصاً أسبوعياً كل جمعة.'},
+  appStep(true)];
+const MTSTEPS=[
+  {sel:'.card.wird',t:'وردك اليوم',d:'هنا الورد الذي نشره المشرف للمجموعة. اضغط «ابدأ القراءة» لتقرأه من المصحف، وفي آخره اضغط «تم بحمد الله». وإذا قرأته من مصحفك أو من حفظك، اضغط «قرأته من مصحفي».'},
+  {sel:'.card.prog, .card.khatm',t:'ختمتك',d:'هنا تتابع تقدمك في الختمة: كم ورداً قرأت، وأين وصلت المجموعة. وعندما تُتم كل أوراد الختمة تكون قد ختمت القرآن بإذن الله.'},
+  {sel:'.card.qada',t:'أوراد فاتتك',d:'إذا فاتك ورد، تجده هنا لتقضيه في أي وقت.'},
+  appStep(false)];
+const tv=v=>typeof v==='function'?v():v;
+function startTour(){if(!A||!G)return;const steps=A.role==='admin'?ATSTEPS:MTSTEPS;
+  const list=steps.filter(st=>(!st.when||st.when())&&(st.view||$(st.sel)));if(!list.length)return;TOUR={list,i:0,role:A.role};tourShow()}
+function tourEnd(){document.querySelectorAll('.tblock,.tspot,.tbub').forEach(e=>e.remove());removeEventListener('resize',tourPlace);lsSet(tourKey(TOUR&&TOUR.role),'1');TOUR=null;if(VIEW!=='home')goHome()}
+function tourShow(){if(!TOUR)return;const st=TOUR.list[TOUR.i];const want=st.view||'home';
+  if(VIEW!==want){if(want==='home')goHome();else go(want);setTimeout(tourShow,450);return}
+  let el=$(st.sel);if(el&&st.card)el=el.closest('.card')||el;
+  if(!el){TOUR.i++;if(TOUR.i>=TOUR.list.length)return tourEnd();return tourShow()}
+  el.scrollIntoView({block:'center'});setTimeout(()=>tourPlace(),250)}
+function tourPlace(){if(!TOUR)return;const st=TOUR.list[TOUR.i];let el=$(st.sel);if(el&&st.card)el=el.closest('.card')||el;if(!el)return;
+  document.querySelectorAll('.tblock,.tspot,.tbub').forEach(e=>e.remove());
+  const r=el.getBoundingClientRect(),sx=scrollX,sy=scrollY,n=TOUR.list.length,i=TOUR.i;
+  const bl=document.createElement('div');bl.className='tblock';document.body.append(bl);
+  const sp=document.createElement('div');sp.className='tspot';
+  Object.assign(sp.style,{left:(r.left+sx-6)+'px',top:(r.top+sy-6)+'px',width:(r.width+12)+'px',height:(r.height+12)+'px'});document.body.append(sp);
+  const b=document.createElement('div');b.className='tbub';b.setAttribute('role','dialog');
+  b.innerHTML=`<div class="arrow"></div><h3>${tv(st.t)}</h3><p>${tv(st.d)}</p><div class="tf"><span class="tdots">${Array.from({length:n},(_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</span>
+    ${i<n-1?'<button class="back" id="t-skip">تخطي</button>':''}<button class="btn btn-main sm" id="t-next">${i<n-1?'التالي ‹':'ابدأ الآن'}</button></div>`;
+  document.body.append(b);const bh=b.offsetHeight,vh=innerHeight;
+  const below=r.bottom+18+bh<vh||r.top-18-bh<0;
+  b.style.top=(below?r.bottom+sy+18:r.top+sy-18-bh)+'px';
+  const a=b.querySelector('.arrow');a.style.left=Math.min(Math.max(r.left+r.width/2-16-7,20),b.offsetWidth-34)+'px';a.style[below?'top':'bottom']='-7px';
+  const bb=b.getBoundingClientRect();if(bb.bottom>vh||bb.top<0)scrollBy(0,bb.bottom>vh?bb.bottom-vh+12:bb.top-12);
+  $('#t-next').onclick=()=>{TOUR.i++;if(TOUR.i>=TOUR.list.length)tourEnd();else tourShow()};
+  const sk=$('#t-skip');if(sk)sk.onclick=tourEnd;
+  removeEventListener('resize',tourPlace);addEventListener('resize',tourPlace)}
+function maybeTour(){if(!TOUR&&A&&G&&VIEW==='home'&&!R&&!lsGet(tourKey()))setTimeout(()=>{if(!TOUR&&VIEW==='home'&&!R&&!lsGet(tourKey())){document.querySelectorAll('.toast').forEach(t=>t.remove());startTour()}},2500)}
+
 /* ---------- المرحلة التجريبية: ملاحظات، أخطاء، إشعارات، مصحف ورقي ---------- */
 let paperFor=null, bannerHidden=false;
 // قرأته من مصحفي
@@ -1663,7 +1747,7 @@ function render(){
   if(!G){VIEW='home';$('#view').innerHTML=err+joinCard()+kahfCard()+noGroupView()+trashCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;bindOwnerRow();bindJoinCard();bindKahf();bindNoGroup();bindTrash();bindAppCard();toFb();bindShareCard();return}
   if(VIEW==='settings'&&A.role==='admin'){$('#view').innerHTML=err+settingsView();bindSettings();return}
   $('#view').innerHTML=err+joinCard()+pushBanner()+groupBar()+kahfCard()+(A.role==='admin'?adminView():memberView())+trashCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;bindShareCard();bindOwnerRow();
-  bindJoinCard();bindPushBanner();bindGroupBar();bindKahf();A.role==='admin'?bindAdmin():bindMember();bindAppCard();bindModeCard();toFb();
+  bindJoinCard();bindPushBanner();bindGroupBar();bindKahf();A.role==='admin'?bindAdmin():bindMember();maybeTour();bindAppCard();bindModeCard();toFb();
 }
 const THEMES=[{k:'auto',i:'◐',t:'تلقائي'},{k:'light',i:'☀',t:'فاتح'},{k:'dark',i:'☾',t:'داكن'}];
 let theme='auto';try{theme=localStorage.getItem('khatma-theme')||'auto'}catch(e){}

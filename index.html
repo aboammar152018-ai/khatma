@@ -249,7 +249,7 @@ input,select{font-size:16px}
 .days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
 .days button{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:9px 0;font-size:14px}
 .days button[aria-pressed="true"]{border-color:var(--lapis);background:var(--lapis-soft);color:var(--lapis);font-weight:600}
-input[type=time]{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.tsel{display:flex;align-items:center;gap:8px;direction:ltr}.tsel select{flex:1;min-width:0;text-align:center;font-variant-numeric:tabular-nums}.tsel #au-ap{flex:1.4;direction:rtl}.tsel .tcol{font-weight:700;color:var(--muted)}
 .check{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:14px;cursor:pointer}
 .check input{width:18px;height:18px;accent-color:var(--lapis)}
 .offbar{margin:0;background:var(--gold-soft);color:var(--ink);border-radius:10px;padding:8px 12px;font-size:13px}
@@ -391,6 +391,39 @@ input.bad{border-color:#c0392b!important}
 .gsub{text-align:center;margin:6px 0 0!important;font-size:12.5px}
 .gnote{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--gold-soft);color:var(--ink);font-size:13.5px;line-height:1.8}
 .or{display:flex;align-items:center;gap:10px;margin:14px 0 2px;color:var(--muted,#888);font-size:13px}.or:before,.or:after{content:"";flex:1;border-top:1px solid var(--line,#ddd)}
+.ktabs{display:flex;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px}
+.ktabs button{flex:1;border:0;background:transparent;border-radius:10px;padding:10px 6px;font:inherit;font-size:15px;color:var(--muted);cursor:pointer}
+.ktabs button[aria-selected="true"]{background:var(--lapis);color:var(--lapis-ink);font-weight:600}
+.trange{font-family:var(--f-ui)!important;font-size:21px!important;font-weight:600}
+.tlist .trow{gap:10px}.tlist .trow[data-topic]{cursor:pointer}.tlist .trow.off{opacity:.55}
+.tlist.inw{margin-top:10px;background:rgba(255,255,255,.08);border-radius:12px;padding:0 10px}
+.tlist.inw .trow{border-color:rgba(255,255,255,.15)}.tlist.inw .sub{color:inherit;opacity:.8}
+.tn{min-width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;background:var(--bg);color:var(--muted);flex:none}
+.tt{font-weight:600}.tt.pend{color:var(--gold)}.tt.ok{color:var(--ok)}
+.tlist.inw .tt.pend{color:#f3e2b3}.tlist.inw .tt.ok{color:#bfe8cf}
+.tidx summary{list-style:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-weight:600;font-size:16px}
+.tidx summary::-webkit-details-marker{display:none}
+.tidx summary::after{content:"‹";font-size:20px;color:var(--muted);transition:transform .2s;margin-inline-start:8px}
+.tidx[open] summary::after{transform:rotate(-90deg)}
+.tidx summary .sub{margin-inline-start:auto;font-weight:400}
+.tidx .tlist{margin-top:10px}
+.ahead{margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:inherit}.ahead .sub{margin-top:4px;color:inherit;opacity:.85}.ahead .btn{white-space:nowrap}
+.treader{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column}
+.tr-in{max-width:620px;margin:0 auto}
+.tr-note{font-size:13px;line-height:1.8;color:var(--lapis);background:var(--lapis-soft);border-radius:10px;padding:10px 12px;margin:0 0 14px}
+.tcard{background:var(--page);color:var(--ink);border:1px solid var(--page-edge);border-radius:8px;padding:16px;box-shadow:0 0 0 5px var(--page),0 0 0 6px var(--page-edge);margin:6px}
+.tc-ay{background:var(--gold-soft);border-radius:8px;padding:12px 14px;text-align:center}
+.tc-q,.tc-pre{font-family:var(--f-quran);font-size:22px;line-height:2.1}
+.tc-pre{color:var(--muted);font-size:19px}
+.tc-lbl{text-align:center;font-size:12.5px;color:var(--muted);margin:8px 0 0}
+.tc-h{font-size:15px;font-weight:600;color:var(--gold);margin:18px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--page-edge)}
+.tc-w{margin:0;padding:4px 0;font-size:15.5px;line-height:1.9}.tc-w b{color:var(--lapis);font-weight:600}
+.tc-t{margin:0;font-size:15.5px;line-height:1.95}
+.tc-ol{margin:0;padding-inline-start:22px;list-style:arabic-indic;font-size:15.5px;line-height:1.95}.tc-ol li::marker{color:var(--gold)}
+.tc-n{margin:12px 0 0;font-size:14.5px;line-height:1.85;color:var(--muted)}.tc-n b{color:var(--gold)}
+.tc-k{background:var(--lapis-soft);border-radius:8px;padding:12px 14px;margin-top:18px;font-size:15.5px;line-height:1.85}
+.tc-k b{display:block;color:var(--lapis);font-size:13.5px;margin-bottom:2px}
+.treader .r-foot .btn{min-height:46px}.treader .r-foot .grow{flex:1}
 </style>
 </head>
 <body>
@@ -411,7 +444,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-14k'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-15d'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -440,7 +473,7 @@ const authStore={getItem:k=>{try{return sessionStorage.getItem(k)??localStorage.
   setItem:(k,v)=>{try{if(localStorage.getItem('khatma-remember')!=='0'){localStorage.setItem(k,v);sessionStorage.removeItem(k)}else{sessionStorage.setItem(k,v);localStorage.removeItem(k)}}catch(e){}},
   removeItem:k=>{try{localStorage.removeItem(k);sessionStorage.removeItem(k)}catch(e){}}};
 const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{storage:authStore,persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let TRASH=[],GROUPS=[],G=null,A=null,USER=null,loading=true,recovery=false,netErr='';
+let TRASH=[],GROUPS=[],G=null,A=null,USER=null,loading=true,recovery=false,netErr='',TDB_CAN=false;
 const save=()=>{};
 async function load(){
   let tA=performance.now();
@@ -449,14 +482,20 @@ async function load(){
   if(!session&&(se||!navigator.onLine))throw se||new Error('offline');
   USER=session?session.user:null;
   if(!USER){A=null;G=null;GROUPS=[];NOTES=[];return}
-  tA=performance.now();
-  const {data:st,error}=await sb.rpc('app_state',{p_mode:getMode()||'',p_group:getSelGroup()||null});
+  const me=USER;tA=performance.now();
+  let {data:st,error}=await sb.rpc('app_state',{p_mode:getMode()||'',p_group:getSelGroup()||null,p_kind:getTab()});
+  // قبل تشغيل التحديث 17 على السيرفر: الدالة القديمة بدون p_kind
+  if(error&&(error.code==='PGRST202'||/could not find the function/i.test(error.message||'')))({data:st,error}=await sb.rpc('app_state',{p_mode:getMode()||'',p_group:getSelGroup()||null}));
   DIAG.state=Math.round(performance.now()-tA);
+  if(USER!==me)return; // خرج المستخدم أثناء التحميل
   if(error)throw error;
   if(!st||!st.profile){A=null;G=null;GROUPS=[];NOTES=[];return}
   if(!getMode())setMode(st.mode);
-  A={u:st.profile.email,name:st.profile.name,role:st.mode,mid:USER.id,owner:!!st.owner};
-  GROUPS=st.groups||[];TRASH=st.trash||[];
+  A={u:st.profile.email,name:st.profile.name,role:st.mode,mid:me.id,owner:!!st.owner};
+  GROUPS=st.groups||[];TRASH=st.trash||[];TDB_CAN=!!st.tdb_create;
+  if(!tabAvail(getTab()))setTab(getTab()==='tilawa'?'tadabbur':'tilawa');
+  // مجموعة من النوع الآخر طُلبت صراحة (انضمام/اختيار): انتقل لتبويبها
+  if(st.group&&gkind(st.group)!==getTab()&&tabGroups(getTab()).length){if(getSelGroup()===st.group.id)setSelGroup('');setTab(gkind(st.group));setSelGroup(st.group.id)}
   NOTES=(st.notes||[]).map(n=>({id:n.id,t:Date.parse(n.t),text:n.text,read:n.read}));
   if(!st.group){G=null;return}
   const grp=st.group;
@@ -470,7 +509,12 @@ async function load(){
      khStart:st.kh_start?Date.parse(st.kh_start):0,khTotal:st.kh_total||0,
      auto:keep&&autoDirty?G.auto:{enabled:!!grp.auto_enabled,time:String(grp.auto_time||'08:00').slice(0,5),days:grp.auto_days||[0,1,2,3,4,5,6],
        unit:grp.auto_unit||2,hours:grp.auto_hours||24,tz:grp.tz||'Asia/Riyadh',last:grp.auto_last||null},
-     bonus:keep&&bonusDirty?G.bonus:{enabled:!!grp.bonus_enabled,hours:grp.bonus_hours||6}};
+     bonus:keep&&bonusDirty?G.bonus:{enabled:!!grp.bonus_enabled,hours:grp.bonus_hours||6},
+     kind:gkind(grp),nextTopic:grp.next_topic||1,tdb:null};
+  if(!keep){tdbComp=null;tCancel=false}
+  if(st.tdb){const T=st.tdb,tw=(T.wirds||[]).map(w=>({id:w.id,f:w.f,to:w.to,at:Date.parse(w.at),rd:{}})),by=Object.fromEntries(tw.map(w=>[w.id,w]));
+    (T.reads||[]).forEach(x=>{const w=by[x.w];if(w)(w.rd[x.n]=w.rd[x.n]||{})[x.u]=Date.parse(x.t)});
+    G.tdb={topics:(T.topics||[]).map(t=>({n:t.n,s:t.s,a:t.a,b:t.b,l:t.l,t:t.t,r:t.r,c:t.c})),wirds:tw}}
   applyQueue();
 }
 async function refresh(){
@@ -478,6 +522,9 @@ async function refresh(){
   catch(e){console.error(e);if(navigator.onLine&&!isNetErr(e))reportError('refresh: '+(e&&e.message||e));if(restoreCache())netErr='';else netErr='تعذّر تحميل البيانات. تأكد من الإنترنت ثم حدّث الصفحة.'}
   loading=false;render();
 }
+// تنظيف كود المجموعة: الأرقام العربية، المسافات، الحروف الصغيرة، ونسيان KH أو الشرطات
+function normCode(c){const raw=String(c||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).toUpperCase().replace(/\s+/g,'');
+  let k=raw.replace(/[^A-Z0-9]/g,'');if(k.startsWith('KH')&&k.length===10)k=k.slice(2);return k.length===8?'KH-'+k.slice(0,4)+'-'+k.slice(4):raw}
 function errMsg(e){const m=(e&&e.message||'').toLowerCase();
   if(m.includes('invalid login'))return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
   if(m.includes('not confirmed'))return 'أكّد بريدك أولاً من الرابط الذي وصلك على الإيميل.';
@@ -485,7 +532,7 @@ function errMsg(e){const m=(e&&e.message||'').toLowerCase();
   if(m.includes('password')&&m.includes('least'))return 'كلمة المرور 6 أحرف على الأقل.';
   if(m.includes('rate limit')||m.includes('too many'))return 'محاولات كثيرة. انتظر قليلاً ثم حاول مرة أخرى.';
   if(m.includes('fetch')||m.includes('network'))return 'تعذّر الاتصال. تأكد من الإنترنت وحاول مرة أخرى.';
-  if(m.includes('invalid code'))return 'كود المجموعة غير صحيح. تأكد منه مع المشرف.';
+  if(m.includes('invalid code'))return 'الكود غير صحيح. تأكد منه مع المشرف، والأسهل أن تفتح رابط الدعوة الذي أرسله لك.';
   return 'حدث خطأ: '+(e&&e.message||'غير معروف');
 }
 
@@ -513,10 +560,11 @@ const unreadCount=()=>NOTES.filter(n=>!n.read).length;
 // التنقل: زر الرجوع في الموبايل يرجع للشاشة السابقة
 function go(v,anchor){VIEW=v;const n=((history.state&&history.state.n)||0)+1;history.pushState({k:v,n},'');render();
   if(anchor){const a=$('#'+anchor);if(a)a.scrollIntoView({block:'start'})}else scrollTo(0,0)}
-function back(){if(history.state&&history.state.n)history.back();else{if(R){$('#layer').innerHTML='';R=null;readerClosed()}VIEW='home';delOpen=false;render();scrollTo(0,0)}}
-function goHome(){const n=(history.state&&history.state.n)||0;if(n>0)history.go(-n);else{if(R){$('#layer').innerHTML='';R=null;readerClosed()}VIEW='home';delOpen=false;render();scrollTo(0,0)}}
+function back(){if(history.state&&history.state.n)history.back();else{if(R){$('#layer').innerHTML='';R=null;readerClosed()}if(TR)closeTR();VIEW='home';delOpen=false;render();scrollTo(0,0)}}
+function goHome(){const n=(history.state&&history.state.n)||0;if(n>0)history.go(-n);else{if(R){$('#layer').innerHTML='';R=null;readerClosed()}if(TR)closeTR();VIEW='home';delOpen=false;render();scrollTo(0,0)}}
 window.addEventListener('popstate',e=>{const k=e.state&&e.state.k;
   if(R&&k!=='read'){$('#layer').innerHTML='';R=null;readerClosed()}
+  if(TR&&k!=='tread'){closeTR();if(k!=='read'){VIEW=(k==='notes'||k==='settings'||k==='feedback'||k==='owner')?k:'home';render();return}}
   VIEW=(k==='notes'||k==='settings'||k==='feedback'||k==='owner')?k:'home';if(VIEW!=='settings')delOpen=false;render();if(k!=='read')scrollTo(0,0)});
 const screenHead=t=>`<div class="shead"><button class="back" id="sback" type="button">› رجوع</button><h2>${t}</h2></div>`;
 
@@ -608,9 +656,9 @@ function adminView(){
     <div style="margin-top:14px" class="bar"><i style="width:${pct}%"></i></div>
     <div class="meta" style="margin-top:6px"><span class="num">${allDone(w)?'🌿 المجموعة كلها أتمّت الورد':`قرأ ${AR(done.length)} من ${AR(G.members.length)}`}</span></div>
     ${cancelOpen?`<div class="cancelbox">${confirmRow(`إلغاء الورد «${ref(w.start)} ← ${ref(w.end)}»؟ ${done.length?`أتمّه ${AR(done.length)} وستُحذف قراءاتهم له. `:''}ترجع المجموعة لنفس نقطة البداية، ويصل للأعضاء تنبيه بالإلغاء.`,'cw-ok','نعم، ألغِ الورد','cw-no','تراجع')}</div>`:''}
-    <div class="row" style="margin-top:14px">${selfReads()
+    ${selfReads()?aheadBox(w):''}${selfReads()&&aheadOf(w)==='full'?'':`<div class="row" style="margin-top:14px">${selfReads()
       ?`<button class="btn btn-light" id="read">${w.done[A.mid]?'إعادة القراءة':(readPos(w)?'أكمل القراءة':'ابدأ القراءة')}</button>${paperBtn(w)}`
-      :'<button class="btn btn-light" id="preview">معاينة الورد في المصحف</button>'}</div>
+      :'<button class="btn btn-light" id="preview">معاينة الورد في المصحف</button>'}</div>`}
     ${selfReads()?paperConfirm(w):''}
     ${cancelOpen?'':'<button class="back cancel-link" id="cw-open">نُشر بالخطأ؟ إلغاء هذا الورد</button>'}
   </div>
@@ -671,7 +719,7 @@ function bindAdmin(){bindLate();
     if(error){render();return toast(/not latest/i.test(error.message)?'يمكن إلغاء آخر ورد فقط.':errMsg(error))}
     try{localStorage.removeItem('khatma-pos-'+cur().id)}catch(e){}
     comp={mode:'continue',pick:null};await refresh();toast('أُلغي الورد. يمكنك نشر الورد الصحيح الآن.')};
-  const rd=$('#read');if(rd)rd.onclick=()=>openReader(cur());bindPaper();
+  const rd=$('#read');if(rd)rd.onclick=()=>openReader(cur());bindPaper();bindAhead();
   document.querySelectorAll('[data-qada]').forEach(b=>b.onclick=()=>{const w=G.wirds.find(x=>String(x.id)===b.dataset.qada);if(w)openReader(w)});
   const sr=$('#selfread');if(sr)sr.onchange=async()=>{const on=sr.checked;sr.disabled=true;
     const {error}=on?await sb.rpc('join_group',{p_code:G.code}):await sb.rpc('leave_group',{p_group:G.id});
@@ -709,13 +757,16 @@ function remindCard(){const on=G.remind;
   return `<div class="card"><p class="h"><span>تذكير قبل نهاية الورد</span><span class="chip ${on?'ok':'wait'}">${on?'مفعّل':'متوقف'}</span></p>
     <div class="switch"><label for="rm-on">إشعار تلقائي قبل نهاية الورد بساعة</label><input type="checkbox" id="rm-on" ${on?'checked':''}></div>
     <p class="sub" style="margin:8px 0 0">يصل فقط لمن لم يقرأ بعد، مرة واحدة لكل ورد، ولا تحتاج لإرساله بنفسك.</p></div>`}
-function moveRow(m){const others=GROUPS.filter(g=>g.id!==G.id);
+function moveRow(m){const others=tabGroups(G.kind).filter(g=>g.id!==G.id);
   return `<div class="confirm"><p>نقل <b>${esc(m.name)}</b> إلى مجموعة:</p>
     <select id="mv-to" aria-label="المجموعة الجديدة">${others.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('')}</select>
     <p class="sub" style="margin:0">قراءاته السابقة تبقى في إحصائيات هذه المجموعة، ويصله تنبيه بالنقل.</p>
     <div class="row"><button class="btn btn-main sm" id="mv-ok">نقل</button><button class="btn btn-ghost sm" id="mv-no">إلغاء</button></div></div>`}
 function settingsView(){
-  const board=[...G.members].sort((a,b)=>pointsFor(b.id)-pointsFor(a.id));
+  const tdb=G.kind==='tadabbur', pubN=tdb?G.tdb.topics.filter(t=>tPublished(t.n)).length:0;
+  const board=tdb?[...G.members]:[...G.members].sort((a,b)=>pointsFor(b.id)-pointsFor(a.id));
+  const sub=m=>tdb?`قرأ ${AR(G.tdb.topics.filter(t=>tPublished(t.n)&&tReadAny(t.n,m.id)).length)} من ${AR(pubN)}`
+    :`التزام ${AR(commit(m.id))}٪ · ${AR(streak(m.id))} أوراد متتالية${m.kh&&m.kh.missed?` · <b class="late">فاته ${numW(m.kh.missed)}</b>`:''}`;
   return screenHead(`إعدادات «${esc(G.group)}»`)+`
   <div class="card" id="invite">
     <p class="h"><span>دعوة الأعضاء</span><span>الكود: <b class="code" style="font-size:14px">${esc(G.code)}</b></span></p>
@@ -729,21 +780,19 @@ function settingsView(){
       :'<button class="back" id="regen" style="margin-top:10px">تغيير كود الدعوة</button>'}
   </div>
   <div class="card">
-    <p class="h"><span>الأعضاء والنقاط</span><span>${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}</span></p>
+    <p class="h"><span>${tdb?'الأعضاء':'الأعضاء والنقاط'}</span><span>${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}</span></p>
     ${G.members.length?pushSummary():'<p class="empty">لا يوجد أعضاء بعد.</p>'}
     <ul class="list">${board.map(m=>mvId===m.id?`<li>${moveRow(m)}</li>`:rmId===m.id?`<li>${confirmRow(`حذف <b>${esc(m.name)}</b> من المجموعة؟ قراءاته السابقة تبقى في الإحصائيات.`,'rm-ok','حذف','rm-no')}</li>`:`<li><span class="av">${initials(m.name)}</span>
-      <span class="grow"><span class="name">${esc(m.name)}${m.id===A.mid?' <span class="tag">المشرف</span>':''}${pushIcon(m)}</span><br><span class="sub num">التزام ${AR(commit(m.id))}٪ · ${AR(streak(m.id))} أوراد متتالية${m.kh&&m.kh.missed?` · <b class="late">فاته ${numW(m.kh.missed)}</b>`:''}</span></span>
-      <span class="pts num">${AR(pointsFor(m.id))} نقطة</span>${m.id===A.mid?'':`${GROUPS.length>1?`<button class="rm mv" data-mv="${m.id}" aria-label="نقل ${esc(m.name)} لمجموعة أخرى" title="نقل لمجموعة أخرى">⇄</button>`:''}<button class="rm" data-rm="${m.id}" aria-label="حذف ${esc(m.name)}" title="حذف من المجموعة">✕</button>`}</li>`).join('')}</ul>
-    <div class="switch" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><label for="pts-on">إظهار النقاط للأعضاء</label><input type="checkbox" id="pts-on" ${G.showPoints?'checked':''}></div>
+      <span class="grow"><span class="name">${esc(m.name)}${m.id===A.mid?' <span class="tag">المشرف</span>':''}${pushIcon(m)}</span><br><span class="sub num">${sub(m)}</span></span>
+      ${tdb?'':`<span class="pts num">${AR(pointsFor(m.id))} نقطة</span>`}${m.id===A.mid?'':`${tabGroups(G.kind).length>1?`<button class="rm mv" data-mv="${m.id}" aria-label="نقل ${esc(m.name)} لمجموعة أخرى" title="نقل لمجموعة أخرى">⇄</button>`:''}<button class="rm" data-rm="${m.id}" aria-label="حذف ${esc(m.name)}" title="حذف من المجموعة">✕</button>`}</li>`).join('')}</ul>
+    ${tdb?'':`<div class="switch" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><label for="pts-on">إظهار النقاط للأعضاء</label><input type="checkbox" id="pts-on" ${G.showPoints?'checked':''}></div>
     <div class="switch" style="margin-top:10px"><label for="board">إظهار ترتيب النقاط للأعضاء</label><input type="checkbox" id="board" ${G.showBoard&&G.showPoints?'checked':''} ${G.showPoints?'':'disabled'}></div>
-    <p class="sub" style="margin:8px 0 0">عند إخفاء النقاط يرى العضو التزامه وأوراده المتتالية فقط، وأنت ترى كل شيء.</p>
+    <p class="sub" style="margin:8px 0 0">عند إخفاء النقاط يرى العضو التزامه وأوراده المتتالية فقط، وأنت ترى كل شيء.</p>`}
   </div>
-  ${autoCard()}
-  ${bonusCard()}
-  ${remindCard()}
-  <div class="card"><div class="row"><span class="grow"><b>الجولة التعريفية</b><br><span class="sub">شرح سريع لأهم أزرار المشرف</span></span><button class="btn btn-ghost sm" id="tour-again">إعادة الجولة</button></div></div>
+  ${tdb?tdbAutoCard():autoCard()+bonusCard()+remindCard()+`
+  <div class="card"><div class="row"><span class="grow"><b>الجولة التعريفية</b><br><span class="sub">شرح سريع لأهم أزرار المشرف</span></span><button class="btn btn-ghost sm" id="tour-again">إعادة الجولة</button></div></div>`}
   <div class="card dz"><p class="h"><span>حذف المجموعة</span></p>
-    ${delOpen?`<p class="sub" style="margin:0">تُحذف المجموعة بأورادها وقراءاتها، ويصل للأعضاء إشعار بإغلاقها. يمكنك استعادتها كما هي خلال ٧ أيام، وبعدها تُحذف نهائياً. للتأكيد اكتب اسم المجموعة: <b style="color:var(--ink)">${esc(G.group)}</b></p>
+    ${delOpen?`<p class="sub" style="margin:0">تُحذف ${tdb?'الختمة':'المجموعة'} بأورادها وقراءاتها، ويصل للأعضاء إشعار بإغلاقها. يمكنك استعادتها كما هي خلال ٧ أيام، وبعدها تُحذف نهائياً. للتأكيد اكتب اسم المجموعة: <b style="color:var(--ink)">${esc(G.group)}</b></p>
       <div class="field"><label for="del-in">اسم المجموعة</label><input type="text" id="del-in" autocomplete="off"></div>
       <div class="row" style="margin-top:12px"><button class="btn btn-danger" id="del-ok" disabled style="flex:1">حذف المجموعة نهائياً</button><button class="btn btn-ghost sm" id="del-no">إلغاء</button></div>`
     :`<button class="back danger" id="del-open">حذف هذه المجموعة…</button>`}
@@ -776,17 +825,17 @@ function bindSettings(){
     const {error}=await sb.from('groups').update({show_points:v}).eq('id',G.id);
     if(error){e.target.checked=!v;toast(errMsg(error));return}
     G.showPoints=v;render();toast(v?'النقاط ظاهرة للأعضاء':'النقاط مخفية عن الأعضاء')};
-  $('#board').onchange=async e=>{const v=e.target.checked;
+  const bd=$('#board');if(bd)bd.onchange=async e=>{const v=e.target.checked;
     const {error}=await sb.from('groups').update({show_board:v}).eq('id',G.id);
     if(error){e.target.checked=!v;toast(errMsg(error));return}
     G.showBoard=v;toast(v?'الترتيب ظاهر للأعضاء':'النقاط خاصة بكل عضو')};
-  $('#rm-on').onchange=async e=>{const v=e.target.checked;
+  const rmo2=$('#rm-on');if(rmo2)rmo2.onchange=async e=>{const v=e.target.checked;
     const {error}=await sb.from('groups').update({remind_enabled:v}).eq('id',G.id);
     if(error){e.target.checked=!v;toast(errMsg(error));return}
     G.remind=v;render();toast(v?'سيصل تذكير تلقائي قبل نهاية الورد بساعة':'أُوقف التذكير التلقائي')};
-  $('#bn-on').onchange=e=>{G.bonus.enabled=e.target.checked;bonusDirty=true;render()};
-  $('#bn-h').onchange=e=>{G.bonus.hours=+e.target.value;bonusDirty=true;render()};
-  $('#bn-save').onclick=async e=>{const btn=e.currentTarget;btn.disabled=true;
+  const bno=$('#bn-on');if(bno)bno.onchange=e=>{G.bonus.enabled=e.target.checked;bonusDirty=true;render()};
+  const bnh=$('#bn-h');if(bnh)bnh.onchange=e=>{G.bonus.hours=+e.target.value;bonusDirty=true;render()};
+  const bns=$('#bn-save');if(bns)bns.onclick=async e=>{const btn=e.currentTarget;btn.disabled=true;
     const {error}=await sb.from('groups').update({bonus_enabled:G.bonus.enabled,bonus_hours:G.bonus.hours}).eq('id',G.id);
     if(error){btn.disabled=false;return toast(errMsg(error))}bonusDirty=false;await refresh();toast(G.bonus.enabled?`فُعّلت المكافأة لأول ${AR(G.bonus.hours)} ساعات`:'أُوقفت مكافأة المبادرين')};
   const dop=$('#del-open');if(dop)dop.onclick=()=>{delOpen=true;render();const i=$('#del-in');if(i)i.focus()};
@@ -812,7 +861,7 @@ function memberView(){
     <div class="range">${ref(w.start)} ← ${ref(w.end)}</div>
     <div class="meta"><span>${AR(w.p2-w.p1+1)} صفحات</span><span>${isDone?(isQueued(w)?'أتممته · في انتظار الاتصال':'أتممته '+ago(w.done[me.id])):left(w)}</span></div>
     ${bonusLeft>0&&G.showPoints?`<div class="meta" style="margin-top:4px"><span>⭐ +٥ نقاط للمبادرين إذا أتممته خلال ${AR(Math.max(1,Math.ceil(bonusLeft/H)))} ${Math.ceil(bonusLeft/H)>2?'ساعات':'ساعة'}</span></div>`:''}
-    <div class="row" style="margin-top:16px"><button class="btn btn-light" id="read">${isDone?'إعادة القراءة':(readPos(w)?'أكمل القراءة':'ابدأ القراءة')}</button>${paperBtn(w)}</div>${paperConfirm(w)}
+    ${aheadBox(w)}${aheadOf(w)==='full'?'':`<div class="row" style="margin-top:16px"><button class="btn btn-light" id="read">${isDone?'إعادة القراءة':(readPos(w)?'أكمل القراءة':'ابدأ القراءة')}</button>${paperBtn(w)}</div>`}${paperConfirm(w)}
   </div>`:`<div class="card wird"><p class="h"><span>الورد</span></p>
     <div class="range">لم يُنشر ورد بعد</div><div class="meta"><span>سيصلك إشعار عندما ينشر المشرف الورد الأول.</span></div></div>`}
 
@@ -845,12 +894,246 @@ function qadaCard(me){
     ${missed.length>shown.length?`<p class="sub" style="margin:8px 0 0">و${AR(missed.length-shown.length)} أوراد أخرى تظهر بعد إتمام هذه.</p>`:''}</div>`;
 }
 function bindMember(){
-  const rd=$('#read');if(rd)rd.onclick=()=>openReader(cur());bindPaper();
+  const rd=$('#read');if(rd)rd.onclick=()=>openReader(cur());bindPaper();bindAhead();
   document.querySelectorAll('[data-qada]').forEach(b=>b.onclick=()=>{const w=G.wirds.find(x=>String(x.id)===b.dataset.qada);if(w)openReader(w)});
+  bindLeave();
+}
+function bindLeave(){
   const lv=$('#leave');if(lv)lv.onclick=()=>{leaving=true;render()};
   const lvn=$('#lv-no');if(lvn)lvn.onclick=()=>{leaving=false;render()};
   const lvo=$('#lv-ok');if(lvo)lvo.onclick=async()=>{lvo.disabled=true;const name=G.group;const {error}=await sb.rpc('leave_group',{p_group:G.id});
     leaving=false;if(error){render();return toast(errMsg(error))}setSelGroup('');await refresh();scrollTo(0,0);toast(`خرجت من «${name}»`)};
+}
+
+
+/* ---------- ختمة التدبر ---------- */
+const TDB_NOTE='مختصر من «أيسر التفاسير» للشيخ أبي بكر جابر الجزائري رحمه الله. و«الخاطرة» في آخر كل بطاقة من فريق العمل.';
+const pl=(n,one,two,few,many)=>n===1?one:n===2?two:n>=3&&n<=10?`${AR(n)} ${few}`:`${AR(n)} ${many}`;
+const nTopics=n=>pl(n,'موضوع واحد','موضوعان','مواضيع','موضوعاً');
+const nCardsT=n=>pl(n,'بطاقة واحدة','بطاقتان','بطاقات','بطاقة');
+const TT=n=>G&&G.tdb?G.tdb.topics.find(t=>t.n===n):null;
+const tCur=()=>{const w=G&&G.tdb&&G.tdb.wirds;return w&&w.length?w[w.length-1]:null};
+const tRange=w=>{const a=[];for(let n=w.f;n<=w.to;n++)a.push(n);return a};
+const tName=t=>t?(t.t||t.l):'';
+function tLabel(f,to){const a=TT(f),b=TT(to);if(!a||!b)return '';if(f===to)return a.l;
+  if(a.s===b.s)return a.l.split(' ').slice(0,2).join(' ')+' '+AR(a.a)+' – '+AR(b.b);return a.l+' ← '+b.l}
+const tReadBy=(w,n,u)=>!!(w&&w.rd[n]&&w.rd[n][u]);
+const tCountW=(w,u)=>tRange(w).filter(n=>tReadBy(w,n,u)).length;
+const tDoneW=(w,u)=>tCountW(w,u)===w.to-w.f+1;
+const tReadAny=(n,u)=>G.tdb.wirds.some(w=>tReadBy(w,n,u));
+const tPublished=n=>G.tdb.wirds.some(w=>n>=w.f&&n<=w.to);
+const tWirdOf=n=>[...G.tdb.wirds].reverse().find(w=>n>=w.f&&n<=w.to);
+const tReady=n=>{const t=TT(n);return !!(t&&t.c>0)};
+const tCardsIn=(f,to)=>{let s=0;for(let n=f;n<=to;n++){const t=TT(n);s+=t?t.c:0}return s};
+const tLastReady=f=>{let e=f;while(tReady(e+1))e++;return e};
+const tCanRead=()=>A.role==='member'||selfReads();
+let tdbComp=null, tCancel=false, tIdxOpen=false;
+
+function tdbEmptyView(){
+  return `<div class="card tintro"><h2>ختمة التدبر</h2>
+    <p class="sub" style="margin:6px 0 0">في كل ورد موضوع أو أكثر، ولكل موضوع بطاقات فيها: شرح الكلمات، والمعنى، وهداية الآيات، وخاطرة.</p>
+    <p class="sub" style="margin:6px 0 0">${TDB_NOTE}</p>
+    <div class="field"><label for="tdb-name">اسم الختمة</label><input type="text" id="tdb-name" placeholder="مثلاً: تدبر الأصحاب"></div>
+    <button class="btn btn-main" id="tdb-mk" style="width:100%;margin-top:14px">بدء ختمة تدبر</button></div>`}
+function bindTdbEmpty(){const b=$('#tdb-mk');if(!b)return;b.onclick=async()=>{const v=$('#tdb-name').value.trim();if(!v){$('#tdb-name').focus();return toast('اكتب اسماً للختمة.')}
+  b.disabled=true;const {data,error}=await sb.rpc('create_group',{p_name:v,p_kind:'tadabbur'});
+  if(error){b.disabled=false;return toast(/too many groups/i.test(error.message)?'وصلت للحد الأقصى (٢٠ مجموعة).':errMsg(error))}
+  setSelGroup(data);tdbComp=null;await refresh();scrollTo(0,0);toast(G?`بدأت «${G.group}». كود الدعوة: ${G.code}`:'بدأت ختمة التدبر')}}
+
+function tRow(n,{state,click=true,sub}={}){const t=TT(n);if(!t)return '';
+  return `<li ${click&&t.c?`data-topic="${n}" tabindex="0" role="button"`:''} class="trow ${t.c?'':'off'}">
+    <span class="tn num">${AR(n)}</span>
+    <span class="grow"><span class="tt ${state||''}">${esc(tName(t))}${state==='ok'?' ✓':''}</span>${t.t?`<br><span class="sub">${esc(t.l)}</span>`:''}</span>
+    ${sub!=null?`<span class="sub">${sub}</span>`:''}</li>`}
+function tIndex(rows,summary){
+  return `<details class="card tidx" id="tidx" ${tIdxOpen?'open':''}><summary><span>فهرس المواضيع</span><span class="sub">${summary}</span></summary>
+    <ul class="list tlist">${rows}</ul></details>`}
+
+function tdbAdminView(){
+  const T=G.tdb, w=tCur(), mem=G.members, all=w?w.to-w.f+1:0;
+  const done=w?mem.filter(m=>tDoneW(w,m.id)):[], pend=w?mem.filter(m=>!tDoneW(w,m.id)):[];
+  const pct=mem.length?Math.round(100*done.length/mem.length):0;
+  if(!tdbComp){const f=tReady(G.nextTopic)?G.nextTopic:null;tdbComp={f,to:f}}
+  const ready=T.topics.filter(t=>t.c>0), f=tdbComp.f, to=f?Math.min(Math.max(tdbComp.to||f,f),tLastReady(f)):null;
+  const pubCount=T.topics.filter(t=>tPublished(t.n)).length;
+  return (w?`<div class="card wird">
+    <p class="h"><span>ورد التدبر الحالي</span><span>${ago(w.at)}</span></p>
+    <div class="range trange">${esc(tLabel(w.f,w.to))}</div>
+    <div class="meta"><span>${nTopics(all)} · ${nCardsT(tCardsIn(w.f,w.to))}</span></div>
+    <div style="margin-top:14px" class="bar"><i style="width:${pct}%"></i></div>
+    <div class="meta" style="margin-top:6px"><span class="num">${mem.length&&done.length===mem.length?'🌿 المجموعة كلها أتمّت الورد':`أتمّه ${AR(done.length)} من ${AR(mem.length)}`}</span></div>
+    ${tCancel?`<div class="cancelbox">${confirmRow(`إلغاء ورد «${esc(tLabel(w.f,w.to))}»؟ تُحذف قراءات الأعضاء له، ويرجع النشر لنفس الموضوع، ويصل للأعضاء تنبيه بالإلغاء.`,'tcw-ok','نعم، ألغِ الورد','tcw-no','تراجع')}</div>`:''}
+    <div class="row" style="margin-top:14px"><button class="btn btn-light" id="t-prev">${tCanRead()?(tDoneW(w,A.mid)?'إعادة القراءة':'ابدأ القراءة'):'معاينة البطاقات'}</button></div>
+    ${tCancel?'':'<button class="back cancel-link" id="tcw-open">نُشر بالخطأ؟ إلغاء هذا الورد</button>'}
+  </div>
+  <div class="card">
+    <p class="h"><span>متابعة الورد الحالي</span>
+      <button class="btn btn-ghost" id="t-remind" style="padding:6px 12px;font-size:13px" ${pend.length?'':'disabled'}>تذكير من لم يُتمّ (${AR(pend.length)})</button></p>
+    ${mem.length?'':'<p class="empty">لا يوجد أعضاء بعد. ادعُهم برابط الختمة.</p>'}
+    <ul class="list">${[...pend,...done].map(m=>{const k=tCountW(w,m.id);return `<li><span class="av">${initials(m.name)}</span>
+      <span class="grow"><span class="name">${esc(m.name)}${m.id===A.mid?' <span class="tag">المشرف</span>':''}${pushIcon(m)}</span></span>
+      <span class="chip ${k===all?'ok':'wait'}">${k===all?'أتمّ ✓':k?`قرأ ${AR(k)} من ${AR(all)}`:'لم يقرأ'}</span></li>`}).join('')}</ul>
+  </div>`:`<div class="card wird"><p class="h"><span>مرحباً بك في ${esc(G.group)}</span></p>
+    <div class="range trange">ابدأ أول ورد للختمة</div>
+    <div class="meta"><span>اختر المواضيع من الأسفل واضغط نشر، وسيصل إشعار لكل الأعضاء.</span></div></div>`)+`
+  <div class="actions">
+    <button class="btn btn-ghost" id="to-invite">دعوة الأعضاء</button>
+    <button class="btn btn-ghost" id="to-settings">⚙ إعدادات الختمة</button>
+  </div>
+  <div class="card" id="tcomposer">
+    <h2>نشر ورد جديد</h2>
+    ${ready.length?`<div class="field"><label for="t-from">من موضوع</label>
+      <select id="t-from">${f?'':'<option value="" selected>اختر الموضوع</option>'}${ready.map(t=>`<option value="${t.n}" ${t.n===f?'selected':''}>${AR(t.n)}. ${esc(tName(t))}${tPublished(t.n)?' (نُشر)':''}</option>`).join('')}</select></div>
+    ${f?`<div class="field"><label for="t-to">إلى موضوع</label>
+      <select id="t-to">${ready.filter(t=>t.n>=f&&t.n<=tLastReady(f)).map(t=>`<option value="${t.n}" ${t.n===to?'selected':''}>${AR(t.n)}. ${esc(tName(t))}</option>`).join('')}</select></div>
+    <div class="preview"><div class="sub">سيصل للأعضاء:</div><div class="q">${esc(tLabel(f,to))}</div>
+      <div class="sub"><b>${nTopics(to-f+1)}</b> · <b>${nCardsT(tCardsIn(f,to))}</b></div></div>
+    <div class="row" style="margin-top:14px"><button class="btn btn-main" id="t-pub">نشر الورد وإشعار ${AR(mem.length)} ${mem.length>2&&mem.length<11?'أعضاء':'عضو'}</button></div>`
+    :`<p class="sub" style="margin:10px 0 0">نُشرت كل المواضيع الجاهزة. تُضاف مواضيع جديدة تباعاً بإذن الله، أو اختر موضوعاً سابقاً لتعيد نشره.</p>`}`
+    :'<p class="empty">لا توجد مواضيع جاهزة بعد.</p>'}
+  </div>
+  ${tIndex(T.topics.map(t=>tRow(t.n,{state:tPublished(t.n)?'ok':'pend',sub:t.c?nCardsT(t.c):'قيد الإعداد'})).join(''),`نُشر ${AR(pubCount)} من ${AR(T.topics.length)}`)}`;
+}
+function bindTopicRows(){document.querySelectorAll('[data-topic]').forEach(el=>{const op=()=>openTopic(+el.dataset.topic);el.onclick=op;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();op()}}});
+  const d=$('#tidx');if(d)d.ontoggle=()=>{tIdxOpen=d.open}}
+function bindTdbAdmin(){bindTopicRows();
+  $('#to-settings').onclick=()=>go('settings');$('#to-invite').onclick=()=>go('settings','invite');
+  const w=tCur();
+  const pv=$('#t-prev');if(pv)pv.onclick=()=>{const n=tCanRead()?(tRange(w).find(x=>!tReadBy(w,x,A.mid))||w.f):w.f;openTopic(n)};
+  const co=$('#tcw-open');if(co)co.onclick=()=>{tCancel=true;render()};
+  const cn=$('#tcw-no');if(cn)cn.onclick=()=>{tCancel=false;render()};
+  const cy=$('#tcw-ok');if(cy)cy.onclick=async()=>{cy.disabled=true;cy.textContent='جارٍ الإلغاء…';
+    const {error}=await sb.rpc('tdb_cancel',{p_wird:w.id});tCancel=false;
+    if(error){render();return toast(/not latest/i.test(error.message)?'يمكن إلغاء آخر ورد فقط.':errMsg(error))}
+    tdbComp=null;await refresh();toast('أُلغي الورد. يمكنك نشر الورد الصحيح الآن.')};
+  const rb=$('#t-remind');if(rb)rb.onclick=async()=>{rb.disabled=true;const {data,error}=await sb.rpc('tdb_remind',{p_wird:w.id});rb.disabled=false;
+    if(error)return toast(errMsg(error));toast(`أُرسل التذكير إلى ${AR(data||0)} ${data>2&&data<11?'أعضاء':'عضو'}`)};
+  const fs=$('#t-from');if(fs)fs.onchange=()=>{const v=+fs.value||null;tdbComp={f:v,to:v};render()};
+  const ts=$('#t-to');if(ts)ts.onchange=()=>{tdbComp.to=+ts.value;render()};
+  const pb=$('#t-pub');if(pb)pb.onclick=async()=>{const f=tdbComp.f,to=Math.min(Math.max(tdbComp.to||f,f),tLastReady(f));
+    pb.disabled=true;pb.textContent='جارٍ النشر…';
+    const {error}=await sb.rpc('tdb_publish',{p_group:G.id,p_from:f,p_to:to});
+    if(error){toast(/not ready/i.test(error.message)?'بعض هذه المواضيع لم تُجهَّز بعد.':errMsg(error));render();return}
+    tdbComp=null;await refresh();scrollTo({top:0,behavior:'smooth'});
+    toast(`نُشر الورد ووصل إشعار إلى ${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}`)};
+}
+
+function tdbMemberView(){
+  const me=G.members.find(m=>m.id===A.mid)||{id:A.mid,name:A.name}, T=G.tdb, w=tCur();
+  const pub=T.topics.filter(t=>tPublished(t.n)), readN=pub.filter(t=>tReadAny(t.n,me.id)).length;
+  const all=w?w.to-w.f+1:0, k=w?tCountW(w,me.id):0, done=w&&k===all, nx=w?tRange(w).find(n=>!tReadBy(w,n,me.id)):null;
+  return `<div><h2>السلام عليكم يا ${esc(me.name)}</h2></div>
+  ${w?`<div class="card wird">
+    <p class="h"><span>${done?'وردك لهذه المرة':'ورد التدبر'}</span><span>${ago(w.at)}</span></p>
+    <div class="range trange">${esc(tLabel(w.f,w.to))}</div>
+    <div class="meta"><span>${nTopics(all)} · ${nCardsT(tCardsIn(w.f,w.to))}</span><span>${done?'أتممته':k?`قرأت ${AR(k)} من ${AR(all)}`:'لم تبدأ بعد'}</span></div>
+    ${all>1?`<ul class="list tlist inw">${tRange(w).map(n=>tRow(n,{state:tReadBy(w,n,me.id)?'ok':'pend'})).join('')}</ul>`:''}
+    <div class="row" style="margin-top:16px"><button class="btn btn-light" id="t-read">${done?'إعادة القراءة':k?'أكمل القراءة':'ابدأ القراءة'}</button></div>
+  </div>`:`<div class="card wird"><p class="h"><span>ورد التدبر</span></p>
+    <div class="range trange">لم يُنشر ورد بعد</div><div class="meta"><span>سيصلك إشعار عندما ينشر المشرف الورد الأول.</span></div></div>`}
+  ${pub.length?tIndex(pub.map(t=>tRow(t.n,{state:tReadAny(t.n,me.id)?'ok':'pend'})).join(''),`قرأت ${AR(readN)} من ${AR(pub.length)}`):''}
+  ${leaving?`<div class="card">${confirmRow(`الخروج من «${esc(G.group)}»؟ لن يصلك وردها بعد ذلك، ويمكنك العودة بكود الختمة.`,'lv-ok','خروج من الختمة','lv-no')}</div>`
+    :'<button class="back danger" id="leave" style="align-self:center">الخروج من هذه الختمة</button>'}`;
+}
+function bindTdbMember(){bindTopicRows();bindLeave();
+  const w=tCur(),rd=$('#t-read');if(rd)rd.onclick=()=>openTopic(tRange(w).find(n=>!tReadBy(w,n,A.mid))||w.f)}
+
+// ---- قارئ البطاقات ----
+let TR=null;
+const tCacheKey=t=>'khatma-tdbc-'+t.n+'-'+t.r;
+async function tdbCards(t){
+  try{const c=JSON.parse(lsGet(tCacheKey(t))||'null');if(c&&c.length)return c}catch(e){}
+  const {data,error}=await sb.from('tdb_cards').select('i,body').eq('topic',t.n).order('i');
+  if(error)throw error;const cards=(data||[]).map(x=>x.body);
+  if(cards.length){try{Object.keys(localStorage).filter(x=>x.startsWith('khatma-tdbc-'+t.n+'-')).forEach(x=>localStorage.removeItem(x))}catch(e){}lsSet(tCacheKey(t),JSON.stringify(cards))}
+  return cards}
+async function openTopic(n,replace){const t=TT(n);if(!t||!t.c||opening)return;opening=true;
+  let cards;try{cards=await tdbCards(t)}catch(e){opening=false;return toast(isNetErr(e)?'هذا الموضوع لم يُحفظ على جهازك بعد. افتحه مرة وأنت متصل بالإنترنت.':errMsg(e))}
+  opening=false;if(!cards.length)return toast('هذا الموضوع لم يُجهَّز بعد.');
+  const w=tWirdOf(n);TR={n,t,cards,i:0,w,canRead:!!w&&tCanRead()};
+  if(!replace)history.pushState({k:'tread',n:((history.state&&history.state.n)||0)+1},'');
+  drawTR();}
+const tList=a=>a.length>1?`<ol class="tc-ol">${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`:`<p class="tc-t">${esc(a[0])}</p>`;
+function tCardHTML(c){
+  return `${c.pre||c.q?`<div class="tc-ay">${c.pre?`<div class="tc-pre">${esc(c.pre)}</div>`:''}${c.q?`<div class="tc-q">${esc(c.q)}</div>`:''}</div>`:''}
+    ${c.lbl?`<p class="tc-lbl">${esc(c.lbl)}</p>`:''}
+    ${c.w&&c.w.length?`<h3 class="tc-h">شرح الكلمات</h3>${c.w.map(x=>`<p class="tc-w"><b>${esc(x[0])}:</b> ${esc(x[1])}</p>`).join('')}`:''}
+    ${c.m?`<h3 class="tc-h">المعنى</h3><p class="tc-t">${esc(c.m)}</p>`:''}
+    ${c.x&&c.x.l&&c.x.l.length?`<h3 class="tc-h">${esc(c.x.t)}</h3>${tList(c.x.l)}`:''}
+    ${c.h&&c.h.length?`<h3 class="tc-h">هداية الآيات</h3>${tList(c.h)}`:''}
+    ${c.n?`<p class="tc-n"><b>تنبيه:</b> ${esc(c.n)}</p>`:''}
+    ${c.k?`<div class="tc-k"><b>خاطرة</b>${esc(c.k)}</div>`:''}`}
+function drawTR(){if(!TR)return;const {t,cards,i,w}=TR,c=cards[i],last=i===cards.length-1,read=tReadBy(w,t.n,A.mid);
+  $('#layer').innerHTML=`<div class="treader" role="dialog" aria-label="${esc(tName(t))}">
+    <div class="r-head"><div class="r-in"><button class="x" id="tr-x" aria-label="إغلاق">✕</button>
+      <div class="r-title"><b>${esc(tName(t))}</b>${t.t?esc(t.l):''}</div><span class="sub num">${AR(i+1)} من ${AR(cards.length)}</span></div></div>
+    <div class="r-body" id="tr-body"><div class="tr-in">
+      ${i===0?`<p class="tr-note">${TDB_NOTE}</p>`:''}
+      <article class="tcard">${tCardHTML(c)}</article>
+      ${!TR.canRead&&last?`<p class="sub" style="text-align:center;margin:12px 0 0">${A.role==='admin'?'معاينة: القراءة تُسجَّل للأعضاء فقط.':'هذا الموضوع لم يُنشر في ورد بعد.'}</p>`:''}</div></div>
+    <div class="r-foot"><div class="r-in">
+      <button class="btn btn-ghost" id="tr-prev" ${i?'':'disabled'}>السابق</button>
+      ${last?(TR.canRead?(read?'<button class="btn btn-ok grow" id="tr-done" disabled>قرأتها ✓</button>':'<button class="btn btn-main grow" id="tr-done">قرأتها</button>')
+        :'<button class="btn btn-main grow" id="tr-close">إغلاق</button>'):'<button class="btn btn-main grow" id="tr-next">التالي</button>'}
+    </div></div></div>`;
+  const step=d=>{const j=TR.i+d;if(j<0||j>=TR.cards.length)return false;TR.i=j;drawTR();const b=$('#tr-body');if(b)b.scrollTop=0;return true};
+  $('#tr-x').onclick=back;const cl=$('#tr-close');if(cl)cl.onclick=back;
+  const pv=$('#tr-prev');if(pv)pv.onclick=()=>step(-1);const nx=$('#tr-next');if(nx)nx.onclick=()=>step(1);
+  const dn=$('#tr-done');if(dn&&!dn.disabled)dn.onclick=()=>tdbRead();
+  const b=$('#tr-body');if(b){let x0=0,y0=0,t0=0;b.addEventListener('touchstart',e=>{const p=e.touches[0];x0=p.clientX;y0=p.clientY;t0=Date.now()},{passive:true});
+    b.addEventListener('touchend',e=>{const p=e.changedTouches[0],dx=p.clientX-x0,dy=p.clientY-y0;
+      // من اليمين للشمال: السحب لليمين = البطاقة التالية
+      if(Math.abs(dx)>(Date.now()-t0<700?50:90)&&Math.abs(dx)>Math.abs(dy)*1.3)step(dx>0?1:-1)},{passive:true})}}
+addEventListener('keydown',e=>{if(!TR||R||!$('.treader')||(e.target.closest&&e.target.closest('input,textarea')))return;
+  if(e.key==='ArrowLeft'){e.preventDefault();const n=$('#tr-next');if(n)n.click()}else if(e.key==='ArrowRight'){e.preventDefault();const p=$('#tr-prev');if(p&&!p.disabled)p.click()}});
+function closeTR(){TR=null;$('#layer').innerHTML=''}
+function tdbRead(){const {t,w}=TR;if(!w)return;const now=Date.now(),online=navigator.onLine;
+  const same=x=>x.t==='tdb'&&x.wird_id===w.id&&x.topic===t.n&&x.user_id===A.mid;
+  setQ([...getQ().filter(x=>!same(x)),{t:'tdb',wird_id:w.id,topic:t.n,user_id:A.mid,done_at:new Date(now).toISOString()}]);
+  (w.rd[t.n]=w.rd[t.n]||{})[A.mid]=now;saveCache();
+  clearTimeout(undoT);let undone=false;undoT=setTimeout(()=>{if(!undone)flushQueue().catch(()=>{});const u=$('#undo');if(u)u.remove()},5000);
+  const nx=tRange(w).find(n=>!tReadBy(w,n,A.mid)), all=tDoneW(w,A.mid);
+  $('#layer').innerHTML=`<div class="modal"><div class="dlg">
+    <div class="big">تقبّل الله منك</div>
+    <div class="sub">${all?'أتممت ورد التدبر، بارك الله فيك.':`باقٍ في هذا الورد: «${esc(tName(TT(nx)))}»`}</div>
+    <div class="sub">${online?(A.role==='admin'?'سُجّلت قراءتك مع المجموعة.':'وصل للمشرف أنك قرأت هذا الموضوع.'):'سُجّلت قراءتك على جهازك، وتُرسل تلقائياً عند الاتصال بالإنترنت.'}</div>
+    ${nx?'<button class="btn btn-main" id="tn-next">الموضوع التالي</button><button class="btn btn-ghost" id="ok">لاحقاً</button>':'<button class="btn btn-main" id="ok">الحمد لله</button>'}
+    <button class="back" id="undo">سجّلتها بالخطأ؟ تراجع</button></div></div>`;
+  const fin=()=>{clearTimeout(undoT);flushQueue().catch(()=>{})};
+  $('#ok').onclick=()=>{fin();back();setTimeout(refresh,300)};
+  const tn=$('#tn-next');if(tn)tn.onclick=()=>{fin();openTopic(nx,true)};
+  $('#undo').onclick=async e=>{undone=true;clearTimeout(undoT);e.currentTarget.disabled=true;
+    const queued=getQ().some(same);setQ(getQ().filter(x=>!same(x)));
+    if(!queued){const {error}=await sb.from('tdb_reads').delete().eq('wird_id',w.id).eq('topic',t.n).eq('user_id',A.mid);
+      if(error){undone=false;e.currentTarget.disabled=false;return toast(isNetErr(error)?'تحتاج اتصالاً بالإنترنت لإلغاء التسجيل.':errMsg(error))}}
+    if(w.rd[t.n])delete w.rd[t.n][A.mid];saveCache();drawTR();toast('تم التراجع')};
+}
+function prefetchTdb(){try{if(!G||G.kind!=='tadabbur'||!navigator.onLine||!tCanRead())return;const w=tCur();if(!w)return;
+  tRange(w).filter(n=>!tReadBy(w,n,A.mid)&&!prefetched.has('t'+n)).forEach(n=>{prefetched.add('t'+n);const t=TT(n);if(t&&t.c)tdbCards(t).catch(()=>{})})}catch(e){}}
+
+function timeSel(t){
+  const [H,M]=String(t||'00:00').split(':').map(x=>parseInt(x,10)||0), h12=H%12||12, pm=H>=12;
+  const ms=[...Array(12)].map((_,i)=>i*5); if(!ms.includes(M))ms.push(M),ms.sort((x,y)=>x-y);
+  const o=(v,l,sel)=>`<option value="${v}" ${sel?'selected':''}>${l}</option>`;
+  return `<div class="field"><span class="lbl" id="au-tl">الساعة</span><div class="tsel" role="group" aria-labelledby="au-tl">
+    <select id="au-h" aria-label="الساعة">${[...Array(12)].map((_,i)=>o(i+1,String(i+1),i+1===h12)).join('')}</select>
+    <span class="tcol">:</span>
+    <select id="au-m" aria-label="الدقيقة">${ms.map(m=>o(m,String(m).padStart(2,'0'),m===M)).join('')}</select>
+    <select id="au-ap" aria-label="صباحاً أو مساءً">${o(0,'صباحاً',!pm)}${o(1,'مساءً',pm)}</select></div></div>`}
+function timeVal(){const h=+$('#au-h').value%12+(+$('#au-ap').value?12:0), m=+$('#au-m').value;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')}
+function tdbAutoCard(){
+  const a=G.auto, s=G.nextTopic, e=tReady(s)?Math.min(s+Math.max(1,a.unit)-1,tLastReady(s)):null;
+  return `<div class="card" id="autocard">
+    <p class="h"><span>النشر التلقائي</span><span class="chip ${a.enabled?'ok':'wait'}">${a.enabled?'مفعّل':'متوقف'}</span></p>
+    <div class="switch"><label for="au-on">ينشر التطبيق الورد بنفسه في موعده</label><input type="checkbox" id="au-on" ${a.enabled?'checked':''}></div>
+    ${timeSel(a.time)}
+    <div class="field"><span class="lbl">الأيام</span><div class="days">${DAYS.map((d,i)=>`<button type="button" data-day="${i}" aria-pressed="${a.days.includes(i)}" aria-label="${d[1]}" title="${d[1]}">${d[0]}</button>`).join('')}</div></div>
+    <div class="field"><span class="lbl">عدد المواضيع في كل ورد</span><div class="opts">${[1,2,3].map(u=>`<button type="button" data-aunit="${u}" aria-pressed="${a.unit===u}">${u===1?'موضوع':u===2?'موضوعان':'٣ مواضيع'}</button>`).join('')}</div></div>
+    <div class="preview"><div class="sub">الورد التلقائي القادم: <b>${nextRunText(a)}</b></div>
+      ${e?`<div class="q" style="font-size:18px">${esc(tLabel(s,e))}</div><div class="sub">يكمل من حيث توقفت الختمة، ويصل إشعار لكل الأعضاء.</div>`
+        :'<div class="sub">لا توجد مواضيع جاهزة بعد آخر ورد. سيُنشر تلقائياً عند إضافة مواضيع جديدة.</div>'}</div>
+    <button class="btn btn-main" id="au-save" style="width:100%;margin-top:14px" ${autoDirty?"":"disabled"}>${autoDirty?"حفظ التغييرات":"✓ تم الحفظ"}</button>
+  </div>`;
 }
 
 /* ---- التنبيهات ---- */
@@ -989,7 +1272,7 @@ function drawReader(){
       <span class="grow sub num">صفحة ${AR(i+1)} من ${AR(total)}</span>
       <button class="fullbtn" id="fexit"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg><span>خروج من ملء الشاشة</span></button></div></div>`:''}
     <div class="r-head"><div class="r-in"><button class="x" id="rclose" aria-label="إغلاق">✕</button>
-      <div class="r-title"><b>${w.kahf?'سورة الكهف':`${w!==cur()?'قضاء: ':''}${ref(w.start)} ← ${ref(w.end)}`}</b><span class="sub num">صفحة ${AR(i+1)} من ${AR(total)}</span></div>
+      <div class="r-title"><b>${w.kahf?'سورة الكهف':`${w.ahead?'الورد التالي: ':w!==cur()?'قضاء: ':''}${ref(w.start)} ← ${ref(w.end)}`}</b><span class="sub num">صفحة ${AR(i+1)} من ${AR(total)}</span></div>
       <div class="seg mseg" role="group" aria-label="نوع المصحف"><button data-m="madinah" aria-pressed="${md}">المدينة</button><button data-m="text" aria-pressed="${!md}">نص</button></div></div>
       <div class="r-in fsz"><button class="fullbtn" id="fullbtn" style="margin-inline-end:auto"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>ملء الشاشة</span></button><span class="sub">حجم الخط</span><button id="fs-down" aria-label="تصغير الخط" ${!md&&FS<=0.8?'disabled':''}>أ−</button><button id="fs-up" aria-label="تكبير الخط" ${!md&&FS>=1.8?'disabled':''}>أ+</button></div>
       <div class="r-in" style="margin-top:8px"><div class="bar" style="flex:1"><i style="width:${100*(i+1)/total}%"></i></div></div>
@@ -998,9 +1281,9 @@ function drawReader(){
       ${md?`<div class="m4" id="m4"><p class="sub" style="text-align:center;padding:48px 0;font-size:15px">جارٍ تحميل الصفحة…</p></div>`
         :(window.QT?`<div class="txt" style="font-size:${(24*FS).toFixed(1)}px">${pageHTML(p,w)}</div>`:`<div class="txt" id="txtwait"><p class="sub" style="text-align:center;padding:48px 0;font-size:15px">جارٍ تحميل الصفحة…</p></div>`)}
       <div class="pg num">${AR(p)}</div></div></div>
-    <div class="r-foot"><div class="r-in">
+    <div class="r-foot">${last&&canAhead(w)?`<div class="r-in" style="margin-bottom:8px"><button class="btn btn-ghost" id="rnext" style="flex:1">قراءة الورد التالي</button></div>`:''}<div class="r-in">
       <button class="btn btn-ghost" id="prev" ${i===0?'disabled':''}>السابقة</button>
-      ${last?(w.kahf||A.role==='member'||selfReads()?`<button class="btn btn-ok" id="done" style="flex:1" ${done?'disabled':''}>${done?'تم تسجيل قراءتك ✓':'تم بحمد الله'}</button>`:`<button class="btn btn-ghost" id="rclose2" style="flex:1">إغلاق</button>`)
+      ${last&&w.ahead?`<button class="btn btn-ok" id="done" style="flex:1">تم بحمد الله</button>`:last?(w.kahf||A.role==='member'||selfReads()?`<button class="btn btn-ok" id="done" style="flex:1" ${done?'disabled':''}>${done?'تم تسجيل قراءتك ✓':'تم بحمد الله'}</button>`:`<button class="btn btn-ghost" id="rclose2" style="flex:1">إغلاق</button>`)
             :`<button class="btn btn-main" id="next" style="flex:1">الصفحة التالية</button>`}
     </div></div></div>`;
   $('#rbody').scrollTop=0;
@@ -1021,7 +1304,8 @@ function drawReader(){
   $('#rbody').addEventListener('click',e=>{if(!FULL||e.target.closest('button'))return;const r=$('.reader');if(!r)return;
     r.classList.toggle('ctl');clearTimeout(ctlT);if(r.classList.contains('ctl'))ctlT=setTimeout(()=>{const x=$('.reader');if(x)x.classList.remove('ctl')},3500)});
   if(!FULL&&!TOUR&&!lsGet('khatma-rhint'))setTimeout(()=>{if(R&&!FULL&&!TOUR&&!lsGet('khatma-rhint')&&$('.reader'))startRHint()},900);
-  const dn=$('#done');if(dn)dn.onclick=()=>finish();
+  const dn=$('#done');if(dn)dn.onclick=()=>w.ahead?finishAhead():finish();
+  const rn=$('#rnext');if(rn)rn.onclick=()=>{rn.disabled=true;startAhead()};
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
     const m=b.dataset.m;if(m===R.mode)return;
     if(m==='madinah'&&!navigator.onLine){const w=R.w;
@@ -1063,13 +1347,45 @@ function bindSwipe(el){if(!el)return;let x0=0,y0=0,t0=0,on=false,horiz=null;cons
 }
 addEventListener('keydown',e=>{if(!R||(e.target.closest&&e.target.closest('input,textarea')))return;
   if(e.key==='ArrowLeft'){e.preventDefault();turnPage(1)}else if(e.key==='ArrowRight'){e.preventDefault();turnPage(-1)}});
+/* ---- قراءة الورد التالي مقدماً (تُحفظ على الجهاز فقط) ---- */
+const aKey=()=>'khatma-ahead-'+(G&&G.id);
+function getAhead(){try{return JSON.parse(localStorage.getItem(aKey())||'null')}catch(e){return null}}
+function setAhead(v){try{if(v)localStorage.setItem(aKey(),JSON.stringify(v));else localStorage.removeItem(aKey())}catch(e){}}
+// الورد التالي المتوقع: من حيث تقف المجموعة، بمقدار الورد الحالي (أو مقدار النشر التلقائي)
+function nextW(){const w=cur();if(!G||G.kind==='tadabbur'||!w||w.endRub>=240||!G.nextRub||G.nextRub<=w.endRub)return null;
+  const u=G.auto&&G.auto.enabled?G.auto.unit:w.count, n=makeWird(G.nextRub,u,0,Date.now());n.id='ahead-'+G.id+'-'+n.startRub;n.ahead=true;return n}
+// حالة الورد الحالي مع ما قُرئ مقدماً: full | part | null
+function aheadOf(w){const a=getAhead();if(!a||!w||w!==cur()||G.kind==='tadabbur')return null;
+  if(w.start>a.e){setAhead(null);return null}
+  if(w.done[A.mid]){if(w.end>=a.e)setAhead(null);return null}
+  if(a.s<=w.start&&a.e>=w.end)return 'full';
+  if(a.s<=w.start&&a.e>=w.start){if(!readPos(w))try{localStorage.setItem(posKey(w),JSON.stringify({id:a.e+1}))}catch(e){}return 'part'}
+  return null}
+function aheadBox(w){const st=aheadOf(w);if(!st)return '';const a=getAhead();
+  return st==='full'?`<div class="ahead"><b>قرأتَ هذا الورد مسبقاً ✓</b>
+      <div class="row" style="margin-top:10px;gap:8px"><button class="btn btn-light" id="ah-ok" style="flex:1">تأكيد القراءة</button><button class="btn btn-outline-light" id="ah-again" style="flex:1">أقرأه مرة أخرى</button></div></div>`
+    :`<div class="ahead"><b>قرأتَ منه حتى ${ref(a.e)}</b><div class="sub">اضغط «أكمل القراءة» لتقرأ ما بقي منه.</div></div>`}
+function bindAhead(){const w=cur();const ok=$('#ah-ok');if(ok)ok.onclick=()=>{ok.disabled=true;setAhead(null);finish(w)};
+  const ag=$('#ah-again');if(ag)ag.onclick=()=>openReader(w)}
+// يظهر زر «قراءة الورد التالي» في آخر صفحة من ورد اليوم فقط
+function canAhead(w){if(!w||w.kahf||w.ahead||w!==cur()||!G||G.kind==='tadabbur'||!(A.role==='member'||selfReads()))return false;
+  const n=nextW(),a=getAhead();return !!n&&!(a&&a.s<=n.start&&a.e>=n.end)}
+function startAhead(){const w=R.w,n=nextW();if(!n)return;
+  if(!w.done[A.mid]){setQ([...getQ().filter(x=>!(!x.t&&x.wird_id===w.id&&x.user_id===A.mid)),{wird_id:w.id,user_id:A.mid,done_at:new Date().toISOString()}]);
+    w.done[A.mid]=Date.now();saveCache();try{localStorage.removeItem(posKey(w))}catch(e){}setTimeout(()=>flushQueue().catch(()=>{}),5000)}
+  toast('أحسنت، «اغتنم فراغك قبل شُغلك»');
+  const list=readerPages(n,R.mode);let i=0;const sp=readPos(n);
+  if(sp){const np=R.mode==='madinah'?pageOf4(sp.id):pageOf(sp.id),k=list.indexOf(np);if(k>0)i=k}
+  R={...R,w:n,list,i,anim:'sl-n'};drawReader()}
+function finishAhead(){const n=R.w;setAhead({s:n.start,e:n.end,t:Date.now()});try{localStorage.removeItem(posKey(n))}catch(e){}
+  toast('بارك الله فيك. سيُسجَّل لك عند نزول الورد.');back()}
 let undoT=0;
 async function finish(wArg){
   if(wArg&&!wArg.done)wArg=null;
   const fromR=!wArg&&!!R, w=wArg||R.w, t=Date.now(), online=navigator.onLine;
   if(w.kahf){kahfFinish(fromR);return}
   // يظهر التأكيد فوراً، والإرسال يتم في الخلفية (ويُعاد تلقائياً لو النت فصل)
-  if(!w.done[A.mid])setQ([...getQ().filter(x=>!(x.wird_id===w.id&&x.user_id===A.mid)),{wird_id:w.id,user_id:A.mid,done_at:new Date(t).toISOString()}]);
+  if(!w.done[A.mid])setQ([...getQ().filter(x=>!(!x.t&&x.wird_id===w.id&&x.user_id===A.mid)),{wird_id:w.id,user_id:A.mid,done_at:new Date(t).toISOString()}]);
   w.done[A.mid]=w.done[A.mid]||t;saveCache();try{localStorage.removeItem(posKey(w))}catch(e){}
   clearTimeout(undoT);let undone=false;undoT=setTimeout(()=>{if(!undone)flushQueue().catch(()=>{});const u=$('#undo');if(u)u.remove()},5000);
   const pts=ptsW(w,w.done[A.mid]), bon=bonusOf(w,w.done[A.mid]), mk=myKh(A.mid), khatm=mk.complete&&inKh(w), remK=cur()&&cur().endRub>=240&&!khatm?mk.rem.length:0, showP=G.showPoints||A.role==='admin';
@@ -1082,7 +1398,7 @@ async function finish(wArg){
     <button class="back" id="undo">سجّلتها بالخطأ؟ تراجع</button></div></div>`;
   $('#ok').onclick=()=>{clearTimeout(undoT);if(fromR)back();else $('#layer').innerHTML='';refresh()};
   $('#undo').onclick=async e=>{undone=true;clearTimeout(undoT);e.currentTarget.disabled=true;
-    const queued=isQueued(w);setQ(getQ().filter(x=>!(x.wird_id===w.id&&x.user_id===A.mid)));
+    const queued=isQueued(w);setQ(getQ().filter(x=>!(!x.t&&x.wird_id===w.id&&x.user_id===A.mid)));
     if(!queued){const {error}=await sb.from('completions').delete().eq('wird_id',w.id).eq('user_id',A.mid);
       if(error){undone=false;e.currentTarget.disabled=false;return toast(isNetErr(error)?'تحتاج اتصالاً بالإنترنت لإلغاء التسجيل.':errMsg(error))}}
     delete w.done[A.mid];saveCache();$('#layer').innerHTML='';render();toast('تم التراجع، والورد ما زال في انتظارك');if(!queued)setTimeout(()=>refresh(),400)};
@@ -1160,30 +1476,45 @@ function bindAppCard(){
 
 /* ---------- GROUPS & AUTO PUBLISH ---------- */
 let gAdd=false, selGroupMem=null;
-const gKey=()=>'khatma-group-'+(USER?USER.id:'')+'-'+(getMode()||'');
-function getSelGroup(){try{return localStorage.getItem(gKey())||selGroupMem}catch(e){return selGroupMem}}
-function setSelGroup(id){selGroupMem=id;try{localStorage.setItem(gKey(),id)}catch(e){}}
+const gKey=()=>'khatma-group-'+(USER?USER.id:'')+'-'+(getMode()||'')+(getTab()==='tadabbur'?'-tdb':'');
+// تبويبا «ختمة التلاوة» و«ختمة التدبر»
+let TAB_MEM=null;
+const tabKey=()=>'khatma-tab-'+(USER?USER.id:'')+'-'+(getMode()||'');
+function getTab(){return lsGet(tabKey())||TAB_MEM||'tilawa'}
+function setTab(t){TAB_MEM=t;lsSet(tabKey(),t)}
+const gkind=g=>(g&&g.kind)||'tilawa';
+const tabGroups=k=>GROUPS.filter(g=>gkind(g)===k);
+function tabAvail(k){if(!A)return k==='tilawa';
+  if(k==='tilawa')return A.role==='admin'||tabGroups('tilawa').length>0||!tabGroups('tadabbur').length;
+  return tabGroups('tadabbur').length>0||(A.role==='admin'&&TDB_CAN)}
+const showTabs=()=>tabAvail('tilawa')&&tabAvail('tadabbur');
+function tabsBar(){if(!showTabs())return '';const t=getTab();
+  return `<div class="ktabs" role="tablist">${[['tilawa','ختمة التلاوة'],['tadabbur','ختمة التدبر']].map(([k,l])=>`<button type="button" role="tab" data-ktab="${k}" aria-selected="${t===k}">${l}</button>`).join('')}</div>`}
+function bindTabs(){document.querySelectorAll('[data-ktab]').forEach(b=>b.onclick=async()=>{if(b.dataset.ktab===getTab())return;setTab(b.dataset.ktab);
+  comp={mode:'continue',pick:null};gAdd=false;cancelOpen=false;mvId=null;rmId=null;leaving=false;tdbComp=null;tCancel=false;showNotes=false;loading=true;render();await refresh();scrollTo(0,0)})}
+function getSelGroup(){const k=gKey();try{return localStorage.getItem(k)||(selGroupMem||{})[k]||null}catch(e){return (selGroupMem||{})[k]||null}}
+function setSelGroup(id){const k=gKey();selGroupMem=selGroupMem||{};selGroupMem[k]=id;try{if(id)localStorage.setItem(k,id);else localStorage.removeItem(k)}catch(e){}}
 function groupBar(){
-  const adm=A.role==='admin', many=GROUPS.length>1;
+  const adm=A.role==='admin', TG=tabGroups(gkind(G)), many=TG.length>1, tdb=G.kind==='tadabbur';
   return `<div class="gbar">
-    ${many?`<label class="gsel" for="gsel"><span class="sub">المجموعة</span><select id="gsel">${GROUPS.map(g=>`<option value="${g.id}" ${g.id===G.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label>`
-          :`<span class="sub">المجموعة: <b style="color:var(--ink)">${esc(G.group)}</b></span>`}
-    <button class="back" id="gadd" type="button">${gAdd?'إلغاء':(adm?'+ مجموعة جديدة':'+ انضمام لمجموعة أخرى')}</button>
+    ${many?`<label class="gsel" for="gsel"><span class="sub">${tdb?'الختمة':'المجموعة'}</span><select id="gsel">${TG.map(g=>`<option value="${g.id}" ${g.id===G.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></label>`
+          :`<span class="sub">${tdb?'الختمة':'المجموعة'}: <b style="color:var(--ink)">${esc(G.group)}</b></span>`}
+    <button class="back" id="gadd" type="button">${gAdd?'إلغاء':(adm?(tdb?'+ ختمة تدبر جديدة':'+ مجموعة جديدة'):'+ انضمام لمجموعة أخرى')}</button>
   </div>
-  ${gAdd?`<div class="card"><h2 style="font-size:16px">${adm?'مجموعة جديدة':'انضمام لمجموعة أخرى'}</h2>
-    <p class="sub" style="margin:4px 0 0">${adm?'كل مجموعة لها أعضاؤها وكودها ووردها الخاص.':'اكتب الكود الذي أرسله لك مشرف المجموعة.'}</p>
-    <div class="field"><label for="g-in">${adm?'اسم المجموعة':'كود المجموعة'}</label>
-      <input type="text" id="g-in" ${adm?'placeholder="مثلاً: ختمة الأصدقاء"':'dir="ltr" autocapitalize="characters" placeholder="KH-ABCD-1234"'}></div>
-    <button class="btn btn-main" id="g-ok" style="width:100%;margin-top:14px">${adm?'إنشاء المجموعة':'انضمام'}</button></div>`:''}`;
+  ${gAdd?`<div class="card"><h2 style="font-size:16px">${adm?(tdb?'ختمة تدبر جديدة':'مجموعة جديدة'):'انضمام لمجموعة أخرى'}</h2>
+    <p class="sub" style="margin:4px 0 0">${adm?(tdb?'كل ختمة لها أعضاؤها وكودها ووردها الخاص.':'كل مجموعة لها أعضاؤها وكودها ووردها الخاص.'):'اكتب الكود الذي أرسله لك مشرف المجموعة.'}</p>
+    <div class="field"><label for="g-in">${adm?(tdb?'اسم الختمة':'اسم المجموعة'):'كود المجموعة'}</label>
+      <input type="text" id="g-in" ${adm?`placeholder="${tdb?'مثلاً: تدبر الأصحاب':'مثلاً: ختمة الأصدقاء'}"`:'dir="ltr" autocapitalize="characters" placeholder="KH-ABCD-1234"'}></div>
+    <button class="btn btn-main" id="g-ok" style="width:100%;margin-top:14px">${adm?(tdb?'بدء ختمة تدبر':'إنشاء المجموعة'):'انضمام'}</button></div>`:''}`;
 }
 function bindGroupBar(){
-  const s=$('#gsel');if(s)s.onchange=async()=>{cancelOpen=false;mvId=null;rmId=null;setSelGroup(s.value);comp={mode:'continue',pick:null};showNotes=false;gAdd=false;loading=true;render();await refresh();scrollTo(0,0)};
+  const s=$('#gsel');if(s)s.onchange=async()=>{cancelOpen=false;tdbComp=null;tCancel=false;mvId=null;rmId=null;setSelGroup(s.value);comp={mode:'continue',pick:null};showNotes=false;gAdd=false;loading=true;render();await refresh();scrollTo(0,0)};
   $('#gadd').onclick=()=>{gAdd=!gAdd;render();const i=$('#g-in');if(i)i.focus()};
   const ok=$('#g-ok');if(ok)ok.onclick=async()=>{const v=$('#g-in').value.trim();if(!v)return $('#g-in').focus();
     ok.disabled=true;const adm=A.role==='admin';
-    const {data,error}=adm?await sb.rpc('create_group',{p_name:v}):await sb.rpc('join_group',{p_code:v});
+    const {data,error}=adm?await sb.rpc('create_group',G.kind==='tadabbur'?{p_name:v,p_kind:'tadabbur'}:{p_name:v}):await sb.rpc('join_group',{p_code:normCode(v)});
     if(error){ok.disabled=false;return toast(adm&&/too many groups/i.test(error.message)?'وصلت للحد الأقصى (٢٠ مجموعة).':errMsg(error))}
-    if(!data){ok.disabled=false;return toast('كود المجموعة غير صحيح. تأكد منه مع المشرف.')}
+    if(!data){ok.disabled=false;return toast('الكود غير صحيح. تأكد منه مع المشرف، والأسهل أن تفتح رابط الدعوة الذي أرسله لك.')}
     setSelGroup(data);gAdd=false;comp={mode:'continue',pick:null};await refresh();scrollTo(0,0);
     toast(adm?`أُنشئت «${G.group}». كود الدعوة: ${G.code}`:`انضممت إلى «${G.group}»`)};
 }
@@ -1205,7 +1536,7 @@ function autoCard(){
   return `<div class="card" id="autocard">
     <p class="h"><span>النشر التلقائي</span><span class="chip ${a.enabled?'ok':'wait'}">${a.enabled?'مفعّل':'متوقف'}</span></p>
     <div class="switch"><label for="au-on">ينشر التطبيق الورد بنفسه في موعده</label><input type="checkbox" id="au-on" ${a.enabled?'checked':''}></div>
-    <div class="field"><label for="au-time">الساعة</label><input type="time" id="au-time" value="${a.time}"></div>
+    ${timeSel(a.time)}
     <div class="field"><span class="lbl">الأيام</span><div class="days">${DAYS.map((d,i)=>`<button type="button" data-day="${i}" aria-pressed="${a.days.includes(i)}" aria-label="${d[1]}" title="${d[1]}">${d[0]}</button>`).join('')}</div></div>
     <div class="field"><span class="lbl">مقدار الورد</span><div class="opts">${UNITS.map(u=>`<button type="button" data-aunit="${u.n}" aria-pressed="${a.unit===u.n}">${u.t}<small>${u.s}</small></button>`).join('')}</div>${etaLine(G.nextRub,a.unit,(a.days||[]).length||7)}</div>
     <div class="field"><label for="au-hours">مدة القراءة</label><select id="au-hours">${[12,24,48,72].map(h=>`<option value="${h}" ${a.hours===h?'selected':''}>${AR(h)} ساعة</option>`).join('')}</select></div>
@@ -1220,10 +1551,10 @@ function bindAuto(){
   if(!$('#autocard'))return;
   const a=G.auto;
   $('#au-on').onchange=e=>{a.enabled=e.target.checked;autoDirty=true;render()};
-  $('#au-time').onchange=e=>{if(e.target.value){a.time=e.target.value.slice(0,5);autoDirty=true;render()}};
+  ['#au-h','#au-m','#au-ap'].forEach(q=>{const el=$(q);if(el)el.onchange=()=>{a.time=timeVal();autoDirty=true;render()}});
   document.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{const d=+b.dataset.day;a.days=a.days.includes(d)?a.days.filter(x=>x!==d):[...a.days,d].sort();autoDirty=true;render()});
   document.querySelectorAll('[data-aunit]').forEach(b=>b.onclick=()=>{a.unit=+b.dataset.aunit;autoDirty=true;render()});
-  $('#au-hours').onchange=e=>{a.hours=+e.target.value;autoDirty=true;render()};
+  const auh=$('#au-hours');if(auh)auh.onchange=e=>{a.hours=+e.target.value;autoDirty=true;render()};
   $('#au-save').onclick=async e=>{
     if(a.enabled&&!a.days.length)return toast('اختر يوماً واحداً على الأقل.');
     const btn=e.currentTarget;btn.disabled=true;btn.textContent='جارٍ الحفظ…';
@@ -1329,12 +1660,13 @@ const getQ=()=>{try{return JSON.parse(lsGet('khatma-queue')||'[]')}catch(e){retu
 const setQ=q=>lsSet('khatma-queue',q.length?JSON.stringify(q):null);
 const isNetErr=e=>!navigator.onLine||/fetch|network|failed to|load failed/i.test((e&&e.message)||'');
 function applyQueue(){if(!G||!A)return;const q=getQ();
-  G.wirds.forEach(w=>{const it=q.find(x=>x.wird_id===w.id&&x.user_id===A.mid);if(it&&!w.done[A.mid])w.done[A.mid]=Date.parse(it.done_at)})}
-const isQueued=w=>getQ().some(x=>x.wird_id===w.id&&A&&x.user_id===A.mid);
+  G.wirds.forEach(w=>{const it=q.find(x=>!x.t&&x.wird_id===w.id&&x.user_id===A.mid);if(it&&!w.done[A.mid])w.done[A.mid]=Date.parse(it.done_at)});
+  if(G.tdb)q.filter(x=>x.t==='tdb'&&x.user_id===A.mid).forEach(x=>{const w=G.tdb.wirds.find(y=>y.id===x.wird_id);if(w&&!tReadBy(w,x.topic,A.mid))(w.rd[x.topic]=w.rd[x.topic]||{})[A.mid]=Date.parse(x.done_at)})}
+const isQueued=w=>getQ().some(x=>!x.t&&x.wird_id===w.id&&A&&x.user_id===A.mid);
 async function flushQueue(){
   const q=getQ();if(!q.length||!navigator.onLine)return 0;
   const keep=[];let sent=0;
-  for(const it of q){const {error}=await sb.from('completions').insert(it);
+  for(const it of q){const {error}=it.t==='tdb'?await sb.from('tdb_reads').insert({wird_id:it.wird_id,topic:it.topic,user_id:it.user_id,done_at:it.done_at}):await sb.from('completions').insert(it);
     if(!error||error.code==='23505')sent++;else if(isNetErr(error))keep.push(it);}
   setQ(keep);return sent;
 }
@@ -1442,7 +1774,7 @@ function bindGset(){const keep=()=>{const v=id=>{const e=$(id);return e?e.value.
     try{if(g.name!==A.name){const {error}=await sb.from('profiles').update({name:g.name}).eq('id',A.mid);if(error)throw error;A.name=g.name}
       let gid;
       if(g.role==='admin'){const {data,error}=await sb.rpc('create_group',{p_name:g.group});if(error)throw error;gid=data}
-      else{const {data,error}=await sb.rpc('join_group',{p_code:g.code});if(error)throw error;if(!data)return fail('كود المجموعة غير صحيح. تأكد منه مع المشرف.');gid=data;
+      else{const {data,error}=await sb.rpc('join_group',{p_code:normCode(g.code)});if(error)throw error;if(!data)return fail('الكود غير صحيح. تأكد منه مع المشرف، والأسهل أن تفتح رابط الدعوة الذي أرسله لك.');gid=data;
         if(PJ&&g.code.toUpperCase()===PJ.code)clearPJ()}
       setMode(g.role);setSelGroup(gid);setGset(null);loading=true;render();await refresh();scrollTo(0,0);
       toast(g.role==='admin'&&G?`أُنشئت المجموعة. كود الدعوة: ${G.code}`:'أهلاً بك في المجموعة')}
@@ -1498,8 +1830,8 @@ function bindNoGroup(){
   const mg=$('#mkgroup');if(mg)mg.onclick=async()=>{setMode('admin');gAdd=false;loading=true;render();await refresh();scrollTo(0,0);toast(G?'أنت الآن في وضع المشرف':'أنت الآن في وضع المشرف. اكتب اسم مجموعتك.')};
   const mk=$('#mk');if(mk)mk.onclick=async()=>{mk.disabled=true;const {data,error}=await sb.rpc('create_group',{p_name:$('#f-group').value.trim()});
     if(error){mk.disabled=false;return toast(errMsg(error))}setSelGroup(data);await refresh();toast(G?`أُنشئت المجموعة. كود الدعوة: ${G.code}`:'أُنشئت المجموعة')};
-  const jn=$('#jn');if(jn)jn.onclick=async()=>{jn.disabled=true;const {data,error}=await sb.rpc('join_group',{p_code:$('#f-code').value.trim()});
-    if(error){jn.disabled=false;return toast(errMsg(error))}if(!data){jn.disabled=false;return toast('كود المجموعة غير صحيح. تأكد منه مع المشرف.')}setSelGroup(data);await refresh();toast('انضممت إلى '+(G?G.group:'المجموعة'))};
+  const jn=$('#jn');if(jn)jn.onclick=async()=>{jn.disabled=true;const {data,error}=await sb.rpc('join_group',{p_code:normCode($('#f-code').value)});
+    if(error){jn.disabled=false;return toast(errMsg(error))}if(!data){jn.disabled=false;return toast('الكود غير صحيح. تأكد منه مع المشرف، والأسهل أن تفتح رابط الدعوة الذي أرسله لك.')}setSelGroup(data);await refresh();toast('انضممت إلى '+(G?G.group:'المجموعة'))};
   bindModeCard();
 }
 // حفظ شاشة الرمز: لو الموبايل قفل الصفحة وهو بيجيب الرمز من الإيميل، يرجع لنفس الشاشة من غير رمز جديد
@@ -1521,7 +1853,7 @@ function bindAuth(){
   document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{AU.tab=b.dataset.tab;AU.err='';AU.info='';render()});
   tickResend();bindPwHint();bindG();
   const fc=$('#f-code');if(fc&&PJ&&!fc.value)fc.value=PJ.code;
-  {const c=$('#f-code');if(c&&/كود المجموعة/.test(AU.err||'')){c.classList.add('bad');c.oninput=()=>c.classList.remove('bad')}}
+  {const c=$('#f-code');if(c&&/كود المجموعة|الكود غير صحيح/.test(AU.err||'')){c.classList.add('bad');c.oninput=()=>c.classList.remove('bad')}}
   const ta=$('#to-adm');if(ta)ta.onclick=()=>{AU={...AU,role:'admin',tab:'register',err:'',info:''};render();scrollTo(0,0)};
   const rf=$('#recform');if(rf)rf.onsubmit=async e=>{e.preventDefault();const np=$('#f-np').value;
     {const w=pwWeak(np);if(w){AU.err=w;return render()}}
@@ -1553,7 +1885,7 @@ function bindAuth(){
     const val=id=>{const el=$(id);return el?el.value.trim():''};
     const email=val('#f-user').toLowerCase(), p=$('#f-pass').value, p2=$('#f-pass2')?$('#f-pass2').value:'';
     const rem=$('#f-remember')?$('#f-remember').checked:true;lsSet('khatma-remember',rem?'1':'0');if(!rem)clearLocal();
-    const keep={name:val('#f-name'),group:val('#f-group'),code:val('#f-code')};
+    const keep={name:val('#f-name'),group:val('#f-group'),code:normCode(val('#f-code'))};
     const fail=m=>{busy=false;AU.err=m;AU.info='';render();
       $('#f-user').value=email;$('#f-pass').value=p;if($('#f-pass2'))$('#f-pass2').value=p2;
       [['#f-name','name'],['#f-group','group'],['#f-code','code']].forEach(([s,k])=>{const el=$(s);if(el)el.value=keep[k]})};
@@ -1588,7 +1920,7 @@ function bindAuth(){
     if(AU.role==='member'){
       if(!keep.code){const c=$('#f-code');if(c){c.classList.add('bad');c.focus()}return fail('اكتب كود المجموعة، أو افتح رابط الدعوة الذي أرسله لك المشرف.')}
       const {data,error}=await sb.rpc('check_group_code',{p_code:keep.code});
-      if(error)return fail(errMsg(error));if(!data)return fail('كود المجموعة غير صحيح. تأكد منه مع المشرف.');
+      if(error)return fail(errMsg(error));if(!data)return fail('الكود غير صحيح. تأكد منه مع المشرف، والأسهل أن تفتح رابط الدعوة الذي أرسله لك.');
     }
     const {data,error}=await sb.auth.signUp({email,password:p,options:{emailRedirectTo:location.origin+location.pathname,
       data:{name:keep.name,role:AU.role,group_name:keep.group,group_code:keep.code.toUpperCase()}}});
@@ -1847,7 +2179,9 @@ addEventListener('unhandledrejection',e=>reportError(e.reason&&(e.reason.message
 
 /* ---------- SHELL ---------- */
 function render(){
-  $('#gname').textContent=G?G.group:'ختمة القرآن الكريم';
+  const TABE=!!(A&&getTab()==='tadabbur'&&!tabGroups('tadabbur').length&&tabAvail('tadabbur'));
+  const TILE=!!(A&&getTab()==='tilawa'&&!tabGroups('tilawa').length&&showTabs());
+  $('#gname').textContent=TABE?'ختمة التدبر':G&&!TILE?G.group:'ختمة القرآن الكريم';
   const un=A?unreadCount():0;
   $('#hdr').innerHTML=A?`<span class="userchip"><b>${esc(A.name)}</b><span class="sub">${A.role==='admin'?'مشرف':'عضو'}</span></span>
     <button class="bell" id="bell" aria-label="التنبيهات${un?` (${AR(un)} غير مقروء)`:''}">🔔${un?`<span class="badge">${AR(un>9?'9+':un)}</span>`:''}</button>
@@ -1868,10 +2202,13 @@ function render(){
   if(VIEW==='owner'&&A.owner){$('#view').innerHTML=err+ownerView();bindOwner();return}
   if(!G&&GSET){VIEW='home';$('#view').innerHTML=err+gsetView();bindGset();return}
   if(G&&GSET)setGset(null);
-  if(!G){VIEW='home';$('#view').innerHTML=err+joinCard()+kahfCard()+noGroupView()+trashCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;bindOwnerRow();bindJoinCard();bindKahf();bindNoGroup();bindTrash();bindAppCard();toFb();bindShareCard();return}
+  if(TABE){VIEW='home';$('#view').innerHTML=err+joinCard()+pushBanner()+tabsBar()+tdbEmptyView()+trashCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;
+    bindTabs();bindTdbEmpty();bindJoinCard();bindPushBanner();bindTrash();bindAppCard();bindModeCard();bindShareCard();bindOwnerRow();toFb();return}
+  if(!G||TILE){VIEW='home';$('#view').innerHTML=err+joinCard()+kahfCard()+tabsBar()+noGroupView()+trashCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;bindOwnerRow();bindJoinCard();bindKahf();bindTabs();bindNoGroup();bindTrash();bindAppCard();toFb();bindShareCard();return}
   if(VIEW==='settings'&&A.role==='admin'){$('#view').innerHTML=err+settingsView();bindSettings();return}
-  $('#view').innerHTML=err+joinCard()+pushBanner()+groupBar()+kahfCard()+(A.role==='admin'?adminView():memberView())+trashCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;bindShareCard();bindOwnerRow();
-  bindJoinCard();bindPushBanner();bindGroupBar();bindKahf();A.role==='admin'?bindAdmin():bindMember();maybeTour();bindAppCard();bindModeCard();toFb();
+  const TD=G.kind==='tadabbur';
+  $('#view').innerHTML=err+joinCard()+pushBanner()+tabsBar()+groupBar()+kahfCard()+(TD?(A.role==='admin'?tdbAdminView():tdbMemberView()):(A.role==='admin'?adminView():memberView()))+trashCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;bindShareCard();bindOwnerRow();
+  bindJoinCard();bindPushBanner();bindTabs();bindGroupBar();bindKahf();if(TD)A.role==='admin'?bindTdbAdmin():bindTdbMember();else{A.role==='admin'?bindAdmin():bindMember();maybeTour()}bindAppCard();bindModeCard();toFb();
 }
 const THEMES=[{k:'auto',i:'◐',t:'تلقائي'},{k:'light',i:'☀',t:'فاتح'},{k:'dark',i:'☾',t:'داكن'}];
 let theme='auto';try{theme=localStorage.getItem('khatma-theme')||'auto'}catch(e){}
@@ -1890,7 +2227,7 @@ if(PJ&&!lsGet('sb-yiumqwysldbrszadizjo-auth-token'))AU={role:'member',tab:'regis
 restoreOtp();
 $('#brand').onclick=()=>{if(A)goHome()};
 const prefetched=new Set();
-function prefetchWird(){try{
+function prefetchWird(){prefetchTdb();try{
   {const dy=new Date().getDay();if(A&&navigator.onLine&&(dy===4||dy===5)&&!prefetched.has('kahf')){prefetched.add('kahf');
     readerPages(kahfW(),'madinah').reduce((pr,p)=>pr.then(()=>loadPage4(p).catch(()=>{})),Promise.resolve())}}
   if(!A||!G||!navigator.onLine||!(A.role==='member'||selfReads()))return;
@@ -1901,8 +2238,8 @@ function prefetchWird(){try{
 // فتح فوري: اعرض آخر بيانات محفوظة، وحدّثها في الخلفية
 if(remember()&&!recovery&&restoreCache()){OFF=null;loading=false;DIAG.cached=true}
 render();refresh().then(async()=>{{const gp=lsGet('khatma-gpend');if(gp){if(A)await gDone();else{try{if(Date.now()-JSON.parse(gp).t>6e5)lsSet('khatma-gpend',null)}catch(e){lsSet('khatma-gpend',null)}}}}const idle=window.requestIdleCallback||(f=>setTimeout(f,1500));if(A)idle(()=>{prefetchWird();ensureText().catch(()=>{})})});resolvePJ();
-setInterval(()=>{if(A&&G&&!R&&!busy&&VIEW==='home'&&document.visibilityState==='visible')refresh()},60000);
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&A&&!R&&VIEW==='home')refresh()});
+setInterval(()=>{if(A&&G&&!R&&!TR&&!busy&&VIEW==='home'&&document.visibilityState==='visible')refresh()},60000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&A&&!R&&!TR&&VIEW==='home')refresh()});
 })();
 </script>
 </body>

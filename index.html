@@ -183,6 +183,9 @@ select,input[type=text]{width:100%;background:var(--bg);border:1px solid var(--l
 .userchip .sub{font-size:11px}
 .btn.out{padding:6px 12px;font-size:13px;border-radius:999px}
 .hero{text-align:center;padding:18px 8px 6px}
+.betab{display:flex;flex-direction:column;align-items:center;background:var(--ok-soft);color:var(--ok);border-radius:12px;padding:10px 12px 2px;margin-top:6px;text-align:center;font-size:13px;line-height:1.7}
+.betab b{font-weight:700}
+.betab button{width:44px;height:36px;border:0;background:none;color:inherit;font-size:16px;cursor:pointer;font-family:inherit}
 .logo{font-family:var(--f-brand);font-size:64px;line-height:1.1;color:var(--lapis)}
 .hero .sub{max-width:34ch;margin:8px auto 0;font-size:14px}
 .rolecard{display:flex;align-items:center;gap:14px;width:100%;text-align:start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
@@ -467,7 +470,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-16c'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-16d'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1938,7 +1941,7 @@ function authView(){
     <form id="recform" novalidate>${pwField('f-np','كلمة المرور الجديدة','new-password','')}${pwHint('f-np')}${pwField('f-np2','تأكيد كلمة المرور','new-password')}
     ${msgs()}<button class="btn btn-main" type="submit" style="width:100%;margin-top:16px">حفظ كلمة المرور</button></form></div>`;
   if(AU.stage==='verify')return verifyView();
-  if(!AU.role) return `
+  if(!AU.role) return `${lsGet('khatma-beta')?'':`<div class="betab"><span><b>نسخة تجريبية: تطبيق ويب</b><br>نعمل على إطلاقه على Google Play وApp Store</span><button type="button" id="beta-x" aria-label="إخفاء">✕</button></div>`}
   <div class="hero"><div class="logo">ختمة</div><p class="sub">ختمة القرآن الكريم مع أهلك وأصحابك: وِرد يصلك، تقرؤه، وتسجّل إتمامه.</p></div>
   <div class="card how"><p class="h" style="margin-bottom:8px"><span>كيف يعمل التطبيق؟</span></p><ol>
     <li>المشرف ينشئ مجموعة ويرسل رابط الدعوة</li><li>يصل الورد للجميع بإشعار، والكل يقرأ الورد نفسه</li><li>تختمون القرآن معاً، وكل واحد يتابع ختمته</li></ol></div>
@@ -2002,6 +2005,7 @@ setInterval(tickResend,1000);
 function bindAuth(){
   document.querySelectorAll('[data-eye]').forEach(b=>b.onclick=()=>{const i=$('#'+b.dataset.eye),show=i.type==='password';
     i.type=show?'text':'password';b.textContent=show?'إخفاء':'إظهار';b.setAttribute('aria-label',show?'إخفاء كلمة المرور':'إظهار كلمة المرور')});
+  const bx=$('#beta-x');if(bx)bx.onclick=()=>{lsSet('khatma-beta','1');const b=bx.closest('.betab');if(b)b.remove()};
   bindShareCard();document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{AU={role:b.dataset.role,tab:'login',err:'',info:''};render()});
   const bk=$('#back');if(bk)bk.onclick=()=>{if(AU.stage==='verify'){clearOtp();AU={role:AU.role,tab:AU.tab,err:'',info:''}}else AU={role:null,tab:'login',err:'',info:''};render()};
   document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{AU.tab=b.dataset.tab;AU.err='';AU.info='';render()});

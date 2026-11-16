@@ -415,6 +415,16 @@ input.bad{border-color:#c0392b!important}
 .tr-fbar>*{pointer-events:auto}.tr-fbar .x{background:var(--surface);border:1px solid var(--line)}.tr-fbar .num{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
 .tr-fsz{margin-top:6px}.tr-fz{display:flex;align-items:center;gap:6px;margin:0}
 .ostats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.ostats>div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center;display:flex;flex-direction:column;gap:2px}.ostats b{font-size:18px}
+.tpick{width:100%;display:flex;align-items:center;gap:8px;justify-content:space-between;text-align:start;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;min-height:44px}
+.tpick .ok{color:var(--ok)}.tpick .pend{color:var(--gold)}.tp-ar{color:var(--muted);flex:0 0 auto}
+.tsheet-bg{place-items:end center;padding:0}.tsheet{background:var(--surface);width:100%;max-width:560px;max-height:82vh;border-radius:18px 18px 0 0;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px)}
+.ts-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+.ts-legend{margin:8px 16px 4px;font-size:13px;color:var(--muted)}.ts-legend .ok{color:var(--ok);font-weight:600}
+.ts-list{overflow:auto;padding:4px 8px 12px}
+.ts-it{width:100%;display:flex;gap:10px;align-items:flex-start;text-align:start;background:none;border:0;border-bottom:1px solid var(--line);padding:12px 8px;font:inherit;color:var(--ink)}
+.ts-it.ok .ts-t{color:var(--ok)}.ts-it.pend .ts-t{color:var(--gold)}.ts-it.sel{background:var(--bg);outline:2px solid var(--line);border-radius:10px}
+.ts-mk{flex:0 0 18px;font-weight:700;color:var(--ok)}.ts-it.pend .ts-mk{color:var(--gold)}
+.ts-t{display:flex;flex-direction:column;gap:2px;line-height:1.6}.ts-l{font-size:12px}
 .tr-rep{display:block;margin:14px auto 0;font-size:13px;color:var(--muted)}
 .trep{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}.trep label{display:block;font-size:14px;margin-bottom:6px}
 .trep textarea{width:100%;box-sizing:border-box;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;resize:vertical}
@@ -457,7 +467,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-15i'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-15j'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -927,6 +937,7 @@ const pl=(n,one,two,few,many)=>n===1?one:n===2?two:n>=3&&n<=10?`${AR(n)} ${few}`
 const nTopics=n=>pl(n,'موضوع واحد','موضوعان','مواضيع','موضوعاً');
 const nCardsT=n=>pl(n,'بطاقة واحدة','بطاقتان','بطاقات','بطاقة');
 const TT=n=>G&&G.tdb?G.tdb.topics.find(t=>t.n===n):null;
+const TT_ALL=()=>G&&G.tdb?G.tdb.topics:[];
 const tCur=()=>{const w=G&&G.tdb&&G.tdb.wirds;return w&&w.length?w[w.length-1]:null};
 const tRange=w=>{const a=[];for(let n=w.f;n<=w.to;n++)a.push(n);return a};
 const tName=t=>t?(t.t||t.l):'';
@@ -998,9 +1009,9 @@ function tdbAdminView(){
   <div class="card" id="tcomposer">
     <h2>نشر ورد جديد</h2>
     ${ready.length?`<div class="field"><label for="t-from">من موضوع</label>
-      <select id="t-from">${f?'':'<option value="" selected>اختر الموضوع</option>'}${ready.map(t=>`<option value="${t.n}" ${t.n===f?'selected':''}>${AR(t.n)}. ${esc(tName(t))}${tPublished(t.n)?' (نُشر)':''}</option>`).join('')}</select></div>
+      ${tPickBtn('t-from',f)}</div>
     ${f?`<div class="field"><label for="t-to">إلى موضوع</label>
-      <select id="t-to">${ready.filter(t=>t.n>=f&&t.n<=tLastReady(f)).map(t=>`<option value="${t.n}" ${t.n===to?'selected':''}>${AR(t.n)}. ${esc(tName(t))}</option>`).join('')}</select></div>
+      ${tPickBtn('t-to',to)}</div>
     <div class="preview"><div class="sub">سيصل للأعضاء:</div><div class="q">${esc(tLabel(f,to))}</div>
       <div class="sub"><b>${nTopics(to-f+1)}</b> · <b>${nCardsT(tCardsIn(f,to))}</b></div></div>
     <div class="row" style="margin-top:14px"><button class="btn btn-ghost" id="t-pv">معاينة الورد</button><button class="btn btn-main" id="t-pub">نشر الورد وإشعار ${AR(mem.length)} ${mem.length>2&&mem.length<11?'أعضاء':'عضو'}</button></div>`
@@ -1023,8 +1034,8 @@ function bindTdbAdmin(){bindTopicRows();
     tdbComp=null;await refresh();toast('أُلغي الورد. يمكنك نشر الورد الصحيح الآن.')};
   const rb=$('#t-remind');if(rb)rb.onclick=async()=>{rb.disabled=true;const {data,error}=await sb.rpc('tdb_remind',{p_wird:w.id});rb.disabled=false;
     if(error)return toast(errMsg(error));toast(`أُرسل التذكير إلى ${AR(data||0)} ${data>2&&data<11?'أعضاء':'عضو'}`)};
-  const fs=$('#t-from');if(fs)fs.onchange=()=>{const v=+fs.value||null;tdbComp={f:v,to:v};render()};
-  const ts=$('#t-to');if(ts)ts.onchange=()=>{tdbComp.to=+ts.value;render()};
+  const fs=$('#t-from');if(fs)fs.onclick=()=>tPickOpen('from');
+  const ts=$('#t-to');if(ts)ts.onclick=()=>tPickOpen('to');
   const pick=()=>{const f=tdbComp.f;return [f,Math.min(Math.max(tdbComp.to||f,f),tLastReady(f))]};
   const pb=$('#t-pub');if(pb)pb.onclick=()=>{pb.disabled=true;pb.textContent='جارٍ النشر…';tdbPublish(...pick())};
   const rp=$('#t-pv');if(rp)rp.onclick=()=>openRange(...pick());
@@ -1226,6 +1237,21 @@ function timeSel(t){
     <select id="au-m" aria-label="الدقيقة">${ms.map(m=>o(m,String(m).padStart(2,'0'),m===M)).join('')}</select>
     <select id="au-ap" aria-label="صباحاً أو مساءً">${o(0,'صباحاً',!pm)}${o(1,'مساءً',pm)}</select></div></div>`}
 function timeVal(){const h=+$('#au-h').value%12+(+$('#au-ap').value?12:0), m=+$('#au-m').value;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')}
+// اختيار الموضوع من قائمة التطبيق (قائمة أندرويد لا تقبل الألوان): أخضر ✓ = نُشر، ذهبي = لم يُنشر
+function tPickBtn(id,n){const t=n&&TT(n);return `<button type="button" class="tpick" id="${id}" aria-haspopup="dialog">${t?`<span class="${tPublished(n)?'ok':'pend'}">${tPublished(n)?'✓ ':''}${AR(n)}. ${esc(tName(t))}</span>`:'<span class="sub">اختر الموضوع</span>'}<span class="tp-ar" aria-hidden="true">▾</span></button>`}
+function tPickOpen(which){const f=tdbComp.f;
+  const list=which==='from'?TT_ALL().filter(t=>tReady(t.n)):TT_ALL().filter(t=>t.n>=f&&t.n<=tLastReady(f));
+  const sel=which==='from'?f:tdbComp.to, nxt=G.nextTopic;
+  const m=document.createElement('div');m.className='modal tsheet-bg';m.innerHTML=`<div class="tsheet" role="dialog" aria-label="${which==='from'?'من موضوع':'إلى موضوع'}">
+    <div class="ts-head"><b>${which==='from'?'من موضوع':'إلى موضوع'}</b><button class="x" id="ts-x" aria-label="إغلاق">✕</button></div>
+    <p class="ts-legend"><span class="ok">✓ أخضر</span> = نُشر قبل ذلك</p>
+    <div class="ts-list">${list.map(t=>{const pub=tPublished(t.n);return `<button type="button" class="ts-it ${pub?'ok':'pend'}${t.n===sel?' sel':''}" data-pick="${t.n}">
+      <span class="ts-mk">${pub?'✓':t.n===nxt?'●':''}</span><span class="ts-t">${AR(t.n)}. ${esc(tName(t))}<span class="sub ts-l">${esc(t.l)} · ${nCardsT(t.c)}</span></span></button>`}).join('')}</div></div>`;
+  document.body.append(m);const close=()=>m.remove();
+  m.onclick=e=>{if(e.target===m)close()};$('#ts-x').onclick=close;
+  m.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{const v=+b.dataset.pick;close();
+    if(which==='from')tdbComp={f:v,to:v};else tdbComp.to=v;render()});
+  const cur=m.querySelector('.ts-it.sel')||m.querySelector(`[data-pick="${nxt}"]`);if(cur)cur.scrollIntoView({block:'center'})}
 function tdbAutoCard(){
   const a=G.auto, s=G.nextTopic, e=tReady(s)?Math.min(s+Math.max(1,a.unit)-1,tLastReady(s)):null;
   return `<div class="card" id="autocard">

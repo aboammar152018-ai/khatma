@@ -79,6 +79,7 @@ main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px
 .demo button{border:0;background:none;color:var(--gold);text-decoration:underline;font-size:12px;padding:0}
 
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.tc-fq{font-size:12px;color:var(--muted);opacity:.9;margin:0 0 10px;line-height:1.6;text-align:center}
 .h{font-size:13px;color:var(--muted);letter-spacing:.02em;margin:0 0 8px;font-weight:500;display:flex;justify-content:space-between;align-items:center;gap:8px}
 h2{font-size:18px;margin:0;font-weight:600;text-wrap:balance}
 .sub{color:var(--muted);font-size:13px}
@@ -470,7 +471,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-16d'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-16f'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1102,8 +1103,11 @@ async function openTopic(n,replace){const t=TT(n);if(!t||!t.c||opening)return;op
   if(!replace)history.pushState({k:'tread',n:((history.state&&history.state.n)||0)+1},'');
   drawTR();wake();setTimeout(startTHint,900);}
 const tList=a=>a.length>1?`<ol class="tc-ol">${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`:`<p class="tc-t">${esc(a[0])}</p>`;
+// بطاقات فيها اختيار فقهي للشيخ قد يخالف فيه الجمهور (موضوع|عنوان البطاقة)
+const TFQ=new Set(['18|الآية ١٢٤','26|الآيتان ١٨٣ – ١٨٤','26|الآية ١٨٥','27|الآيات ١٩٠ – ١٩٣','31|الآية ٢١٦','33|الآية ٢٢٩','34|الآية ٢٣٣','34|الآيات ٢٤٠ – ٢٤٢','25|الآيات ١٨٠ – ١٨٢','32|الآية ٢٢١','33|الآية ٢٣٢']);
+const tFq=c=>!!(TR&&TFQ.has(TR.n+'|'+c.lbl));
 function tCardHTML(c){
-  return `${c.pre||c.q?`<div class="tc-ay">${c.pre?`<div class="tc-pre">${esc(c.pre)}</div>`:''}${c.q?`<div class="tc-q">${esc(c.q)}</div>`:''}</div>`:''}
+  return `${tFq(c)?`<p class="tc-fq">ⓘ الأحكام هنا اختيارات الشيخ الجزائري، وقد يخالفه غيره من أهل العلم.</p>`:''}${c.pre||c.q?`<div class="tc-ay">${c.pre?`<div class="tc-pre">${esc(c.pre)}</div>`:''}${c.q?`<div class="tc-q">${esc(c.q)}</div>`:''}</div>`:''}
     ${c.lbl?`<p class="tc-lbl">${esc(c.lbl)}</p>`:''}
     ${c.w&&c.w.length?`<h3 class="tc-h">شرح الكلمات</h3>${c.w.map(x=>`<p class="tc-w"><b>${esc(x[0])}:</b> ${esc(x[1])}</p>`).join('')}`:''}
     ${c.m?`<h3 class="tc-h">المعنى</h3><p class="tc-t">${esc(c.m)}</p>`:''}

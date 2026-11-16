@@ -467,7 +467,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-15j'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-16a'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -656,8 +656,14 @@ const ptsW=(w,t)=>(t<=deadline(w)?10:5)+bonusOf(w,t);
 /* ---- المشرف: الرئيسية ---- */
 const selfReads=()=>!!(A&&G&&G.members.some(m=>m.id===A.mid));
 let cancelOpen=false, mvId=null;
-function selfCard(){const on=selfReads();
-  return `<div class="card selfcard"><div class="switch"><label for="selfread"><b>أقرأ مع المجموعة</b><br><span class="sub">${on?`تُحسب قراءتك مع الأعضاء · نقاطك ${AR(pointsFor(A.mid))} · التزامك ${AR(commit(A.mid))}٪`:'فعّلها لتقرأ الورد وتظهر قراءتك مع الأعضاء'}</span></label>
+function bindSelfRead(){
+  const sr=$('#selfread');if(sr)sr.onchange=async()=>{const on=sr.checked;sr.disabled=true;
+    const {error}=on?await sb.rpc('join_group',{p_code:G.code}):await sb.rpc('leave_group',{p_group:G.id});
+    if(error){sr.checked=!on;sr.disabled=false;return toast(errMsg(error))}
+    await refresh();toast(on?'حسناً، ستُحسب قراءتك مع المجموعة ويصلك إشعار الورد':'أُوقفت قراءتك مع المجموعة')}}
+function selfCard(){const on=selfReads(),td=gkind(G)==='tadabbur';
+  const onTxt=td?(rn=>`تُحسب قراءتك مع الأعضاء · ${rn?'قرأتَ '+nTopics(rn):'لم تقرأ شيئاً بعد'}`)(G.tdb.topics.filter(t=>tPublished(t.n)&&tReadAny(t.n,A.mid)).length):`تُحسب قراءتك مع الأعضاء · نقاطك ${AR(pointsFor(A.mid))} · التزامك ${AR(commit(A.mid))}٪`;
+  return `<div class="card selfcard"><div class="switch"><label for="selfread"><b>أقرأ مع المجموعة</b><br><span class="sub">${on?onTxt:'فعّلها لتقرأ الورد وتظهر قراءتك مع الأعضاء'}</span></label>
     <input type="checkbox" id="selfread" ${on?'checked':''}></div></div>`}
 function lateCard(){const late=G.members.filter(m=>m.kh&&m.kh.missed>0).sort((a,b)=>b.kh.missed-a.kh.missed);
   if(!late.length)return '';
@@ -746,10 +752,7 @@ function bindAdmin(){bindLate();
     comp={mode:'continue',pick:null};await refresh();toast('أُلغي الورد. يمكنك نشر الورد الصحيح الآن.')};
   const rd=$('#read');if(rd)rd.onclick=()=>openReader(cur());bindPaper();bindAhead();
   document.querySelectorAll('[data-qada]').forEach(b=>b.onclick=()=>{const w=G.wirds.find(x=>String(x.id)===b.dataset.qada);if(w)openReader(w)});
-  const sr=$('#selfread');if(sr)sr.onchange=async()=>{const on=sr.checked;sr.disabled=true;
-    const {error}=on?await sb.rpc('join_group',{p_code:G.code}):await sb.rpc('leave_group',{p_group:G.id});
-    if(error){sr.checked=!on;sr.disabled=false;return toast(errMsg(error))}
-    await refresh();toast(on?'حسناً، ستُحسب قراءتك مع المجموعة ويصلك إشعار الورد':'أُوقفت قراءتك مع المجموعة')};
+  bindSelfRead();
   $('#to-settings').onclick=()=>go('settings');
   $('#to-invite').onclick=()=>go('settings','invite');
   document.querySelectorAll('[data-unit]').forEach(b=>b.onclick=()=>{G.unit=+b.dataset.unit;render()});
@@ -1001,7 +1004,7 @@ function tdbAdminView(){
       <span class="chip ${k===all?'ok':'wait'}">${k===all?'أتمّ ✓':k?`قرأ ${AR(k)} من ${AR(all)}`:'لم يقرأ'}</span></li>`}).join('')}</ul>
   </div>`:`<div class="card wird"><p class="h"><span>مرحباً بك في ${esc(G.group)}</span></p>
     <div class="range trange">ابدأ أول ورد للختمة</div>
-    <div class="meta"><span>اختر المواضيع من الأسفل واضغط نشر، وسيصل إشعار لكل الأعضاء.</span></div></div>`)+`
+    <div class="meta"><span>اختر المواضيع من الأسفل واضغط نشر، وسيصل إشعار لكل الأعضاء.</span></div></div>`)+selfCard()+`
   <div class="actions">
     <button class="btn btn-ghost" id="to-invite">دعوة الأعضاء</button>
     <button class="btn btn-ghost" id="to-settings">⚙ إعدادات الختمة</button>
@@ -1022,7 +1025,7 @@ function tdbAdminView(){
 }
 function bindTopicRows(){document.querySelectorAll('[data-topic]').forEach(el=>{const op=()=>openTopic(+el.dataset.topic);el.onclick=op;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();op()}}});
   const d=$('#tidx');if(d)d.ontoggle=()=>{tIdxOpen=d.open}}
-function bindTdbAdmin(){bindTopicRows();
+function bindTdbAdmin(){bindTopicRows();bindSelfRead();
   $('#to-settings').onclick=()=>go('settings');$('#to-invite').onclick=()=>go('settings','invite');
   const w=tCur();
   const pv=$('#t-prev');if(pv)pv.onclick=()=>{const n=tCanRead()?(tRange(w).find(x=>!tReadBy(w,x,A.mid))||w.f):w.f;openTopic(n)};

@@ -408,6 +408,11 @@ input.bad{border-color:#c0392b!important}
 .tidx summary .sub{margin-inline-start:auto;font-weight:400}
 .tidx .tlist{margin-top:10px}
 .ahead{margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:inherit}.ahead .sub{margin-top:4px;color:inherit;opacity:.85}.ahead .btn{white-space:nowrap}
+.tr-full{flex:0 0 auto;padding:0 12px;height:auto;align-self:stretch}
+.treader.tfull .r-head{display:none}
+.treader.tfull .r-body{padding-top:calc(env(safe-area-inset-top,0px) + 52px)}
+.tr-fbar{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);inset-inline:max(10px,env(safe-area-inset-left,0px)) max(10px,env(safe-area-inset-right,0px));display:flex;align-items:center;justify-content:space-between;z-index:3;pointer-events:none}
+.tr-fbar>*{pointer-events:auto}.tr-fbar .x{background:var(--surface);border:1px solid var(--line)}.tr-fbar .num{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
 .tr-rep{display:block;margin:14px auto 0;font-size:13px;color:var(--muted)}
 .trep{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}.trep label{display:block;font-size:14px;margin-bottom:6px}
 .trep textarea{width:100%;box-sizing:border-box;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;resize:vertical}
@@ -450,7 +455,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-15g'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-15h'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -569,6 +574,8 @@ function go(v,anchor){VIEW=v;const n=((history.state&&history.state.n)||0)+1;his
 function back(){if(history.state&&history.state.n)history.back();else{if(R){$('#layer').innerHTML='';R=null;readerClosed()}if(TR)closeTR();VIEW='home';delOpen=false;render();scrollTo(0,0)}}
 function goHome(){const n=(history.state&&history.state.n)||0;if(n>0)history.go(-n);else{if(R){$('#layer').innerHTML='';R=null;readerClosed()}if(TR)closeTR();VIEW='home';delOpen=false;render();scrollTo(0,0)}}
 window.addEventListener('popstate',e=>{const k=e.state&&e.state.k;
+  if(TR&&TFULL&&k==='tread'){TFULL=false;TR.fullH=false;drawTR();return}
+  if(TR&&k==='tfull')return;
   if(R&&k!=='read'){$('#layer').innerHTML='';R=null;readerClosed()}
   if(TR&&k!=='tread'){closeTR();if(k!=='read'){VIEW=(k==='notes'||k==='settings'||k==='feedback'||k==='owner')?k:'home';render();return}}
   VIEW=(k==='notes'||k==='settings'||k==='feedback'||k==='owner')?k:'home';if(VIEW!=='settings')delOpen=false;render();if(k!=='read')scrollTo(0,0)});
@@ -1031,7 +1038,7 @@ async function openRange(f,to){if(opening)return;opening=true;const seq=[];
   catch(e){opening=false;return toast(isNetErr(e)?'تعذّر تحميل البطاقات. تأكد من اتصالك بالإنترنت.':errMsg(e))}
   opening=false;if(!seq.length)return toast('هذه المواضيع لم تُجهَّز بعد.');
   TR={pv:{f,to},seq,i:0,t:seq[0].t,cards:seq.map(x=>x.c),w:null,canRead:false};
-  history.pushState({k:'tread',n:((history.state&&history.state.n)||0)+1},'');drawTR();setTimeout(startTHint,900)}
+  history.pushState({k:'tread',n:((history.state&&history.state.n)||0)+1},'');drawTR();wake();setTimeout(startTHint,900)}
 
 function tdbMemberView(){
   const me=G.members.find(m=>m.id===A.mid)||{id:A.mid,name:A.name}, T=G.tdb, w=tCur();
@@ -1065,9 +1072,9 @@ async function tdbCards(t){
 async function openTopic(n,replace){const t=TT(n);if(!t||!t.c||opening)return;opening=true;
   let cards;try{cards=await tdbCards(t)}catch(e){opening=false;return toast(isNetErr(e)?'هذا الموضوع لم يُحفظ على جهازك بعد. افتحه مرة وأنت متصل بالإنترنت.':errMsg(e))}
   opening=false;if(!cards.length)return toast('هذا الموضوع لم يُجهَّز بعد.');
-  const w=tWirdOf(n);TR={n,t,cards,i:0,w,canRead:!!w&&tCanRead()};
+  const w=tWirdOf(n),fh=!!(replace&&TR&&TR.fullH);if(!replace)TFULL=false;TR={n,t,cards,i:0,w,canRead:!!w&&tCanRead(),fullH:fh};
   if(!replace)history.pushState({k:'tread',n:((history.state&&history.state.n)||0)+1},'');
-  drawTR();setTimeout(startTHint,900);}
+  drawTR();wake();setTimeout(startTHint,900);}
 const tList=a=>a.length>1?`<ol class="tc-ol">${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`:`<p class="tc-t">${esc(a[0])}</p>`;
 function tCardHTML(c){
   return `${c.pre||c.q?`<div class="tc-ay">${c.pre?`<div class="tc-pre">${esc(c.pre)}</div>`:''}${c.q?`<div class="tc-q">${esc(c.q)}</div>`:''}</div>`:''}
@@ -1079,7 +1086,9 @@ function tCardHTML(c){
     ${c.n?`<p class="tc-n"><b>تنبيه:</b> ${esc(c.n)}</p>`:''}
     ${c.k?`<div class="tc-k"><b>خاطرة</b>${esc(c.k)}</div>`:''}`}
 function drawTR(){if(!TR)return;if(TR.seq)TR.t=TR.seq[TR.i].t;const {t,cards,i,w}=TR,c=cards[i],last=i===cards.length-1,read=tReadBy(w,t.n,A.mid),sq=TR.seq&&TR.seq[i];
-  $('#layer').innerHTML=`<div class="treader" role="dialog" aria-label="${esc(tName(t))}">
+  const cnt=sq?`${AR(sq.k+1)} من ${AR(sq.of)}`:`${AR(i+1)} من ${AR(cards.length)}`;
+  $('#layer').innerHTML=`<div class="treader${TFULL?' tfull':''}" role="dialog" aria-label="${esc(tName(t))}">
+    ${TFULL?`<div class="tr-fbar"><button class="x" id="tr-fexit" aria-label="خروج من ملء الشاشة" title="خروج من ملء الشاشة"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button><span class="sub num">${cnt}</span></div>`:''}
     <div class="r-head"><div class="r-in"><button class="x" id="tr-x" aria-label="إغلاق">✕</button>
       <div class="r-title"><b>${esc(tName(t))}</b>${t.t?esc(t.l):''}</div><button class="x tr-share" id="tr-share" aria-label="مشاركة البطاقة صورةً" title="مشاركة البطاقة"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><g fill="currentColor"><circle cx="18" cy="5" r="3.2"/><circle cx="6" cy="12" r="3.2"/><circle cx="18" cy="19" r="3.2"/></g><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></button><span class="sub num">${sq?`${AR(sq.k+1)} من ${AR(sq.of)}`:`${AR(i+1)} من ${AR(cards.length)}`}</span></div></div>
     <div class="r-body" id="tr-body"><div class="tr-in">
@@ -1093,12 +1102,15 @@ function drawTR(){if(!TR)return;if(TR.seq)TR.t=TR.seq[TR.i].t;const {t,cards,i,w
       ${TR.pv&&last?`<p class="sub" style="text-align:center;margin:12px 0 0">انتهت معاينة الورد: ${nTopics(TR.pv.to-TR.pv.f+1)} · ${nCardsT(cards.length)}</p>`
         :!TR.canRead&&last?`<p class="sub" style="text-align:center;margin:12px 0 0">${A.role==='admin'?'معاينة: القراءة تُسجَّل للأعضاء فقط.':'هذا الموضوع لم يُنشر في ورد بعد.'}</p>`:''}</div></div>
     <div class="r-foot"><div class="r-in">
+      ${TFULL?'':`<button class="fullbtn tr-full" id="tr-full" aria-label="ملء الشاشة" title="ملء الشاشة"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>`}
       <button class="btn btn-ghost" id="tr-prev" ${i?'':'disabled'}>السابق</button>
       ${last&&TR.pv?'<button class="btn btn-ghost" id="tr-close">إغلاق</button><button class="btn btn-main grow" id="tr-pub">نشر الورد</button>':last?(TR.canRead?(read?'<button class="btn btn-ok grow" id="tr-done" disabled>قرأتها ✓</button>':'<button class="btn btn-main grow" id="tr-done">قرأتها</button>')
         :'<button class="btn btn-main grow" id="tr-close">إغلاق</button>'):'<button class="btn btn-main grow" id="tr-next">التالي</button>'}
     </div></div></div>`;
   const step=d=>{const j=TR.i+d;if(j<0||j>=TR.cards.length)return false;TR.i=j;TR.rep=false;TR.repText='';drawTR();const b=$('#tr-body');if(b)b.scrollTop=0;return true};
-  $('#tr-x').onclick=back;const cl=$('#tr-close');if(cl)cl.onclick=back;
+  $('#tr-x').onclick=trBack;const cl=$('#tr-close');if(cl)cl.onclick=trBack;
+  const fu=$('#tr-full');if(fu)fu.onclick=()=>{TFULL=true;TR.fullH=true;history.pushState({k:'tfull',n:((history.state&&history.state.n)||0)+1},'');drawTR();wake()};
+  const fe=$('#tr-fexit');if(fe)fe.onclick=()=>{if(TR.fullH)history.back();else{TFULL=false;drawTR()}};
   const pv=$('#tr-prev');if(pv)pv.onclick=()=>step(-1);const nx=$('#tr-next');if(nx)nx.onclick=()=>step(1);
   const dn=$('#tr-done');if(dn&&!dn.disabled)dn.onclick=()=>tdbRead();
   const rp=$('#tr-rep');if(rp)rp.onclick=()=>{TR.rep=true;drawTR();const x=$('#rep-text');if(x)x.focus()};
@@ -1106,14 +1118,17 @@ function drawTR(){if(!TR)return;if(TR.seq)TR.t=TR.seq[TR.i].t;const {t,cards,i,w
   const rn=$('#rep-no');if(rn)rn.onclick=()=>{TR.rep=false;TR.repText='';drawTR()};
   const rs=$('#rep-send');if(rs)rs.onclick=()=>sendReport(rs);
   const sh=$('#tr-share');if(sh)sh.onclick=()=>shareTCard(sh);
-  const tp=$('#tr-pub');if(tp)tp.onclick=async()=>{tp.disabled=true;tp.textContent='جارٍ النشر…';const {f,to}=TR.pv;back();await tdbPublish(f,to)};
+  const tp=$('#tr-pub');if(tp)tp.onclick=async()=>{tp.disabled=true;tp.textContent='جارٍ النشر…';const {f,to}=TR.pv;trBack();await tdbPublish(f,to)};
   const b=$('#tr-body');if(b){let x0=0,y0=0,t0=0;b.addEventListener('touchstart',e=>{const p=e.touches[0];x0=p.clientX;y0=p.clientY;t0=Date.now()},{passive:true});
     b.addEventListener('touchend',e=>{const p=e.changedTouches[0],dx=p.clientX-x0,dy=p.clientY-y0;
       // من اليمين للشمال: السحب لليمين = البطاقة التالية
       if(Math.abs(dx)>(Date.now()-t0<700?50:90)&&Math.abs(dx)>Math.abs(dy)*1.3)step(dx>0?1:-1)},{passive:true})}}
 addEventListener('keydown',e=>{if(!TR||R||TOUR||!$('.treader')||(e.target.closest&&e.target.closest('input,textarea')))return;
   if(e.key==='ArrowLeft'){e.preventDefault();const n=$('#tr-next');if(n)n.click()}else if(e.key==='ArrowRight'){e.preventDefault();const p=$('#tr-prev');if(p&&!p.disabled)p.click()}});
-function closeTR(){TR=null;$('#layer').innerHTML='';if(TOUR&&TOUR.reader==='t')tourEnd()}
+// ملء الشاشة في قارئ البطاقات: يخفي شريط العنوان، وزر الرجوع يخرج منه أولاً
+let TFULL=false;
+function trBack(){if(TR&&TR.fullH&&history.state&&history.state.k==='tfull'&&history.state.n>1)history.go(-2);else back()}
+function closeTR(){TR=null;TFULL=false;$('#layer').innerHTML='';try{if(wakeL&&!R)wakeL.release()}catch(e){}if(!R)wakeL=null;if(TOUR&&TOUR.reader==='t')tourEnd()}
 // رقم البطاقة داخل موضوعها (في المعاينة المتتالية يختلف عن ترتيبها في الورد)
 const tCardNo=()=>TR.seq?TR.seq[TR.i].k+1:TR.i+1;
 async function sendReport(b){const x=(TR.repText||'').trim();if(x.length<2){const t=$('#rep-text');if(t)t.focus();return toast('اكتب الخطأ الذي لاحظته أولاً.')}
@@ -1183,7 +1198,7 @@ function tdbRead(){const {t,w}=TR;if(!w)return;const now=Date.now(),online=navig
     ${nx?'<button class="btn btn-main" id="tn-next">الموضوع التالي</button><button class="btn btn-ghost" id="ok">لاحقاً</button>':'<button class="btn btn-main" id="ok">الحمد لله</button>'}
     <button class="back" id="undo">سجّلتها بالخطأ؟ تراجع</button></div></div>`;
   const fin=()=>{clearTimeout(undoT);flushQueue().catch(()=>{})};
-  $('#ok').onclick=()=>{fin();back();setTimeout(refresh,300)};
+  $('#ok').onclick=()=>{fin();trBack();setTimeout(refresh,300)};
   const tn=$('#tn-next');if(tn)tn.onclick=()=>{fin();openTopic(nx,true)};
   $('#undo').onclick=async e=>{undone=true;clearTimeout(undoT);e.currentTarget.disabled=true;
     const queued=getQ().some(same);setQ(getQ().filter(x=>!same(x)));
@@ -1245,9 +1260,9 @@ function goFS(){}
 function exitFS(){try{if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{})}catch(e){}}
 function setFull(on){FULL=on;try{localStorage.setItem('khatma-full',on?'1':'0')}catch(e){}
   if(on)goFS();else exitFS();if(R){R.anim='';drawReader()}}
-async function wake(){try{if(R&&navigator.wakeLock&&!wakeL&&document.visibilityState==='visible'){wakeL=await navigator.wakeLock.request('screen');wakeL.addEventListener('release',()=>{wakeL=null})}}catch(e){wakeL=null}}
+async function wake(){try{if((R||TR)&&navigator.wakeLock&&!wakeL&&document.visibilityState==='visible'){wakeL=await navigator.wakeLock.request('screen');wakeL.addEventListener('release',()=>{wakeL=null})}}catch(e){wakeL=null}}
 function readerClosed(){exitFS();try{if(wakeL)wakeL.release()}catch(e){}wakeL=null}
-document.addEventListener('visibilitychange',()=>{if(R)wake()});
+document.addEventListener('visibilitychange',()=>{if(R||TR)wake()});
 function pageHTML(p,w){
   const a=Q.p[p-1], b=p<604?Q.p[p]-1:N; let out='';
   for(let id=a;id<=b;id++){

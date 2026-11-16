@@ -467,7 +467,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-16b'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-16c'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -655,7 +655,7 @@ const ptsW=(w,t)=>(t<=deadline(w)?10:5)+bonusOf(w,t);
 
 /* ---- المشرف: الرئيسية ---- */
 const selfReads=()=>!!(A&&G&&G.members.some(m=>m.id===A.mid));
-let cancelOpen=false, mvId=null;
+let cancelOpen=false, mvId=null, mvAsk=null;
 function bindSelfRead(){
   const sr=$('#selfread');if(sr)sr.onchange=async()=>{const on=sr.checked;sr.disabled=true;
     const {error}=on?await sb.rpc('join_group',{p_code:G.code}):await sb.rpc('leave_group',{p_group:G.id});
@@ -787,6 +787,9 @@ function remindCard(){const on=G.remind;
     <p class="sub" style="margin:8px 0 0">يصل فقط لمن لم يقرأ بعد، مرة واحدة لكل ورد، ولا تحتاج لإرساله بنفسك.</p></div>`}
 const kindLbl=g=>gkind(g)==='tadabbur'?'تدبر':'تلاوة';
 const othersOf=()=>GROUPS.filter(g=>g.id!==G.id);
+function moveAsk(m){const g=GROUPS.find(x=>x.id===mvAsk.to)||{},mv=mvAsk.act==='move',lb=mv?'نقل':'إضافة';
+  return `<div class="confirm"><p>${lb} <b>${esc(m.name)}</b> إلى «${esc(g.name||'')}» · ${kindLbl(g)}؟</p>
+    <div class="row"><button class="btn ${mv?'btn-danger':'btn-main'} sm" id="mv-yes">${lb}</button><button class="btn btn-ghost sm" id="mv-back">رجوع</button></div></div>`}
 function moveRow(m){
   return `<div class="confirm"><p><b>${esc(m.name)}</b> · إلى مجموعة:</p>
     <select id="mv-to" aria-label="المجموعة">${othersOf().map(g=>`<option value="${g.id}">${esc(g.name)} · ${kindLbl(g)}</option>`).join('')}</select>
@@ -811,7 +814,7 @@ function settingsView(){
   <div class="card">
     <p class="h"><span>${tdb?'الأعضاء':'الأعضاء والنقاط'}</span><span>${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}</span></p>
     ${G.members.length?pushSummary():'<p class="empty">لا يوجد أعضاء بعد.</p>'}
-    <ul class="list">${board.map(m=>mvId===m.id?`<li>${moveRow(m)}</li>`:rmId===m.id?`<li>${confirmRow(`حذف <b>${esc(m.name)}</b> من المجموعة؟ قراءاته السابقة تبقى في الإحصائيات.`,'rm-ok','حذف','rm-no')}</li>`:`<li><span class="av">${initials(m.name)}</span>
+    <ul class="list">${board.map(m=>mvId===m.id?`<li>${mvAsk&&mvAsk.id===m.id?moveAsk(m):moveRow(m)}</li>`:rmId===m.id?`<li>${confirmRow(`حذف <b>${esc(m.name)}</b> من المجموعة؟ قراءاته السابقة تبقى في الإحصائيات.`,'rm-ok','حذف','rm-no')}</li>`:`<li><span class="av">${initials(m.name)}</span>
       <span class="grow"><span class="name">${esc(m.name)}${m.id===A.mid?' <span class="tag">المشرف</span>':''}${pushIcon(m)}</span><br><span class="sub num">${sub(m)}</span></span>
       ${tdb?'':`<span class="pts num">${AR(pointsFor(m.id))} نقطة</span>`}${m.id===A.mid?'':`${GROUPS.length>1?`<button class="rm mv" data-mv="${m.id}" aria-label="نقل ${esc(m.name)} لمجموعة أخرى" title="نقل لمجموعة أخرى">⇄</button>`:''}<button class="rm" data-rm="${m.id}" aria-label="حذف ${esc(m.name)}" title="حذف من المجموعة">✕</button>`}</li>`).join('')}</ul>
     ${tdb?'':`<div class="switch" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><label for="pts-on">إظهار النقاط للأعضاء</label><input type="checkbox" id="pts-on" ${G.showPoints?'checked':''}></div>
@@ -840,14 +843,15 @@ function bindSettings(){
   const rgo=$('#rg-ok');if(rgo)rgo.onclick=async()=>{rgo.disabled=true;const {error}=await sb.rpc('regenerate_code',{p_group:G.id});
     regen=false;if(error){render();return toast(errMsg(error))}await refresh();toast('تم تغيير الكود. الكود الجديد: '+G.code)};
   document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{rmId=b.dataset.rm;mvId=null;render()});
-  document.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{mvId=b.dataset.mv;rmId=null;render()});
-  const mvn=$('#mv-no');if(mvn)mvn.onclick=()=>{mvId=null;render()};
-  const mvGo=(btn,rpc,ok)=>btn.onclick=async()=>{document.querySelectorAll('#mv-ok,#mv-add').forEach(x=>x.disabled=true);const to=$('#mv-to').value;
+  document.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{mvId=b.dataset.mv;mvAsk=null;rmId=null;render()});
+  const mvn=$('#mv-no');if(mvn)mvn.onclick=()=>{mvId=null;mvAsk=null;render()};
+  const mvPick=(btn,act)=>{if(btn)btn.onclick=()=>{mvAsk={id:mvId,act,to:$('#mv-to').value};render()}};
+  mvPick($('#mv-ok'),'move');mvPick($('#mv-add'),'add');
+  const mvb=$('#mv-back');if(mvb)mvb.onclick=()=>{mvAsk=null;render()};
+  const mvy=$('#mv-yes');if(mvy)mvy.onclick=async()=>{mvy.disabled=true;const {act,to}=mvAsk,mv=act==='move';
     const who=(G.members.find(m=>m.id===mvId)||{}).name||'العضو', tname=(GROUPS.find(g=>g.id===to)||{}).name||'';
-    const {data,error}=await sb.rpc(rpc,{p_from:G.id,p_to:to,p_user:mvId});mvId=null;
-    if(error){render();return toast(errMsg(error))}await refresh();toast(data===false?`${who} موجود في «${tname}» من قبل`:ok(who,tname))};
-  const mvo=$('#mv-ok');if(mvo)mvGo(mvo,'move_member',(w,t)=>`نُقل ${w} إلى «${t}»`);
-  const mva=$('#mv-add');if(mva)mvGo(mva,'add_member',(w,t)=>`أُضيف ${w} إلى «${t}»`);
+    const {data,error}=await sb.rpc(mv?'move_member':'add_member',{p_from:G.id,p_to:to,p_user:mvId});mvId=null;mvAsk=null;
+    if(error){render();return toast(errMsg(error))}await refresh();toast(data===false?`${who} موجود في «${tname}» من قبل`:mv?`نُقل ${who} إلى «${tname}»`:`أُضيف ${who} إلى «${tname}»`)};
   const rmn=$('#rm-no');if(rmn)rmn.onclick=()=>{rmId=null;render()};
   const rmo=$('#rm-ok');if(rmo)rmo.onclick=async()=>{rmo.disabled=true;const who=(G.members.find(m=>m.id===rmId)||{}).name||'العضو';
     const {error}=await sb.rpc('remove_member',{p_group:G.id,p_user:rmId});rmId=null;

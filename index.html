@@ -411,7 +411,7 @@ input.bad{border-color:#c0392b!important}
 .tr-rep{display:block;margin:14px auto 0;font-size:13px;color:var(--muted)}
 .trep{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}.trep label{display:block;font-size:14px;margin-bottom:6px}
 .trep textarea{width:100%;box-sizing:border-box;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;resize:vertical}
-.tr-share{font-size:20px;margin-inline-start:auto}
+.tr-share{margin-inline-start:auto;display:inline-flex;align-items:center;justify-content:center}
 .note.go{cursor:pointer}.note .ngo{color:var(--lapis);font-weight:500}
 .oreply{margin-top:8px;background:var(--ok-soft);border-radius:8px;padding:8px 10px;font-size:14px;line-height:1.7}
 .treader{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column}
@@ -450,7 +450,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-15f'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-15g'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1081,7 +1081,7 @@ function tCardHTML(c){
 function drawTR(){if(!TR)return;if(TR.seq)TR.t=TR.seq[TR.i].t;const {t,cards,i,w}=TR,c=cards[i],last=i===cards.length-1,read=tReadBy(w,t.n,A.mid),sq=TR.seq&&TR.seq[i];
   $('#layer').innerHTML=`<div class="treader" role="dialog" aria-label="${esc(tName(t))}">
     <div class="r-head"><div class="r-in"><button class="x" id="tr-x" aria-label="إغلاق">✕</button>
-      <div class="r-title"><b>${esc(tName(t))}</b>${t.t?esc(t.l):''}</div><button class="x tr-share" id="tr-share" aria-label="مشاركة البطاقة صورةً" title="مشاركة البطاقة">⤴</button><span class="sub num">${sq?`${AR(sq.k+1)} من ${AR(sq.of)}`:`${AR(i+1)} من ${AR(cards.length)}`}</span></div></div>
+      <div class="r-title"><b>${esc(tName(t))}</b>${t.t?esc(t.l):''}</div><button class="x tr-share" id="tr-share" aria-label="مشاركة البطاقة صورةً" title="مشاركة البطاقة"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><g fill="currentColor"><circle cx="18" cy="5" r="3.2"/><circle cx="6" cy="12" r="3.2"/><circle cx="18" cy="19" r="3.2"/></g><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></button><span class="sub num">${sq?`${AR(sq.k+1)} من ${AR(sq.of)}`:`${AR(i+1)} من ${AR(cards.length)}`}</span></div></div>
     <div class="r-body" id="tr-body"><div class="tr-in">
       ${i===0?`<p class="tr-note">${TDB_NOTE}</p>`:''}
       <article class="tcard">${tCardHTML(c)}</article>

@@ -413,6 +413,8 @@ input.bad{border-color:#c0392b!important}
 .treader.tfull .r-body{padding-top:calc(env(safe-area-inset-top,0px) + 52px)}
 .tr-fbar{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);inset-inline:max(10px,env(safe-area-inset-left,0px)) max(10px,env(safe-area-inset-right,0px));display:flex;align-items:center;justify-content:space-between;z-index:3;pointer-events:none}
 .tr-fbar>*{pointer-events:auto}.tr-fbar .x{background:var(--surface);border:1px solid var(--line)}.tr-fbar .num{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.tr-fsz{margin-top:6px}.tr-fz{display:flex;align-items:center;gap:6px;margin:0}
+.ostats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.ostats>div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center;display:flex;flex-direction:column;gap:2px}.ostats b{font-size:18px}
 .tr-rep{display:block;margin:14px auto 0;font-size:13px;color:var(--muted)}
 .trep{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}.trep label{display:block;font-size:14px;margin-bottom:6px}
 .trep textarea{width:100%;box-sizing:border-box;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;resize:vertical}
@@ -455,7 +457,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-15h'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-15i'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1088,12 +1090,13 @@ function tCardHTML(c){
 function drawTR(){if(!TR)return;if(TR.seq)TR.t=TR.seq[TR.i].t;const {t,cards,i,w}=TR,c=cards[i],last=i===cards.length-1,read=tReadBy(w,t.n,A.mid),sq=TR.seq&&TR.seq[i];
   const cnt=sq?`${AR(sq.k+1)} من ${AR(sq.of)}`:`${AR(i+1)} من ${AR(cards.length)}`;
   $('#layer').innerHTML=`<div class="treader${TFULL?' tfull':''}" role="dialog" aria-label="${esc(tName(t))}">
-    ${TFULL?`<div class="tr-fbar"><button class="x" id="tr-fexit" aria-label="خروج من ملء الشاشة" title="خروج من ملء الشاشة"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button><span class="sub num">${cnt}</span></div>`:''}
+    ${TFULL?`<div class="tr-fbar"><button class="x" id="tr-fexit" aria-label="خروج من ملء الشاشة" title="خروج من ملء الشاشة"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></svg></button><span class="tr-fz fsz">${tfsBtns()}<span class="sub num">${cnt}</span></span></div>`:''}
     <div class="r-head"><div class="r-in"><button class="x" id="tr-x" aria-label="إغلاق">✕</button>
-      <div class="r-title"><b>${esc(tName(t))}</b>${t.t?esc(t.l):''}</div><button class="x tr-share" id="tr-share" aria-label="مشاركة البطاقة صورةً" title="مشاركة البطاقة"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><g fill="currentColor"><circle cx="18" cy="5" r="3.2"/><circle cx="6" cy="12" r="3.2"/><circle cx="18" cy="19" r="3.2"/></g><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></button><span class="sub num">${sq?`${AR(sq.k+1)} من ${AR(sq.of)}`:`${AR(i+1)} من ${AR(cards.length)}`}</span></div></div>
+      <div class="r-title"><b>${esc(tName(t))}</b>${t.t?esc(t.l):''}</div><button class="x tr-share" id="tr-share" aria-label="مشاركة البطاقة صورةً" title="مشاركة البطاقة"><svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><g fill="currentColor"><circle cx="18" cy="5" r="3.2"/><circle cx="6" cy="12" r="3.2"/><circle cx="18" cy="19" r="3.2"/></g><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" fill="none"/></svg></button><span class="sub num">${sq?`${AR(sq.k+1)} من ${AR(sq.of)}`:`${AR(i+1)} من ${AR(cards.length)}`}</span></div>
+    ${TFULL?'':`<div class="r-in fsz tr-fsz"><span class="sub">حجم الخط</span>${tfsBtns()}</div>`}</div>
     <div class="r-body" id="tr-body"><div class="tr-in">
       ${i===0?`<p class="tr-note">${TDB_NOTE}</p>`:''}
-      <article class="tcard">${tCardHTML(c)}</article>
+      <article class="tcard" style="zoom:${TFS}">${tCardHTML(c)}</article>
       ${TR.rep?`<div class="trep"><label for="rep-text">ما الخطأ الذي لاحظته في هذه البطاقة؟</label>
         <textarea id="rep-text" rows="3" maxlength="1000" placeholder="مثلاً: كلمة في الآية مكتوبة خطأ، أو معنى غير واضح…">${esc(TR.repText||'')}</textarea>
         <div class="row" style="margin-top:8px;gap:8px"><button class="btn btn-main" id="rep-send" style="flex:1">إرسال البلاغ</button><button class="btn btn-ghost" id="rep-no">إلغاء</button></div></div>`
@@ -1118,6 +1121,7 @@ function drawTR(){if(!TR)return;if(TR.seq)TR.t=TR.seq[TR.i].t;const {t,cards,i,w
   const rn=$('#rep-no');if(rn)rn.onclick=()=>{TR.rep=false;TR.repText='';drawTR()};
   const rs=$('#rep-send');if(rs)rs.onclick=()=>sendReport(rs);
   const sh=$('#tr-share');if(sh)sh.onclick=()=>shareTCard(sh);
+  document.querySelectorAll('[data-tfs]').forEach(b=>b.onclick=()=>tfsSet(+b.dataset.tfs*0.1));
   const tp=$('#tr-pub');if(tp)tp.onclick=async()=>{tp.disabled=true;tp.textContent='جارٍ النشر…';const {f,to}=TR.pv;trBack();await tdbPublish(f,to)};
   const b=$('#tr-body');if(b){let x0=0,y0=0,t0=0;b.addEventListener('touchstart',e=>{const p=e.touches[0];x0=p.clientX;y0=p.clientY;t0=Date.now()},{passive:true});
     b.addEventListener('touchend',e=>{const p=e.changedTouches[0],dx=p.clientX-x0,dy=p.clientY-y0;
@@ -1126,7 +1130,10 @@ function drawTR(){if(!TR)return;if(TR.seq)TR.t=TR.seq[TR.i].t;const {t,cards,i,w
 addEventListener('keydown',e=>{if(!TR||R||TOUR||!$('.treader')||(e.target.closest&&e.target.closest('input,textarea')))return;
   if(e.key==='ArrowLeft'){e.preventDefault();const n=$('#tr-next');if(n)n.click()}else if(e.key==='ArrowRight'){e.preventDefault();const p=$('#tr-prev');if(p&&!p.disabled)p.click()}});
 // ملء الشاشة في قارئ البطاقات: يخفي شريط العنوان، وزر الرجوع يخرج منه أولاً
-let TFULL=false;
+let TFULL=false,TFS=1;try{TFS=Math.min(1.6,Math.max(0.85,+localStorage.getItem('khatma-tfs')||1))}catch(e){}
+function tfsSet(d){TFS=Math.round(Math.min(1.6,Math.max(0.85,TFS+d))*100)/100;try{localStorage.setItem('khatma-tfs',String(TFS))}catch(e){}
+  const c=$('.tcard');if(c)c.style.zoom=TFS;document.querySelectorAll('[data-tfs]').forEach(b=>b.disabled=(+b.dataset.tfs<0?TFS<=0.85:TFS>=1.6))}
+const tfsBtns=()=>`<button data-tfs="-1" aria-label="تصغير الخط" ${TFS<=0.85?'disabled':''}>أ−</button><button data-tfs="1" aria-label="تكبير الخط" ${TFS>=1.6?'disabled':''}>أ+</button>`;
 function trBack(){if(TR&&TR.fullH&&history.state&&history.state.k==='tfull'&&history.state.n>1)history.go(-2);else back()}
 function closeTR(){TR=null;TFULL=false;$('#layer').innerHTML='';try{if(wakeL&&!R)wakeL.release()}catch(e){}if(!R)wakeL=null;if(TOUR&&TOUR.reader==='t')tourEnd()}
 // رقم البطاقة داخل موضوعها (في المعاينة المتتالية يختلف عن ترتيبها في الورد)
@@ -2151,10 +2158,9 @@ function ownerView(){const o=OWN;
     <p class="sub" style="margin:8px 0 0">⚠️ الملف فيه أسماء وإيميلات المشتركين، فاحفظه في مكان خاص.</p></div>`}
   h+=`<div class="card"><p class="h"><span>حسابات معلقة</span><span class="chip ${o.pending.length?'wait':'ok'}">${AR(o.pending.length)}</span></p>
     ${o.pending.length?`<p class="sub" style="margin:0 0 6px">سجّلوا ولم يكتبوا رمز التفعيل. «تفعيل» يتيح لهم الدخول بالإيميل وكلمة المرور.</p><ul class="list">${o.pending.map(u=>`<li><span class="grow"><span class="name">${esc(u.name||'بدون اسم')}</span><br><span class="sub" dir="ltr" style="unicode-bidi:plaintext">${esc(u.email)}</span><br><span class="sub">${dt(u.t)}${u.groups?' · '+esc(u.groups):' · بدون مجموعة'}</span></span><button class="btn btn-ghost sm" data-confirm="${u.id}">تفعيل</button></li>`).join('')}</ul>`:'<p class="sub" style="margin:0">لا توجد حسابات معلقة 🌿</p>'}</div>`;
+  h+=ownerTdb(o);
   h+=`<div class="card"><p class="h"><span>رسائل الأعضاء</span><span class="chip">${AR(o.feedback.length)}</span></p>
-    ${o.feedback.length?`<ul class="list olist">${o.feedback.map(f=>`<li><span class="grow"><span class="name">${esc(f.name||'غير مسجّل')}</span> <span class="sub">${dt(f.t)} · ${dev(f.ua)} · <bdi dir="ltr">${esc(f.v||'')}</bdi></span>${f.email?`<br><span class="sub" dir="ltr" style="unicode-bidi:plaintext">${esc(f.email)}</span>`:''}<div class="otext">${esc(f.text)}</div>${f.reply?`<div class="oreply"><b>ردّك</b> <span class="sub">${dt(f.rt)}</span><br>${esc(f.reply)}</div>`:''}${f.u?(ownRep===f.id?`<div class="trep"><textarea id="orp-text" rows="3" maxlength="1000" placeholder="اكتب ردك، وسيصل له تنبيهاً في التطبيق">${esc(ownRepText)}</textarea>
-      <div class="row" style="margin-top:8px;gap:8px"><button class="btn btn-main sm" id="orp-send" style="flex:1">إرسال الرد</button><button class="btn btn-ghost sm" id="orp-no">إلغاء</button></div></div>`
-      :`<button class="back sm" data-orp="${f.id}">${f.reply?'ردّ مرة أخرى':'ردّ عليه'}</button>`):''}</span></li>`).join('')}</ul>`:'<p class="sub" style="margin:0">لا توجد رسائل بعد.</p>'}</div>`;
+    ${o.feedback.length?`<ul class="list olist">${o.feedback.map(fbItem).join('')}</ul>`:'<p class="sub" style="margin:0">لا توجد رسائل بعد.</p>'}</div>`;
   const errOld=o.errors.filter(e=>e.v&&e.v<DIAG.v),errShow=ownOldErr?o.errors:o.errors.filter(e=>!errOld.includes(e));
   h+=`<div class="card"><p class="h"><span>الأخطاء (آخر ١٤ يوماً)</span><span class="chip ${errShow.length?'wait':'ok'}">${AR(errShow.length)}</span></p>
     ${errOld.length?`<p class="sub" style="margin:0 0 6px">${ownOldErr?'يظهر الكل، ومنها':'أُخفيت'} ${AR(errOld.length)} من إصدارات أقدم من الإصدار الحالي (لم تتكرر فيه). <button class="back sm" id="own-olderr" style="display:inline">${ownOldErr?'إخفاؤها':'إظهارها'}</button></p>`:''}
@@ -2171,6 +2177,14 @@ async function ownerBackup(b){b.disabled=true;b.textContent='جارٍ التجه
     if(!done){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
     lsSet('khatma-backup-at',String(Date.now()));render();toast(`تم تجهيز النسخة (${Math.max(1,Math.round(blob.size/1024))} ك.ب). احفظها في مكان آمن.`)}
   catch(e){b.disabled=false;b.textContent='⬇ تنزيل نسخة احتياطية';toast(isNetErr(e)?'محتاج اتصال بالإنترنت.':errMsg(e))}}
+function fbItem(f){return `<li><span class="grow"><span class="name">${esc(f.name||'غير مسجّل')}</span> <span class="sub">${dt(f.t)} · ${dev(f.ua)} · <bdi dir="ltr">${esc(f.v||'')}</bdi></span>${f.email?`<br><span class="sub" dir="ltr" style="unicode-bidi:plaintext">${esc(f.email)}</span>`:''}<div class="otext">${esc(f.text)}</div>${f.reply?`<div class="oreply"><b>ردّك</b> <span class="sub">${dt(f.rt)}</span><br>${esc(f.reply)}</div>`:''}${f.u?(ownRep===f.id?`<div class="trep"><textarea id="orp-text" rows="3" maxlength="1000" placeholder="اكتب ردك، وسيصل له تنبيهاً في التطبيق">${esc(ownRepText)}</textarea>
+      <div class="row" style="margin-top:8px;gap:8px"><button class="btn btn-main sm" id="orp-send" style="flex:1">إرسال الرد</button><button class="btn btn-ghost sm" id="orp-no">إلغاء</button></div></div>`
+      :`<button class="back sm" data-orp="${f.id}">${f.reply?'ردّ مرة أخرى':'ردّ عليه'}</button>`):''}</span></li>`}
+function ownerTdb(o){const t=o.tdb||{},rp=o.reports||[];if(!o.tdb)return '';
+  return `<div class="card"><p class="h"><span>ختمة التدبر</span><span class="chip">${AR(t.groups||0)} ${(t.groups||0)===1?'ختمة':'ختمات'}</span></p>
+    <div class="ostats">${[['الأعضاء',t.members],['أوراد هذا الأسبوع',t.wirds7],['قراءات هذا الأسبوع',t.reads7],['قرّاء هذا الأسبوع',t.readers7],['المواضيع الجاهزة',t.topics],['البطاقات',t.cards]].map(([l,v])=>`<div><b class="num">${AR(v||0)}</b><span class="sub">${l}</span></div>`).join('')}</div></div>
+  <div class="card"><p class="h"><span>بلاغات البطاقات</span><span class="chip ${rp.some(f=>!f.reply)?'wait':'ok'}">${AR(rp.length)}</span></p>
+    ${rp.length?`<ul class="list olist">${rp.map(fbItem).join('')}</ul>`:'<p class="sub" style="margin:0">لا توجد بلاغات. البلاغ يصل هنا حين يضغط عضو «بلّغ عن خطأ في هذه البطاقة».</p>'}</div>`}
 function bindOwner(){$('#sback').onclick=back;const bk=$('#own-bk');if(bk)bk.onclick=()=>ownerBackup(bk);const r=$('#own-re');if(r)r.onclick=()=>{OWN=null;loadOwner()};
   if(!OWN&&!ownBusy&&!ownErr)loadOwner();
   const oe=$('#own-olderr');if(oe)oe.onclick=()=>{ownOldErr=!ownOldErr;render()};
@@ -2180,7 +2194,7 @@ function bindOwner(){$('#sback').onclick=back;const bk=$('#own-bk');if(bk)bk.onc
   const os=$('#orp-send');if(os)os.onclick=async()=>{const t=ownRepText.trim();if(t.length<2){ox&&ox.focus();return toast('اكتب ردك أولاً.')}
     os.disabled=true;os.textContent='جارٍ الإرسال…';const {error}=await sb.rpc('owner_reply',{p_id:ownRep,p_text:t});
     if(error){os.disabled=false;os.textContent='إرسال الرد';return toast(/could not find|PGRST202/i.test(error.message+(error.code||''))?'شغّل ملف khatma_sql_18 أولاً.':/no user/.test(error.message)?'صاحب الرسالة غير مسجّل، فلا يمكن الرد عليه.':errMsg(error))}
-    const f=OWN.feedback.find(x=>x.id===ownRep);if(f){f.reply=t;f.rt=new Date().toISOString()}ownRep=null;render();toast('وصل ردّك له تنبيهاً في التطبيق 🌿')};
+    const f=[...OWN.feedback,...(OWN.reports||[])].find(x=>x.id===ownRep);if(f){f.reply=t;f.rt=new Date().toISOString()}ownRep=null;render();toast('وصل ردّك له تنبيهاً في التطبيق 🌿')};
   document.querySelectorAll('[data-confirm]').forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent='جارٍ…';
     const {error}=await sb.rpc('owner_confirm',{p_user:b.dataset.confirm});
     if(error){b.disabled=false;b.textContent='تفعيل';return toast(errMsg(error))}

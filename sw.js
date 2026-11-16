@@ -80,8 +80,9 @@ self.addEventListener('notificationclick', (e) => {
   e.waitUntil((async () => {
     const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     for (const c of all) {
-      if ('focus' in c) { await c.focus(); c.postMessage('refresh'); return; }
+      if ('focus' in c) { await c.focus(); c.postMessage('push'); return; }
     }
-    await self.clients.openWindow(e.notification.data.url || '/');
+    // ?push=1: التطبيق يفتح مجموعة أحدث تنبيه (تلاوة أو تدبر)
+    await self.clients.openWindow((e.notification.data && e.notification.data.url || '/') + '?push=1');
   })());
 });

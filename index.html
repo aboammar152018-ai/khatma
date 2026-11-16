@@ -408,6 +408,12 @@ input.bad{border-color:#c0392b!important}
 .tidx summary .sub{margin-inline-start:auto;font-weight:400}
 .tidx .tlist{margin-top:10px}
 .ahead{margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:inherit}.ahead .sub{margin-top:4px;color:inherit;opacity:.85}.ahead .btn{white-space:nowrap}
+.tr-rep{display:block;margin:14px auto 0;font-size:13px;color:var(--muted)}
+.trep{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}.trep label{display:block;font-size:14px;margin-bottom:6px}
+.trep textarea{width:100%;box-sizing:border-box;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;resize:vertical}
+.tr-share{font-size:20px;margin-inline-start:auto}
+.note.go{cursor:pointer}.note .ngo{color:var(--lapis);font-weight:500}
+.oreply{margin-top:8px;background:var(--ok-soft);border-radius:8px;padding:8px 10px;font-size:14px;line-height:1.7}
 .treader{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column}
 .tr-in{max-width:620px;margin:0 auto}
 .tr-note{font-size:13px;line-height:1.8;color:var(--lapis);background:var(--lapis-soft);border-radius:10px;padding:10px 12px;margin:0 0 14px}
@@ -444,7 +450,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-15d'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-15f'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -518,7 +524,7 @@ async function load(){
   applyQueue();
 }
 async function refresh(){
-  try{await flushQueue();await load();netErr='';OFF=null;lastLoadAt=Date.now();saveCache();if(A)markTrusted(A.u);resolvePJ();setTimeout(prefetchWird,2500);syncTz()}
+  try{await flushQueue();await load();netErr='';OFF=null;lastLoadAt=Date.now();saveCache();if(A)markTrusted(A.u);resolvePJ();setTimeout(prefetchWird,2500);syncTz();if(fromPush)setTimeout(pushJump,0)}
   catch(e){console.error(e);if(navigator.onLine&&!isNetErr(e))reportError('refresh: '+(e&&e.message||e));if(restoreCache())netErr='';else netErr='تعذّر تحميل البيانات. تأكد من الإنترنت ثم حدّث الصفحة.'}
   loading=false;render();
 }
@@ -988,7 +994,7 @@ function tdbAdminView(){
       <select id="t-to">${ready.filter(t=>t.n>=f&&t.n<=tLastReady(f)).map(t=>`<option value="${t.n}" ${t.n===to?'selected':''}>${AR(t.n)}. ${esc(tName(t))}</option>`).join('')}</select></div>
     <div class="preview"><div class="sub">سيصل للأعضاء:</div><div class="q">${esc(tLabel(f,to))}</div>
       <div class="sub"><b>${nTopics(to-f+1)}</b> · <b>${nCardsT(tCardsIn(f,to))}</b></div></div>
-    <div class="row" style="margin-top:14px"><button class="btn btn-main" id="t-pub">نشر الورد وإشعار ${AR(mem.length)} ${mem.length>2&&mem.length<11?'أعضاء':'عضو'}</button></div>`
+    <div class="row" style="margin-top:14px"><button class="btn btn-ghost" id="t-pv">معاينة الورد</button><button class="btn btn-main" id="t-pub">نشر الورد وإشعار ${AR(mem.length)} ${mem.length>2&&mem.length<11?'أعضاء':'عضو'}</button></div>`
     :`<p class="sub" style="margin:10px 0 0">نُشرت كل المواضيع الجاهزة. تُضاف مواضيع جديدة تباعاً بإذن الله، أو اختر موضوعاً سابقاً لتعيد نشره.</p>`}`
     :'<p class="empty">لا توجد مواضيع جاهزة بعد.</p>'}
   </div>
@@ -1010,13 +1016,22 @@ function bindTdbAdmin(){bindTopicRows();
     if(error)return toast(errMsg(error));toast(`أُرسل التذكير إلى ${AR(data||0)} ${data>2&&data<11?'أعضاء':'عضو'}`)};
   const fs=$('#t-from');if(fs)fs.onchange=()=>{const v=+fs.value||null;tdbComp={f:v,to:v};render()};
   const ts=$('#t-to');if(ts)ts.onchange=()=>{tdbComp.to=+ts.value;render()};
-  const pb=$('#t-pub');if(pb)pb.onclick=async()=>{const f=tdbComp.f,to=Math.min(Math.max(tdbComp.to||f,f),tLastReady(f));
-    pb.disabled=true;pb.textContent='جارٍ النشر…';
-    const {error}=await sb.rpc('tdb_publish',{p_group:G.id,p_from:f,p_to:to});
-    if(error){toast(/not ready/i.test(error.message)?'بعض هذه المواضيع لم تُجهَّز بعد.':errMsg(error));render();return}
-    tdbComp=null;await refresh();scrollTo({top:0,behavior:'smooth'});
-    toast(`نُشر الورد ووصل إشعار إلى ${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}`)};
+  const pick=()=>{const f=tdbComp.f;return [f,Math.min(Math.max(tdbComp.to||f,f),tLastReady(f))]};
+  const pb=$('#t-pub');if(pb)pb.onclick=()=>{pb.disabled=true;pb.textContent='جارٍ النشر…';tdbPublish(...pick())};
+  const rp=$('#t-pv');if(rp)rp.onclick=()=>openRange(...pick());
 }
+async function tdbPublish(f,to){
+  const {error}=await sb.rpc('tdb_publish',{p_group:G.id,p_from:f,p_to:to});
+  if(error){toast(/not ready/i.test(error.message)?'بعض هذه المواضيع لم تُجهَّز بعد.':errMsg(error));render();return false}
+  tdbComp=null;await refresh();scrollTo({top:0,behavior:'smooth'});
+  toast(`نُشر الورد ووصل إشعار إلى ${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}`);return true}
+// معاينة الورد كاملاً قبل نشره: بطاقات كل المواضيع متتالية
+async function openRange(f,to){if(opening)return;opening=true;const seq=[];
+  try{for(let n=f;n<=to;n++){const t=TT(n);if(!t||!t.c)continue;const cs=await tdbCards(t);cs.forEach((c,k)=>seq.push({t,c,k,of:cs.length}))}}
+  catch(e){opening=false;return toast(isNetErr(e)?'تعذّر تحميل البطاقات. تأكد من اتصالك بالإنترنت.':errMsg(e))}
+  opening=false;if(!seq.length)return toast('هذه المواضيع لم تُجهَّز بعد.');
+  TR={pv:{f,to},seq,i:0,t:seq[0].t,cards:seq.map(x=>x.c),w:null,canRead:false};
+  history.pushState({k:'tread',n:((history.state&&history.state.n)||0)+1},'');drawTR();setTimeout(startTHint,900)}
 
 function tdbMemberView(){
   const me=G.members.find(m=>m.id===A.mid)||{id:A.mid,name:A.name}, T=G.tdb, w=tCur();
@@ -1052,7 +1067,7 @@ async function openTopic(n,replace){const t=TT(n);if(!t||!t.c||opening)return;op
   opening=false;if(!cards.length)return toast('هذا الموضوع لم يُجهَّز بعد.');
   const w=tWirdOf(n);TR={n,t,cards,i:0,w,canRead:!!w&&tCanRead()};
   if(!replace)history.pushState({k:'tread',n:((history.state&&history.state.n)||0)+1},'');
-  drawTR();}
+  drawTR();setTimeout(startTHint,900);}
 const tList=a=>a.length>1?`<ol class="tc-ol">${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>`:`<p class="tc-t">${esc(a[0])}</p>`;
 function tCardHTML(c){
   return `${c.pre||c.q?`<div class="tc-ay">${c.pre?`<div class="tc-pre">${esc(c.pre)}</div>`:''}${c.q?`<div class="tc-q">${esc(c.q)}</div>`:''}</div>`:''}
@@ -1063,30 +1078,98 @@ function tCardHTML(c){
     ${c.h&&c.h.length?`<h3 class="tc-h">هداية الآيات</h3>${tList(c.h)}`:''}
     ${c.n?`<p class="tc-n"><b>تنبيه:</b> ${esc(c.n)}</p>`:''}
     ${c.k?`<div class="tc-k"><b>خاطرة</b>${esc(c.k)}</div>`:''}`}
-function drawTR(){if(!TR)return;const {t,cards,i,w}=TR,c=cards[i],last=i===cards.length-1,read=tReadBy(w,t.n,A.mid);
+function drawTR(){if(!TR)return;if(TR.seq)TR.t=TR.seq[TR.i].t;const {t,cards,i,w}=TR,c=cards[i],last=i===cards.length-1,read=tReadBy(w,t.n,A.mid),sq=TR.seq&&TR.seq[i];
   $('#layer').innerHTML=`<div class="treader" role="dialog" aria-label="${esc(tName(t))}">
     <div class="r-head"><div class="r-in"><button class="x" id="tr-x" aria-label="إغلاق">✕</button>
-      <div class="r-title"><b>${esc(tName(t))}</b>${t.t?esc(t.l):''}</div><span class="sub num">${AR(i+1)} من ${AR(cards.length)}</span></div></div>
+      <div class="r-title"><b>${esc(tName(t))}</b>${t.t?esc(t.l):''}</div><button class="x tr-share" id="tr-share" aria-label="مشاركة البطاقة صورةً" title="مشاركة البطاقة">⤴</button><span class="sub num">${sq?`${AR(sq.k+1)} من ${AR(sq.of)}`:`${AR(i+1)} من ${AR(cards.length)}`}</span></div></div>
     <div class="r-body" id="tr-body"><div class="tr-in">
       ${i===0?`<p class="tr-note">${TDB_NOTE}</p>`:''}
       <article class="tcard">${tCardHTML(c)}</article>
-      ${!TR.canRead&&last?`<p class="sub" style="text-align:center;margin:12px 0 0">${A.role==='admin'?'معاينة: القراءة تُسجَّل للأعضاء فقط.':'هذا الموضوع لم يُنشر في ورد بعد.'}</p>`:''}</div></div>
+      ${TR.rep?`<div class="trep"><label for="rep-text">ما الخطأ الذي لاحظته في هذه البطاقة؟</label>
+        <textarea id="rep-text" rows="3" maxlength="1000" placeholder="مثلاً: كلمة في الآية مكتوبة خطأ، أو معنى غير واضح…">${esc(TR.repText||'')}</textarea>
+        <div class="row" style="margin-top:8px;gap:8px"><button class="btn btn-main" id="rep-send" style="flex:1">إرسال البلاغ</button><button class="btn btn-ghost" id="rep-no">إلغاء</button></div></div>`
+        :`<button class="back tr-rep" id="tr-rep">بلّغ عن خطأ في هذه البطاقة</button>`}
+      ${sq&&sq.k===0&&i>0?`<p class="tr-note">الموضوع التالي في الورد</p>`:''}
+      ${TR.pv&&last?`<p class="sub" style="text-align:center;margin:12px 0 0">انتهت معاينة الورد: ${nTopics(TR.pv.to-TR.pv.f+1)} · ${nCardsT(cards.length)}</p>`
+        :!TR.canRead&&last?`<p class="sub" style="text-align:center;margin:12px 0 0">${A.role==='admin'?'معاينة: القراءة تُسجَّل للأعضاء فقط.':'هذا الموضوع لم يُنشر في ورد بعد.'}</p>`:''}</div></div>
     <div class="r-foot"><div class="r-in">
       <button class="btn btn-ghost" id="tr-prev" ${i?'':'disabled'}>السابق</button>
-      ${last?(TR.canRead?(read?'<button class="btn btn-ok grow" id="tr-done" disabled>قرأتها ✓</button>':'<button class="btn btn-main grow" id="tr-done">قرأتها</button>')
+      ${last&&TR.pv?'<button class="btn btn-ghost" id="tr-close">إغلاق</button><button class="btn btn-main grow" id="tr-pub">نشر الورد</button>':last?(TR.canRead?(read?'<button class="btn btn-ok grow" id="tr-done" disabled>قرأتها ✓</button>':'<button class="btn btn-main grow" id="tr-done">قرأتها</button>')
         :'<button class="btn btn-main grow" id="tr-close">إغلاق</button>'):'<button class="btn btn-main grow" id="tr-next">التالي</button>'}
     </div></div></div>`;
-  const step=d=>{const j=TR.i+d;if(j<0||j>=TR.cards.length)return false;TR.i=j;drawTR();const b=$('#tr-body');if(b)b.scrollTop=0;return true};
+  const step=d=>{const j=TR.i+d;if(j<0||j>=TR.cards.length)return false;TR.i=j;TR.rep=false;TR.repText='';drawTR();const b=$('#tr-body');if(b)b.scrollTop=0;return true};
   $('#tr-x').onclick=back;const cl=$('#tr-close');if(cl)cl.onclick=back;
   const pv=$('#tr-prev');if(pv)pv.onclick=()=>step(-1);const nx=$('#tr-next');if(nx)nx.onclick=()=>step(1);
   const dn=$('#tr-done');if(dn&&!dn.disabled)dn.onclick=()=>tdbRead();
+  const rp=$('#tr-rep');if(rp)rp.onclick=()=>{TR.rep=true;drawTR();const x=$('#rep-text');if(x)x.focus()};
+  const rx=$('#rep-text');if(rx)rx.oninput=()=>{TR.repText=rx.value};
+  const rn=$('#rep-no');if(rn)rn.onclick=()=>{TR.rep=false;TR.repText='';drawTR()};
+  const rs=$('#rep-send');if(rs)rs.onclick=()=>sendReport(rs);
+  const sh=$('#tr-share');if(sh)sh.onclick=()=>shareTCard(sh);
+  const tp=$('#tr-pub');if(tp)tp.onclick=async()=>{tp.disabled=true;tp.textContent='جارٍ النشر…';const {f,to}=TR.pv;back();await tdbPublish(f,to)};
   const b=$('#tr-body');if(b){let x0=0,y0=0,t0=0;b.addEventListener('touchstart',e=>{const p=e.touches[0];x0=p.clientX;y0=p.clientY;t0=Date.now()},{passive:true});
     b.addEventListener('touchend',e=>{const p=e.changedTouches[0],dx=p.clientX-x0,dy=p.clientY-y0;
       // من اليمين للشمال: السحب لليمين = البطاقة التالية
       if(Math.abs(dx)>(Date.now()-t0<700?50:90)&&Math.abs(dx)>Math.abs(dy)*1.3)step(dx>0?1:-1)},{passive:true})}}
-addEventListener('keydown',e=>{if(!TR||R||!$('.treader')||(e.target.closest&&e.target.closest('input,textarea')))return;
+addEventListener('keydown',e=>{if(!TR||R||TOUR||!$('.treader')||(e.target.closest&&e.target.closest('input,textarea')))return;
   if(e.key==='ArrowLeft'){e.preventDefault();const n=$('#tr-next');if(n)n.click()}else if(e.key==='ArrowRight'){e.preventDefault();const p=$('#tr-prev');if(p&&!p.disabled)p.click()}});
-function closeTR(){TR=null;$('#layer').innerHTML=''}
+function closeTR(){TR=null;$('#layer').innerHTML='';if(TOUR&&TOUR.reader==='t')tourEnd()}
+// رقم البطاقة داخل موضوعها (في المعاينة المتتالية يختلف عن ترتيبها في الورد)
+const tCardNo=()=>TR.seq?TR.seq[TR.i].k+1:TR.i+1;
+async function sendReport(b){const x=(TR.repText||'').trim();if(x.length<2){const t=$('#rep-text');if(t)t.focus();return toast('اكتب الخطأ الذي لاحظته أولاً.')}
+  if(!navigator.onLine)return toast('تحتاج اتصالاً بالإنترنت لإرسال البلاغ.');
+  const t=TR.t,no=tCardNo();b.disabled=true;b.textContent='جارٍ الإرسال…';
+  const {error}=await sb.rpc('submit_feedback',{p_text:`[بلاغ تدبر] ${AR(t.n)}. ${tName(t)} · البطاقة ${AR(no)}: ${x}`,p_info:{...deviceInfo(),tdb:{topic:t.n,card:no,rev:t.r}}});
+  if(error){b.disabled=false;b.textContent='إرسال البلاغ';return toast(errMsg(error))}
+  TR.rep=false;TR.repText='';drawTR();toast('وصل بلاغك، جزاك الله خيراً. سيراجعه فريق العمل 🌿')}
+// مشاركة البطاقة صورةً: الآيات + هداية الآيات (أو المعنى) + المصدر ورابط التطبيق
+function wrapLines(ctx,text,maxW){const out=[];String(text||'').split('\n').forEach(par=>{let line='';
+  par.split(/\s+/).filter(Boolean).forEach(w=>{const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){out.push(line);line=w}else line=t});if(line)out.push(line)});return out}
+async function shareTCard(b){const t=TR.t,c=TR.cards[TR.i];if(!c)return;b.disabled=true;
+  try{try{await Promise.race([Promise.all(['700 40px "Aref Ruqaa"','44px "Amiri Quran"','500 30px "Readex Pro"','30px "Readex Pro"'].map(f=>document.fonts.load(f))),new Promise(r=>setTimeout(r,2000))])}catch(e){}
+    const P={bg:'#fbf7ec',edge:'#e6d9b8',ink:'#1f2a37',gold:'#a8741a',lapis:'#1f4e79',soft:'#f3e9cf',muted:'#6b7280'};
+    const W=1080,pad=80,inner=W-pad*2,cv=document.createElement('canvas'),ctx=cv.getContext('2d');
+    const F={brand:'700 46px "Aref Ruqaa","Amiri",serif',title:'500 40px "Readex Pro",Tahoma,sans-serif',sub:'30px "Readex Pro",Tahoma,sans-serif',
+      q:'46px "Amiri Quran","Amiri",serif',h:'600 34px "Readex Pro",Tahoma,sans-serif',body:'34px "Readex Pro",Tahoma,sans-serif',foot:'26px "Readex Pro",Tahoma,sans-serif'};
+    const pts=c.h&&c.h.length?{h:'هداية الآيات',l:c.h}:c.m?{h:'المعنى',l:[c.m]}:c.w&&c.w.length?{h:'شرح الكلمات',l:c.w.slice(0,4).map(x=>x[0]+': '+x[1])}:null;
+    // قياس الارتفاع
+    const lay=[];const add=(font,text,lh,color,opt)=>{ctx.font=font;const max=opt&&opt.w||inner;wrapLines(ctx,text,max).forEach(l=>lay.push({font,l,lh,color,...opt}))};
+    const gap=h=>lay.push({gap:h});
+    add(F.brand,'ختمة التدبر',70,P.lapis);gap(10);
+    add(F.title,tName(t),58,P.ink);if(t.t)add(F.sub,t.l,46,P.muted);if(c.lbl)add(F.sub,c.lbl,46,P.gold);gap(30);
+    if(c.pre||c.q){lay.push({box:'start'});if(c.pre)add(F.sub,c.pre,48,P.gold,{w:inner-60,center:1});if(c.q)add(F.q,c.q,84,P.ink,{w:inner-60,center:1});lay.push({box:'end'});gap(34)}
+    if(pts){add(F.h,pts.h,56,P.gold);gap(6);pts.l.forEach((x,k)=>{add(F.body,(pts.l.length>1?AR(k+1)+'. ':'')+x,56,P.ink);gap(10)})}
+    gap(26);lay.push({rule:1});gap(24);
+    add(F.foot,'مختصر من «أيسر التفاسير» للشيخ أبي بكر جابر الجزائري رحمه الله',42,P.muted,{center:1});
+    add(F.foot,'khatma-opal.vercel.app',42,P.lapis,{center:1,ltr:1});
+    let H=pad;lay.forEach(x=>{H+=x.gap||x.lh||0;if(x.box)H+=20});H+=pad;cv.width=W;cv.height=Math.min(Math.max(H,1080),4000);
+    ctx.fillStyle=P.bg;ctx.fillRect(0,0,W,cv.height);ctx.strokeStyle=P.edge;ctx.lineWidth=4;ctx.strokeRect(24,24,W-48,cv.height-48);
+    // المحتوى في منتصف الصورة رأسياً، ومربع الآيات يُرسم قبل نصه
+    const y0=pad+Math.max(0,(cv.height-H)/2);let y=y0,boxY=0;
+    lay.forEach(x=>{if(x.gap){y+=x.gap;return}if(x.box==='start'){boxY=y;y+=20;return}
+      if(x.box==='end'){y+=20;ctx.fillStyle=P.soft;ctx.beginPath();(ctx.roundRect?ctx.roundRect(pad,boxY,inner,y-boxY,18):ctx.rect(pad,boxY,inner,y-boxY));ctx.fill();return}
+      if(!x.rule)y+=x.lh});
+    y=y0;ctx.direction='rtl';ctx.textBaseline='alphabetic';
+    lay.forEach(x=>{if(x.gap){y+=x.gap;return}if(x.box){y+=20;return}
+      if(x.rule){ctx.fillStyle=P.edge;ctx.fillRect(pad+inner*.25,y,inner*.5,3);return}
+      ctx.font=x.font;ctx.fillStyle=x.color;y+=x.lh;
+      if(x.ltr){ctx.direction='ltr';ctx.textAlign='center';ctx.fillText(x.l,W/2,y-x.lh*.28);ctx.direction='rtl';return}
+      ctx.textAlign=x.center?'center':'right';ctx.fillText(x.l,x.center?W/2:W-pad,y-x.lh*.28)});
+    // البطاقة بيضاء دائماً (لا تتأثر بالوضع الليلي)
+    const blob=await new Promise(res=>cv.toBlob(res,'image/png'));if(!blob)throw new Error('canvas');
+    const name=`khatma-tadabbur-${t.n}-${tCardNo()}.png`,file=new File([blob],name,{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:tName(t)+' — ختمة التدبر\nhttps://khatma-opal.vercel.app'})}catch(e){if(!e||e.name!=='AbortError')throw e}}
+    else{const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('حُفظت صورة البطاقة على جهازك.')}}
+  catch(e){console.error(e);toast('تعذّرت مشاركة البطاقة. حاول مرة أخرى.')}
+  finally{b.disabled=false}}
+// تلميحات أول مرة في قارئ البطاقات
+const TTSTEPS=[
+  {sel:'.treader .r-foot .r-in',t:'التنقل بين البطاقات',d:'اسحب البطاقة أو اضغط «التالي» لتنتقل بين البطاقات، وفي آخر بطاقة من الموضوع اضغط «قرأتها» لتُسجَّل لك.'},
+  {sel:'.treader #tr-share',t:'مشاركة البطاقة',d:'شارك البطاقة صورةً مع أهلك وأصحابك.'},
+  {sel:'.treader #tr-rep',t:'وجدتَ خطأ؟',d:'اضغط «بلّغ عن خطأ في هذه البطاقة» واكتب ما لاحظته، فيصل لفريق العمل ليصححه.'}];
+function startTHint(){if(TOUR&&!$('.tbub'))TOUR=null; // جولة توقفت في منتصفها (مثلاً بتغيير التبويب)
+  if(!TR||TOUR||lsGet('khatma-thint'))return;const list=TTSTEPS.filter(st=>$(st.sel));if(!list.length)return;
+  document.querySelectorAll('.toast').forEach(t=>t.remove());TOUR={list,i:0,role:A.role,reader:'t'};tourShow()}
 function tdbRead(){const {t,w}=TR;if(!w)return;const now=Date.now(),online=navigator.onLine;
   const same=x=>x.t==='tdb'&&x.wird_id===w.id&&x.topic===t.n&&x.user_id===A.mid;
   setQ([...getQ().filter(x=>!same(x)),{t:'tdb',wird_id:w.id,topic:t.n,user_id:A.mid,done_at:new Date(now).toISOString()}]);
@@ -1141,10 +1224,11 @@ function notesView(){const un=unreadCount();
   return screenHead('التنبيهات')+`<div class="card">
     <div class="row" style="justify-content:space-between"><span class="sub">${un?`${AR(un)} ${un>2&&un<11?'تنبيهات':'تنبيه'} غير مقروء`:'كل التنبيهات مقروءة'}</span>
       <button class="btn btn-ghost sm" id="readall" ${un?'':'disabled'}>✓ تحديد الكل كمقروء</button></div>
-    <div style="margin-top:8px">${NOTES.length?NOTES.map(n=>`<div class="note ${n.read?'read':'unread'}"><span class="dot"></span><div>${esc(n.text)}<time>${ago(n.t)}</time></div></div>`).join(''):'<p class="empty">لا توجد تنبيهات.</p>'}</div>
+    <div style="margin-top:8px">${NOTES.length?NOTES.map((n,i)=>{const g=noteGroup(n);return `<div class="note ${n.read?'read':'unread'}${g?' go':''}" ${g?`data-ng="${i}" role="button" tabindex="0"`:''}><span class="dot"></span><div>${esc(n.text)}<time>${ago(n.t)}${g?` · <span class="ngo">فتح ${gkind(g)==='tadabbur'?'ختمة التدبر':'الورد'} ›</span>`:''}</time></div></div>`}).join(''):'<p class="empty">لا توجد تنبيهات.</p>'}</div>
   </div>`}
 function bindNotes(){
   $('#sback').onclick=back;
+  document.querySelectorAll('[data-ng]').forEach(el=>{const op=()=>goGroup(noteGroup(NOTES[+el.dataset.ng]));el.onclick=op;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();op()}}});
   const ra=$('#readall');if(ra)ra.onclick=async()=>{ra.disabled=true;
     const {error}=await sb.from('notifications').update({read:true}).eq('user_id',A.mid).eq('read',false);
     if(error){ra.disabled=false;return toast(errMsg(error))}
@@ -1417,7 +1501,7 @@ window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=
 window.addEventListener('appinstalled',()=>{installEvt=null;toast('تم تثبيت التطبيق');if(A&&!R)render()});
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/sw.js').then(r=>{swReg=r;checkPush()}).catch(()=>{pushState='unsupported'});
-  navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='refresh'&&A&&!R)refresh()});
+  navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='push'){fromPush=true;if(A&&!R&&!TR)refresh().then(pushJump)}else if(e.data==='refresh'&&A&&!R)refresh()});
 }else pushState='unsupported';
 const getReg=()=>swReg?Promise.resolve(swReg):('serviceWorker' in navigator?Promise.race([navigator.serviceWorker.ready,new Promise(r=>setTimeout(()=>r(null),3000))]):Promise.resolve(null));
 function b64u(s){const b=atob((s+'='.repeat((4-s.length%4)%4)).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(b,c=>c.charCodeAt(0))}
@@ -1490,8 +1574,20 @@ function tabAvail(k){if(!A)return k==='tilawa';
 const showTabs=()=>tabAvail('tilawa')&&tabAvail('tadabbur');
 function tabsBar(){if(!showTabs())return '';const t=getTab();
   return `<div class="ktabs" role="tablist">${[['tilawa','ختمة التلاوة'],['tadabbur','ختمة التدبر']].map(([k,l])=>`<button type="button" role="tab" data-ktab="${k}" aria-selected="${t===k}">${l}</button>`).join('')}</div>`}
-function bindTabs(){document.querySelectorAll('[data-ktab]').forEach(b=>b.onclick=async()=>{if(b.dataset.ktab===getTab())return;setTab(b.dataset.ktab);
+function bindTabs(){document.querySelectorAll('[data-ktab]').forEach(b=>b.onclick=async()=>{if(b.dataset.ktab===getTab())return;if(TOUR){document.querySelectorAll('.tblock,.tspot,.tbub').forEach(e=>e.remove());TOUR=null}setTab(b.dataset.ktab);
   comp={mode:'continue',pick:null};gAdd=false;cancelOpen=false;mvId=null;rmId=null;leaving=false;tdbComp=null;tCancel=false;showNotes=false;loading=true;render();await refresh();scrollTo(0,0)})}
+// ربط التنبيه بمجموعته: نصوص التنبيهات تبدأ باسم المجموعة «…»، وتنبيهات التدبر فيها كلمة «التدبر»
+function noteGroup(n){const m=String(n&&n.text||'').match(/«([^»]+)»/);if(!m)return null;
+  const k=/التدبر/.test(n.text)?'tadabbur':'tilawa', c=GROUPS.filter(g=>g.name===m[1]);
+  return c.find(g=>gkind(g)===k)||(c.length===1?c[0]:null)}
+async function goGroup(g){if(!g)return;const k=gkind(g);
+  if(G&&G.id===g.id&&getTab()===k){if(VIEW!=='home')goHome();return}
+  setTab(k);setSelGroup(g.id);comp={mode:'continue',pick:null};gAdd=false;tdbComp=null;showNotes=false;
+  if(VIEW!=='home')goHome();loading=true;render();await refresh();scrollTo(0,0)}
+// فتح التطبيق من إشعار: يذهب لمجموعة أحدث تنبيه غير مقروء
+let fromPush=/[?&]push=1/.test(location.search);
+function pushJump(){if(!fromPush||!A)return;fromPush=false;try{history.replaceState(history.state,'',location.pathname+location.hash)}catch(e){}
+  const n=NOTES.find(x=>!x.read&&Date.now()-new Date(x.t).getTime()<3*864e5);const g=n&&noteGroup(n);if(g&&!(G&&G.id===g.id&&getTab()===gkind(g)))goGroup(g)}
 function getSelGroup(){const k=gKey();try{return localStorage.getItem(k)||(selGroupMem||{})[k]||null}catch(e){return (selGroupMem||{})[k]||null}}
 function setSelGroup(id){const k=gKey();selGroupMem=selGroupMem||{};selGroupMem[k]=id;try{if(id)localStorage.setItem(k,id);else localStorage.removeItem(k)}catch(e){}}
 function groupBar(){
@@ -2013,7 +2109,7 @@ function syncTz(){try{if(!A)return;const tz=Intl.DateTimeFormat().resolvedOption
 
 
 /* ---------- لوحة المالك (تظهر لحساب المالك فقط، والسيرفر يتحقق بنفسه) ---------- */
-let OWN=null,ownBusy=false,ownErr='';
+let OWN=null,ownBusy=false,ownErr='',ownRep=null,ownRepText='',ownOldErr=false;
 const ownerRow=()=>A&&A.owner?`<div class="card ownrow"><div class="row"><span class="grow"><b>🛠 لوحة المالك</b><br><span class="sub">الأرقام، الحسابات المعلقة، الرسائل والأخطاء${(Date.now()-bkLast())>=8*864e5?' · <b style="color:var(--gold)">حان وقت النسخة الاحتياطية</b>':''}</span></span><button class="btn btn-ghost sm" id="to-owner">فتح</button></div></div>`:'';
 function bindOwnerRow(){const b=$('#to-owner');if(b)b.onclick=()=>{OWN=null;go('owner');loadOwner()}}
 let OWNBK=null;
@@ -2041,9 +2137,13 @@ function ownerView(){const o=OWN;
   h+=`<div class="card"><p class="h"><span>حسابات معلقة</span><span class="chip ${o.pending.length?'wait':'ok'}">${AR(o.pending.length)}</span></p>
     ${o.pending.length?`<p class="sub" style="margin:0 0 6px">سجّلوا ولم يكتبوا رمز التفعيل. «تفعيل» يتيح لهم الدخول بالإيميل وكلمة المرور.</p><ul class="list">${o.pending.map(u=>`<li><span class="grow"><span class="name">${esc(u.name||'بدون اسم')}</span><br><span class="sub" dir="ltr" style="unicode-bidi:plaintext">${esc(u.email)}</span><br><span class="sub">${dt(u.t)}${u.groups?' · '+esc(u.groups):' · بدون مجموعة'}</span></span><button class="btn btn-ghost sm" data-confirm="${u.id}">تفعيل</button></li>`).join('')}</ul>`:'<p class="sub" style="margin:0">لا توجد حسابات معلقة 🌿</p>'}</div>`;
   h+=`<div class="card"><p class="h"><span>رسائل الأعضاء</span><span class="chip">${AR(o.feedback.length)}</span></p>
-    ${o.feedback.length?`<ul class="list olist">${o.feedback.map(f=>`<li><span class="grow"><span class="name">${esc(f.name||'غير مسجّل')}</span> <span class="sub">${dt(f.t)} · ${dev(f.ua)} · <bdi dir="ltr">${esc(f.v||'')}</bdi></span>${f.email?`<br><span class="sub" dir="ltr" style="unicode-bidi:plaintext">${esc(f.email)}</span>`:''}<div class="otext">${esc(f.text)}</div></span></li>`).join('')}</ul>`:'<p class="sub" style="margin:0">لا توجد رسائل بعد.</p>'}</div>`;
-  h+=`<div class="card"><p class="h"><span>الأخطاء (آخر ١٤ يوماً)</span><span class="chip ${o.errors.length?'wait':'ok'}">${AR(o.errors.length)}</span></p>
-    ${o.errors.length?`<ul class="list olist">${o.errors.map(e=>`<li><span class="grow"><div class="otext" dir="ltr" style="unicode-bidi:plaintext;text-align:left">${esc(e.msg)}</div><span class="sub">تكرر ${AR(e.n)} · ${AR(e.users)} ${e.users>2&&e.users<11?'أشخاص':'شخص'} · آخر مرة ${dt(e.last)} · <bdi dir="ltr">${esc(e.v||'')}</bdi></span></span></li>`).join('')}</ul>`:'<p class="sub" style="margin:0">لا توجد أخطاء 🌿</p>'}</div>`;
+    ${o.feedback.length?`<ul class="list olist">${o.feedback.map(f=>`<li><span class="grow"><span class="name">${esc(f.name||'غير مسجّل')}</span> <span class="sub">${dt(f.t)} · ${dev(f.ua)} · <bdi dir="ltr">${esc(f.v||'')}</bdi></span>${f.email?`<br><span class="sub" dir="ltr" style="unicode-bidi:plaintext">${esc(f.email)}</span>`:''}<div class="otext">${esc(f.text)}</div>${f.reply?`<div class="oreply"><b>ردّك</b> <span class="sub">${dt(f.rt)}</span><br>${esc(f.reply)}</div>`:''}${f.u?(ownRep===f.id?`<div class="trep"><textarea id="orp-text" rows="3" maxlength="1000" placeholder="اكتب ردك، وسيصل له تنبيهاً في التطبيق">${esc(ownRepText)}</textarea>
+      <div class="row" style="margin-top:8px;gap:8px"><button class="btn btn-main sm" id="orp-send" style="flex:1">إرسال الرد</button><button class="btn btn-ghost sm" id="orp-no">إلغاء</button></div></div>`
+      :`<button class="back sm" data-orp="${f.id}">${f.reply?'ردّ مرة أخرى':'ردّ عليه'}</button>`):''}</span></li>`).join('')}</ul>`:'<p class="sub" style="margin:0">لا توجد رسائل بعد.</p>'}</div>`;
+  const errOld=o.errors.filter(e=>e.v&&e.v<DIAG.v),errShow=ownOldErr?o.errors:o.errors.filter(e=>!errOld.includes(e));
+  h+=`<div class="card"><p class="h"><span>الأخطاء (آخر ١٤ يوماً)</span><span class="chip ${errShow.length?'wait':'ok'}">${AR(errShow.length)}</span></p>
+    ${errOld.length?`<p class="sub" style="margin:0 0 6px">${ownOldErr?'يظهر الكل، ومنها':'أُخفيت'} ${AR(errOld.length)} من إصدارات أقدم من الإصدار الحالي (لم تتكرر فيه). <button class="back sm" id="own-olderr" style="display:inline">${ownOldErr?'إخفاؤها':'إظهارها'}</button></p>`:''}
+    ${errShow.length?`<ul class="list olist">${errShow.map(e=>`<li><span class="grow"><div class="otext" dir="ltr" style="unicode-bidi:plaintext;text-align:left">${esc(e.msg)}</div><span class="sub">تكرر ${AR(e.n)} · ${AR(e.users)} ${e.users>2&&e.users<11?'أشخاص':'شخص'} · آخر مرة ${dt(e.last)} · <bdi dir="ltr">${esc(e.v||'')}</bdi></span></span></li>`).join('')}</ul>`:'<p class="sub" style="margin:0">لا توجد أخطاء 🌿</p>'}</div>`;
   h+=`<div class="card"><p class="h"><span>المجموعات</span></p><ul class="list">${o.groups_list.map(g=>`<li><span class="grow"><span class="name">${esc(g.name)}</span><br><span class="sub">المشرف: ${esc(g.admin)} · ${AR(g.members)} عضو${g.last?' · آخر ورد '+dt(g.last):''}</span></span></li>`).join('')}</ul></div>`;
   h+=`<div class="card"><p class="h"><span>آخر المسجلين</span></p><ul class="list">${o.recent.map(u=>`<li><span class="grow"><span class="name">${esc(u.name||'بدون اسم')}</span> ${u.ok?'':'<span class="chip wait">غير مفعّل</span>'}<br><span class="sub" dir="ltr" style="unicode-bidi:plaintext">${esc(u.email)}</span> <span class="sub">· ${dt(u.t)}</span></span></li>`).join('')}</ul></div>`;
   return h}
@@ -2058,6 +2158,14 @@ async function ownerBackup(b){b.disabled=true;b.textContent='جارٍ التجه
   catch(e){b.disabled=false;b.textContent='⬇ تنزيل نسخة احتياطية';toast(isNetErr(e)?'محتاج اتصال بالإنترنت.':errMsg(e))}}
 function bindOwner(){$('#sback').onclick=back;const bk=$('#own-bk');if(bk)bk.onclick=()=>ownerBackup(bk);const r=$('#own-re');if(r)r.onclick=()=>{OWN=null;loadOwner()};
   if(!OWN&&!ownBusy&&!ownErr)loadOwner();
+  const oe=$('#own-olderr');if(oe)oe.onclick=()=>{ownOldErr=!ownOldErr;render()};
+  document.querySelectorAll('[data-orp]').forEach(b=>b.onclick=()=>{ownRep=+b.dataset.orp;ownRepText='';render();const x=$('#orp-text');if(x)x.focus()});
+  const ox=$('#orp-text');if(ox)ox.oninput=()=>{ownRepText=ox.value};
+  const on=$('#orp-no');if(on)on.onclick=()=>{ownRep=null;render()};
+  const os=$('#orp-send');if(os)os.onclick=async()=>{const t=ownRepText.trim();if(t.length<2){ox&&ox.focus();return toast('اكتب ردك أولاً.')}
+    os.disabled=true;os.textContent='جارٍ الإرسال…';const {error}=await sb.rpc('owner_reply',{p_id:ownRep,p_text:t});
+    if(error){os.disabled=false;os.textContent='إرسال الرد';return toast(/could not find|PGRST202/i.test(error.message+(error.code||''))?'شغّل ملف khatma_sql_18 أولاً.':/no user/.test(error.message)?'صاحب الرسالة غير مسجّل، فلا يمكن الرد عليه.':errMsg(error))}
+    const f=OWN.feedback.find(x=>x.id===ownRep);if(f){f.reply=t;f.rt=new Date().toISOString()}ownRep=null;render();toast('وصل ردّك له تنبيهاً في التطبيق 🌿')};
   document.querySelectorAll('[data-confirm]').forEach(b=>b.onclick=async()=>{b.disabled=true;b.textContent='جارٍ…';
     const {error}=await sb.rpc('owner_confirm',{p_user:b.dataset.confirm});
     if(error){b.disabled=false;b.textContent='تفعيل';return toast(errMsg(error))}
@@ -2099,8 +2207,8 @@ function startRHint(){const list=RTSTEPS.filter(st=>$(st.sel));if(!list.length)r
 const tv=v=>typeof v==='function'?v():v;
 function startTour(){if(!A||!G)return;const steps=A.role==='admin'?ATSTEPS:MTSTEPS;
   const list=steps.filter(st=>(!st.when||st.when())&&(st.view||$(st.sel)));if(!list.length)return;TOUR={list,i:0,role:A.role};tourShow()}
-function tourEnd(){document.querySelectorAll('.tblock,.tspot,.tbub').forEach(e=>e.remove());removeEventListener('resize',tourPlace);if(TOUR&&TOUR.reader){lsSet('khatma-rhint','1');TOUR=null;return}lsSet(tourKey(TOUR&&TOUR.role),'1');TOUR=null;if(VIEW!=='home')goHome()}
-function tourShow(){if(!TOUR)return;const st=TOUR.list[TOUR.i];if(TOUR.reader){if(!R||!$(st.sel))return tourEnd();return tourPlace()}const want=st.view||'home';
+function tourEnd(){document.querySelectorAll('.tblock,.tspot,.tbub').forEach(e=>e.remove());removeEventListener('resize',tourPlace);if(TOUR&&TOUR.reader){lsSet(TOUR.reader==='t'?'khatma-thint':'khatma-rhint','1');TOUR=null;return}lsSet(tourKey(TOUR&&TOUR.role),'1');TOUR=null;if(VIEW!=='home')goHome()}
+function tourShow(){if(!TOUR)return;const st=TOUR.list[TOUR.i];if(TOUR.reader){if(!(TOUR.reader==='t'?TR:R)||!$(st.sel))return tourEnd();return tourPlace()}const want=st.view||'home';
   if(VIEW!==want){if(want==='home')goHome();else go(want);setTimeout(tourShow,450);return}
   let el=$(st.sel);if(el&&st.card)el=el.closest('.card')||el;
   if(!el){TOUR.i++;if(TOUR.i>=TOUR.list.length)return tourEnd();return tourShow()}

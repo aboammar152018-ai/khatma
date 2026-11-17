@@ -32,6 +32,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Aref+Ruqaa:wght@700&family=Readex+Pro:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
 <style>
+@font-face{font-family:"KFGQPC Hafs";src:url(/kfgqpc-hafs.woff2) format("woff2");font-display:swap}
 /* Layout: one-column phone app shell, sticky header with role switch; mushaf opens as a full-screen reading sheet */
 :root{
   --bg:#eef2f4; --surface:#ffffff; --ink:#13222c; --muted:#5a6a74; --line:#d9e1e5;
@@ -40,6 +41,7 @@
   --ok:#2b774b; --ok-soft:#e0f0e6; --warn:#a85d18; --warn-soft:#f7eadb;
   --page:#fffdf7; --page-edge:#e8dfc6; --shade:rgba(19,34,44,.45);
   --f-quran:"Amiri Quran","Amiri","Traditional Arabic",serif;
+  --f-hafs:"KFGQPC Hafs","Amiri Quran","Amiri","Traditional Arabic",serif;
   --f-brand:"Aref Ruqaa","Amiri",serif;
   --f-ui:"Readex Pro","Segoe UI","Tahoma",sans-serif;
 }
@@ -163,7 +165,7 @@ select,input[type=text]{width:100%;background:var(--bg);border:1px solid var(--l
 .r-body{flex:1;overflow-y:auto;padding:16px max(12px,env(safe-area-inset-left,0px)) 24px max(12px,env(safe-area-inset-right,0px))}
 .mushaf{max-width:620px;margin:0 auto;background:var(--page);border:1px solid var(--page-edge);border-radius:6px;padding:18px 18px 12px;
   box-shadow:0 0 0 5px var(--page),0 0 0 6px var(--page-edge)}
-.mushaf .txt{font-family:var(--f-quran);font-size:24px;line-height:2.25;text-align:justify;text-align-last:center}
+.mushaf .txt{font-family:var(--f-hafs);font-size:26px;line-height:2.3;text-align:justify;text-align-last:center}
 .ay.out{opacity:.28}
 .an{color:var(--gold);font-size:.85em;white-space:nowrap}
 .rub{color:var(--gold);margin-inline-end:4px}
@@ -441,8 +443,8 @@ input.bad{border-color:#c0392b!important}
 .tr-note{font-size:13px;line-height:1.8;color:var(--lapis);background:var(--lapis-soft);border-radius:10px;padding:10px 12px;margin:0 0 14px}
 .tcard{background:var(--page);color:var(--ink);border:1px solid var(--page-edge);border-radius:8px;padding:16px;box-shadow:0 0 0 5px var(--page),0 0 0 6px var(--page-edge);margin:6px}
 .tc-ay{background:var(--gold-soft);border-radius:8px;padding:12px 14px;text-align:center}
-.tc-q,.tc-pre{font-family:var(--f-quran);font-size:22px;line-height:2.1}
-.tc-pre{color:var(--muted);font-size:19px}
+.tc-q,.tc-pre{font-family:var(--f-hafs);font-size:28px;line-height:2.3}
+.tc-pre{color:var(--muted);font-size:24px}
 .tc-lbl{text-align:center;font-size:12.5px;color:var(--muted);margin:8px 0 0}
 .tc-h{font-size:15px;font-weight:600;color:var(--gold);margin:18px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--page-edge)}
 .tc-w{margin:0;padding:4px 0;font-size:15.5px;line-height:1.9}.tc-w b{color:var(--lapis);font-weight:600}
@@ -472,7 +474,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-16g'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-16h'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

@@ -32,6 +32,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Aref+Ruqaa:wght@700&family=Readex+Pro:wght@300;400;500;600&display=swap" media="print" onload="this.media='all'">
 <style>
+.pk-hide{display:none!important}
 @font-face{font-family:"KFGQPC Hafs";src:url(/kfgqpc-hafs.woff2) format("woff2");font-display:swap}
 /* Layout: one-column phone app shell, sticky header with role switch; mushaf opens as a full-screen reading sheet */
 :root{
@@ -474,7 +475,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-17a'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-17b'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -503,7 +504,7 @@ const authStore={getItem:k=>{try{return sessionStorage.getItem(k)??localStorage.
   setItem:(k,v)=>{try{if(localStorage.getItem('khatma-remember')!=='0'){localStorage.setItem(k,v);sessionStorage.removeItem(k)}else{sessionStorage.setItem(k,v);localStorage.removeItem(k)}}catch(e){}},
   removeItem:k=>{try{localStorage.removeItem(k);sessionStorage.removeItem(k)}catch(e){}}};
 const sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{storage:authStore,persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let TRASH=[],GROUPS=[],G=null,A=null,USER=null,loading=true,recovery=false,netErr='',TDB_CAN=false;
+let PK=null,PKS=[],PKON=false,PKASK=false,TRASH=[],GROUPS=[],G=null,A=null,USER=null,loading=true,recovery=false,netErr='',TDB_CAN=false;
 const save=()=>{};
 async function load(){
   let tA=performance.now();
@@ -513,13 +514,15 @@ async function load(){
   USER=session?session.user:null;
   if(!USER){A=null;G=null;GROUPS=[];NOTES=[];return}
   const me=USER;tA=performance.now();
-  let {data:st,error}=await sb.rpc('app_state',{p_mode:getMode()||'',p_group:getSelGroup()||null,p_kind:getTab()});
+  let {data:st,error}=await sb.rpc('app_state',{p_mode:PK?'admin':(getMode()||''),p_group:PK?PK.id:(getSelGroup()||null),p_kind:PK?PK.kind:getTab()});
   // قبل تشغيل التحديث 17 على السيرفر: الدالة القديمة بدون p_kind
   if(error&&(error.code==='PGRST202'||/could not find the function/i.test(error.message||'')))({data:st,error}=await sb.rpc('app_state',{p_mode:getMode()||'',p_group:getSelGroup()||null}));
   DIAG.state=Math.round(performance.now()-tA);
   if(USER!==me)return; // خرج المستخدم أثناء التحميل
   if(error)throw error;
   if(!st||!st.profile){A=null;G=null;GROUPS=[];NOTES=[];return}
+  if(PK&&!(st.group&&st.group.personal&&st.group.id===PK.id)){PK=null;return load()}
+  PKS=st.pk||[];PKON=!!st.pk_on;
   if(!getMode())setMode(st.mode);
   A={u:st.profile.email,name:st.profile.name,role:st.mode,mid:me.id,owner:!!st.owner};
   GROUPS=st.groups||[];TRASH=st.trash||[];TDB_CAN=!!st.tdb_create;
@@ -540,7 +543,7 @@ async function load(){
      auto:keep&&autoDirty?G.auto:{enabled:!!grp.auto_enabled,time:String(grp.auto_time||'08:00').slice(0,5),days:grp.auto_days||[0,1,2,3,4,5,6],
        unit:grp.auto_unit||2,hours:grp.auto_hours||24,tz:grp.tz||'Asia/Riyadh',last:grp.auto_last||null},
      bonus:keep&&bonusDirty?G.bonus:{enabled:!!grp.bonus_enabled,hours:grp.bonus_hours||6},
-     kind:gkind(grp),nextTopic:grp.next_topic||1,tdb:null};
+     kind:gkind(grp),personal:!!grp.personal,nextTopic:grp.next_topic||1,tdb:null};
   if(!keep){tdbComp=null;tCancel=false}
   if(st.tdb){const T=st.tdb,tw=(T.wirds||[]).map(w=>({id:w.id,f:w.f,to:w.to,at:Date.parse(w.at),h:w.h==null?null:w.h,bn:w.bn||0,rd:{}})),by=Object.fromEntries(tw.map(w=>[w.id,w]));
     (T.reads||[]).forEach(x=>{const w=by[x.w];if(w)(w.rd[x.n]=w.rd[x.n]||{})[x.u]=Date.parse(x.t)});
@@ -619,9 +622,9 @@ function khFrom(){const seg=khSeg();if(!seg.length)return 1;
 const khSpan=()=>240-khFrom()+1;
 const khPct=rub=>Math.max(0,Math.min(100,Math.round(100*(rub-khFrom()+1)/khSpan())));
 const daysTxt=n=>n===1?'يوم واحد':n===2?'يومين':n<=10?`${AR(n)} أيام`:`${AR(n)} يوماً`;
-function etaLine(startRub,unit,perWeek){const left=240-startRub+1;if(left<=0||!unit)return '';const wirds=Math.ceil(left/unit);
-  if(perWeek){const d=Math.ceil(wirds*7/perWeek);return `<p class="sub eta">بهذا الورد تختمون في نحو ${daysTxt(d)}.</p>`}
-  return `<p class="sub eta">بهذا الورد، مع نشر ورد كل يوم، تختمون في نحو ${daysTxt(wirds)}.</p>`}
+function etaLine(startRub,unit,perWeek){const P=G&&G.personal;const left=240-startRub+1;if(left<=0||!unit)return '';const wirds=Math.ceil(left/unit);
+  if(perWeek){const d=Math.ceil(wirds*7/perWeek);return `<p class="sub eta">${P?'ستُتمّ الختمة في نحو':'بهذا الورد تختمون في نحو'} ${daysTxt(d)}.</p>`}
+  return `<p class="sub eta">${P?'بهذا الورد، مع نشر ورد كل يوم، ستُتمّ الختمة في نحو':'بهذا الورد، مع نشر ورد كل يوم، تختمون في نحو'} ${daysTxt(wirds)}.</p>`}
 const plW=n=>n===1?'ورد':n===2?'وردين':n<=10?'أوراد':'ورداً';
 const numW=n=>n===1?'ورد واحد':n===2?'وردين':`${AR(n)} ${plW(n)}`;
 // حال العضو في الختمة: المتبقي محسوب محلياً (كل أوراده الفائتة بتتحمّل)، والباقي من السيرفر
@@ -668,11 +671,11 @@ function bindSelfRead(){
     const {error}=on?await sb.rpc('join_group',{p_code:G.code}):await sb.rpc('leave_group',{p_group:G.id});
     if(error){sr.checked=!on;sr.disabled=false;return toast(errMsg(error))}
     await refresh();toast(on?'حسناً، ستُحسب قراءتك مع المجموعة ويصلك إشعار الورد':'أُوقفت قراءتك مع المجموعة')}}
-function selfCard(){const on=selfReads(),td=gkind(G)==='tadabbur';
+function selfCard(){if(G.personal)return '';const on=selfReads(),td=gkind(G)==='tadabbur';
   const onTxt=td?(rn=>`تُحسب قراءتك مع الأعضاء · ${rn?'قرأتَ '+nTopics(rn):'لم تقرأ شيئاً بعد'}`)(G.tdb.topics.filter(t=>tPublished(t.n)&&tReadAny(t.n,A.mid)).length):`تُحسب قراءتك مع الأعضاء · نقاطك ${AR(pointsFor(A.mid))} · التزامك ${AR(commit(A.mid))}٪`;
   return `<div class="card selfcard"><div class="switch"><label for="selfread"><b>أقرأ مع المجموعة</b><br><span class="sub">${on?onTxt:'فعّلها لتقرأ الورد وتظهر قراءتك مع الأعضاء'}</span></label>
     <input type="checkbox" id="selfread" ${on?'checked':''}></div></div>`}
-function lateCard(){const late=G.members.filter(m=>m.kh&&m.kh.missed>0).sort((a,b)=>b.kh.missed-a.kh.missed);
+function lateCard(){if(G.personal)return '';const late=G.members.filter(m=>m.kh&&m.kh.missed>0).sort((a,b)=>b.kh.missed-a.kh.missed);
   if(!late.length)return '';
   return `<div class="card"><p class="h"><span>أوراد فاتت الأعضاء</span><span class="chip wait">${AR(late.length)}</span></p>
     <p class="sub" style="margin:0 0 6px">في الختمة الحالية. التذكير يصل للعضو وحده، مرة واحدة في اليوم.</p>
@@ -692,7 +695,7 @@ function adminView(){
     <div class="range">${ref(w.start)} ← ${ref(w.end)}</div>
     <div class="meta"><span>صفحات ${AR(w.p1)}–${AR(w.p2)}</span><span>${left(w)}</span>${w.bonus?`<span>⭐ مكافأة المبادرين: أول ${AR(w.bonus)} ساعات</span>`:''}</div>
     <div style="margin-top:14px" class="bar"><i style="width:${pct}%"></i></div>
-    <div class="meta" style="margin-top:6px"><span class="num">${allDone(w)?'🌿 المجموعة كلها أتمّت الورد':`قرأ ${AR(done.length)} من ${AR(G.members.length)}`}</span></div>
+    <div class="meta" style="margin-top:6px"><span class="num">${G.personal?(done.length?'🌿 تم إتمام الورد':'لم يُقرأ بعد'):allDone(w)?'🌿 المجموعة كلها أتمّت الورد':`قرأ ${AR(done.length)} من ${AR(G.members.length)}`}</span></div>
     ${cancelOpen?`<div class="cancelbox">${confirmRow(`إلغاء الورد «${ref(w.start)} ← ${ref(w.end)}»؟ ${done.length?`أتمّه ${AR(done.length)} وستُحذف قراءاتهم له. `:''}ترجع المجموعة لنفس نقطة البداية، ويصل للأعضاء تنبيه بالإلغاء.`,'cw-ok','نعم، ألغِ الورد','cw-no','تراجع')}</div>`:''}
     ${selfReads()?aheadBox(w):''}${selfReads()&&aheadOf(w)==='full'?'':`<div class="row" style="margin-top:14px">${selfReads()
       ?`<button class="btn btn-light" id="read">${w.done[A.mid]?'إعادة القراءة':(readPos(w)?'أكمل القراءة':'ابدأ القراءة')}</button>${paperBtn(w)}`
@@ -702,7 +705,7 @@ function adminView(){
   </div>
   ${selfCard()}
   ${selfReads()?qadaCard({id:A.mid}):''}
-  <div class="card">
+  <div class="card${G.personal?' pk-hide':''}">
     <p class="h"><span>متابعة الورد الحالي</span>
       <button class="btn btn-ghost" id="remind" style="padding:6px 12px;font-size:13px" ${pend.length?'':'disabled'}>تذكير المتأخرين (${AR(pend.length)})</button></p>
     ${G.members.length?'':`<p class="empty">لا يوجد أعضاء بعد. ادعُهم برابط المجموعة.</p>`}
@@ -713,12 +716,12 @@ function adminView(){
   ${lateCard()}`:`
   <div class="card wird">
     <p class="h"><span>مرحباً بك في ${esc(G.group)}</span></p>
-    <div class="range">ابدأ أول ورد للمجموعة</div>
-    <div class="meta"><span>اختر المقدار من الأسفل واضغط نشر، وسيصل إشعار لكل الأعضاء.</span></div>
+    <div class="range">${G.personal?'ابدأ أول وِرد لك':'ابدأ أول ورد للمجموعة'}</div>
+    <div class="meta"><span>${G.personal?'اختر المقدار من الأسفل واضغط نشر.':'اختر المقدار من الأسفل واضغط نشر، وسيصل إشعار لكل الأعضاء.'}</span></div>
   </div>${selfCard()}`)+`
   <div class="actions">
-    <button class="btn btn-ghost" id="to-invite">دعوة الأعضاء</button>
-    <button class="btn btn-ghost" id="to-settings">⚙ إعدادات المجموعة</button>
+    ${G.personal?'':'<button class="btn btn-ghost" id="to-invite">دعوة الأعضاء</button>'}
+    <button class="btn btn-ghost" id="to-settings">⚙ إعدادات ${G.personal?'ختمتي':'المجموعة'}</button>
   </div>
   <div class="card" id="composer">
     <h2>نشر ورد جديد</h2>
@@ -726,7 +729,7 @@ function adminView(){
       <div class="opts">${UNITS.map(u=>`<button data-unit="${u.n}" aria-pressed="${G.unit===u.n}">${u.t}<small>${u.s}</small></button>`).join('')}</div>${etaLine(startRub,G.unit,0)}</div>
     <div class="field"><span class="lbl">من أين يبدأ؟</span>
       <label class="radio"><input type="radio" name="mode" id="mode-c" value="continue" ${comp.mode==='continue'?'checked':''}>
-        <span>إكمال من حيث توقفنا<br><span class="sub">${rubLabel(G.nextRub)} — ${ref(rubStart(G.nextRub))}</span></span></label>
+        <span>${G.personal?'إكمال من حيث انتهى وِردك السابق':'إكمال من حيث توقفنا'}<br><span class="sub">${rubLabel(G.nextRub)} — ${ref(rubStart(G.nextRub))}</span></span></label>
       <label class="radio"><input type="radio" name="mode" id="mode-p" value="pick" ${comp.mode==='pick'?'checked':''}><span>اختيار بداية أخرى</span></label>
       ${comp.mode==='pick'?`<select id="pick" aria-label="بداية الورد">${rubOpts}</select>`:''}
     </div>
@@ -737,7 +740,7 @@ function adminView(){
       <div class="q">من ${ref(pv.start)} إلى ${ref(pv.end)}</div>
       <div class="sub"><b>${AR(pages)}</b> صفحات · <b>${AR(ayahs)}</b> آية · صفحات المصحف ${AR(pv.p1)}–${AR(pv.p2)}${pv.endRub===240?' · <b>هذا الورد يختم القرآن</b>':''}${G.bonus.enabled?` · ⭐ مكافأة لأول ${AR(G.bonus.hours)} ساعات`:''}</div>
     </div>
-    <div class="row" style="margin-top:14px"><button class="btn btn-main" id="publish">نشر الورد وإشعار ${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}</button></div>
+    <div class="row" style="margin-top:14px"><button class="btn btn-main" id="publish">${G.personal?'نشر الورد':`نشر الورد وإشعار ${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}`}</button></div>
   </div>`;
 }
 function bindLate(){document.querySelectorAll('[data-rq]').forEach(b=>b.onclick=async()=>{const m=G.members.find(x=>x.id===b.dataset.rq);if(!m)return;
@@ -761,7 +764,7 @@ function bindAdmin(){bindLate();
   document.querySelectorAll('[data-qada]').forEach(b=>b.onclick=()=>{const w=G.wirds.find(x=>String(x.id)===b.dataset.qada);if(w)openReader(w)});
   bindSelfRead();
   $('#to-settings').onclick=()=>go('settings');
-  $('#to-invite').onclick=()=>go('settings','invite');
+  const tiv=$('#to-invite');if(tiv)tiv.onclick=()=>go('settings','invite');
   document.querySelectorAll('[data-unit]').forEach(b=>b.onclick=()=>{G.unit=+b.dataset.unit;render()});
   document.querySelectorAll('input[name=mode]').forEach(r=>r.onchange=()=>{comp.mode=r.value;if(r.value==='pick'&&!comp.pick)comp.pick=G.nextRub;render()});
   const pk=$('#pick');if(pk)pk.onchange=()=>{comp.pick=+pk.value;render()};
@@ -806,8 +809,8 @@ function settingsView(){
   const ptsOf=id=>tdb?tPoints(id):pointsFor(id), board=[...G.members].sort((a,b)=>ptsOf(b.id)-ptsOf(a.id));
   const sub=m=>tdb?`قرأ ${AR(G.tdb.topics.filter(t=>tPublished(t.n)&&tReadAny(t.n,m.id)).length)} من ${AR(pubN)}`
     :`التزام ${AR(commit(m.id))}٪ · ${AR(streak(m.id))} أوراد متتالية${m.kh&&m.kh.missed?` · <b class="late">فاته ${numW(m.kh.missed)}</b>`:''}`;
-  return screenHead(`إعدادات «${esc(G.group)}»`)+`
-  <div class="card" id="invite">
+  return screenHead(G.personal?'إعدادات ختمتي':`إعدادات «${esc(G.group)}»`)+`
+  <div class="card${G.personal?' pk-hide':''}" id="invite">
     <p class="h"><span>دعوة الأعضاء</span><span>الكود: <b class="code" style="font-size:14px">${esc(G.code)}</b></span></p>
     <div class="linkbox" dir="ltr">${esc(inviteLink())}</div>
     <div class="row" style="margin-top:10px">
@@ -818,7 +821,7 @@ function settingsView(){
     ${regen?confirmRow('تغيير الكود يوقف الرابط والكود الحاليين. الأعضاء الحاليون لن يتأثروا، والأعضاء الجدد يحتاجون الرابط الجديد.','rg-ok','تغيير الكود','rg-no')
       :'<button class="back" id="regen" style="margin-top:10px">تغيير كود الدعوة</button>'}
   </div>
-  <div class="card">
+  <div class="card${G.personal?' pk-hide':''}">
     <p class="h"><span>الأعضاء والنقاط</span><span>${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}</span></p>
     ${G.members.length?pushSummary():'<p class="empty">لا يوجد أعضاء بعد.</p>'}
     <ul class="list">${board.map(m=>mvId===m.id?`<li>${mvAsk&&mvAsk.id===m.id?moveAsk(m):moveRow(m)}</li>`:rmId===m.id?`<li>${confirmRow(`حذف <b>${esc(m.name)}</b> من المجموعة؟ قراءاته السابقة تبقى في الإحصائيات.`,'rm-ok','حذف','rm-no')}</li>`:`<li><span class="av">${initials(m.name)}</span>
@@ -830,10 +833,10 @@ function settingsView(){
   </div>
   ${tdb?tdbAutoCard()+bonusCard():autoCard()+bonusCard()+remindCard()+`
   <div class="card"><div class="row"><span class="grow"><b>الجولة التعريفية</b><br><span class="sub">شرح سريع لأهم أزرار المشرف</span></span><button class="btn btn-ghost sm" id="tour-again">إعادة الجولة</button></div></div>`}
-  <div class="card dz"><p class="h"><span>حذف المجموعة</span></p>
-    ${delOpen?`<p class="sub" style="margin:0">تُحذف ${tdb?'الختمة':'المجموعة'} بأورادها وقراءاتها، ويصل للأعضاء إشعار بإغلاقها. يمكنك استعادتها كما هي خلال ٧ أيام، وبعدها تُحذف نهائياً. للتأكيد اكتب اسم المجموعة: <b style="color:var(--ink)">${esc(G.group)}</b></p>
-      <div class="field"><label for="del-in">اسم المجموعة</label><input type="text" id="del-in" autocomplete="off"></div>
-      <div class="row" style="margin-top:12px"><button class="btn btn-danger" id="del-ok" disabled style="flex:1">حذف المجموعة نهائياً</button><button class="btn btn-ghost sm" id="del-no">إلغاء</button></div>`
+  <div class="card dz"><p class="h"><span>${G.personal?'حذف ختمتي':'حذف المجموعة'}</span></p>
+    ${delOpen?`<p class="sub" style="margin:0">تُحذف ${tdb||G.personal?'الختمة':'المجموعة'} بأورادها وقراءاتها${G.personal?'':'، ويصل للأعضاء إشعار بإغلاقها'}. يمكنك استعادتها كما هي خلال ٧ أيام، وبعدها تُحذف نهائياً. للتأكيد اكتب ${G.personal?'اسم الختمة':'اسم المجموعة'}: <b style="color:var(--ink)">${esc(G.group)}</b></p>
+      <div class="field"><label for="del-in">${G.personal?'اسم الختمة':'اسم المجموعة'}</label><input type="text" id="del-in" autocomplete="off"></div>
+      <div class="row" style="margin-top:12px"><button class="btn btn-danger" id="del-ok" disabled style="flex:1">${G.personal?'حذف الختمة نهائياً':'حذف المجموعة نهائياً'}</button><button class="btn btn-ghost sm" id="del-no">إلغاء</button></div>`
     :`<button class="back danger" id="del-open">حذف هذه المجموعة…</button>`}
   </div>`;
 }
@@ -1006,7 +1009,7 @@ function tdbAdminView(){
     <div class="range trange">${esc(tLabel(w.f,w.to))}</div>
     <div class="meta"><span>${nTopics(all)} · ${nCardsT(tCardsIn(w.f,w.to))}</span></div>
     <div style="margin-top:14px" class="bar"><i style="width:${pct}%"></i></div>
-    <div class="meta" style="margin-top:6px"><span class="num">${mem.length&&done.length===mem.length?'🌿 المجموعة كلها أتمّت الورد':`أتمّه ${AR(done.length)} من ${AR(mem.length)}`}</span></div>
+    <div class="meta" style="margin-top:6px"><span class="num">${G.personal?(done.length?'🌿 تم إتمام الورد':'لم يُقرأ بعد'):mem.length&&done.length===mem.length?'🌿 المجموعة كلها أتمّت الورد':`أتمّه ${AR(done.length)} من ${AR(mem.length)}`}</span></div>
     ${tCancel?`<div class="cancelbox">${confirmRow(`إلغاء ورد «${esc(tLabel(w.f,w.to))}»؟ تُحذف قراءات الأعضاء له، ويرجع النشر لنفس الموضوع، ويصل للأعضاء تنبيه بالإلغاء.`,'tcw-ok','نعم، ألغِ الورد','tcw-no','تراجع')}</div>`:''}
     <div class="row" style="margin-top:14px"><button class="btn btn-light" id="t-prev">${tCanRead()?(tDoneW(w,A.mid)?'إعادة القراءة':'ابدأ القراءة'):'معاينة البطاقات'}</button></div>
     ${tCancel?'':'<button class="back cancel-link" id="tcw-open">نُشر بالخطأ؟ إلغاء هذا الورد</button>'}
@@ -1019,11 +1022,11 @@ function tdbAdminView(){
       <span class="grow"><span class="name">${esc(m.name)}${m.id===A.mid?' <span class="tag">المشرف</span>':''}${pushIcon(m)}</span></span>
       <span class="chip ${k===all?'ok':'wait'}">${k===all?'أتمّ ✓':k?`قرأ ${AR(k)} من ${AR(all)}`:'لم يقرأ'}</span></li>`}).join('')}</ul>
   </div>`:`<div class="card wird"><p class="h"><span>مرحباً بك في ${esc(G.group)}</span></p>
-    <div class="range trange">ابدأ أول ورد للختمة</div>
-    <div class="meta"><span>اختر المواضيع من الأسفل واضغط نشر، وسيصل إشعار لكل الأعضاء.</span></div></div>`)+selfCard()+`
+    <div class="range trange">${G.personal?'ابدأ أول وِرد لك':'ابدأ أول ورد للختمة'}</div>
+    <div class="meta"><span>${G.personal?'اختر الموضوعات من الأسفل واضغط نشر.':'اختر المواضيع من الأسفل واضغط نشر، وسيصل إشعار لكل الأعضاء.'}</span></div></div>`)+selfCard()+`
   <div class="actions">
-    <button class="btn btn-ghost" id="to-invite">دعوة الأعضاء</button>
-    <button class="btn btn-ghost" id="to-settings">⚙ إعدادات الختمة</button>
+    ${G.personal?'':'<button class="btn btn-ghost" id="to-invite">دعوة الأعضاء</button>'}
+    <button class="btn btn-ghost" id="to-settings">⚙ إعدادات ${G.personal?'ختمتي':'الختمة'}</button>
   </div>
   <div class="card" id="tcomposer">
     <h2>نشر ورد جديد</h2>
@@ -1035,7 +1038,7 @@ function tdbAdminView(){
       <div class="sub"><b>${nTopics(to-f+1)}</b> · <b>${nCardsT(tCardsIn(f,to))}</b></div></div>
     <div class="field" style="margin-top:12px"><label for="t-hours">مدة القراءة</label>
       <select id="t-hours">${[12,24,48,72].map(h=>`<option value="${h}" ${(tdbComp.h||24)===h?'selected':''}>${AR(h)} ساعة</option>`).join('')}</select></div>
-    <div class="row" style="margin-top:14px"><button class="btn btn-ghost" id="t-pv">معاينة الورد</button><button class="btn btn-main" id="t-pub">نشر الورد وإشعار ${AR(mem.length)} ${mem.length>2&&mem.length<11?'أعضاء':'عضو'}</button></div>`
+    <div class="row" style="margin-top:14px"><button class="btn btn-ghost" id="t-pv">معاينة الورد</button><button class="btn btn-main" id="t-pub">${G.personal?'نشر الورد':`نشر الورد وإشعار ${AR(mem.length)} ${mem.length>2&&mem.length<11?'أعضاء':'عضو'}`}</button></div>`
     :`<p class="sub" style="margin:10px 0 0">نُشرت كل المواضيع الجاهزة. تُضاف مواضيع جديدة تباعاً بإذن الله، أو اختر موضوعاً سابقاً لتعيد نشره.</p>`}`
     :'<p class="empty">لا توجد مواضيع جاهزة بعد.</p>'}
   </div>
@@ -1044,7 +1047,7 @@ function tdbAdminView(){
 function bindTopicRows(){document.querySelectorAll('[data-topic]').forEach(el=>{const op=()=>openTopic(+el.dataset.topic);el.onclick=op;el.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();op()}}});
   const d=$('#tidx');if(d)d.ontoggle=()=>{tIdxOpen=d.open}}
 function bindTdbAdmin(){bindTopicRows();bindSelfRead();
-  $('#to-settings').onclick=()=>go('settings');$('#to-invite').onclick=()=>go('settings','invite');
+  $('#to-settings').onclick=()=>go('settings');{const tiv=$('#to-invite');if(tiv)tiv.onclick=()=>go('settings','invite')}
   const w=tCur();
   const pv=$('#t-prev');if(pv)pv.onclick=()=>{const n=tCanRead()?(tRange(w).find(x=>!tReadBy(w,x,A.mid))||w.f):w.f;openTopic(n)};
   const co=$('#tcw-open');if(co)co.onclick=()=>{tCancel=true;render()};
@@ -2382,6 +2385,29 @@ addEventListener('error',e=>reportError(e.message,{src:String(e.filename||'').sp
 addEventListener('unhandledrejection',e=>reportError(e.reason&&(e.reason.message||e.reason)));
 
 /* ---------- SHELL ---------- */
+function pkCard(){if(!A||PK||!PKON)return '';const f=k=>PKS.find(p=>p.kind===k),has=k=>!!f(k);
+  const info=k=>{const x=f(k);if(!x||!x.a)return '';return `<small class="sub" style="display:block;margin-top:2px">${k==='tilawa'?'الأوراد المتمّة':'الموضوعات المقروءة'}: ${AR(x.d)} من ${AR(x.a)}</small>`};
+  return `<div class="card" id="pkcard"><p class="h"><span>ختمتي</span></p>
+    <p class="sub" style="margin:0 0 12px">وِردك الخاص.</p>
+    <div class="row"><button type="button" class="btn btn-light" data-pk="tilawa" style="flex:1">${has('tilawa')?'فتح':'بدء'} ختمة تلاوة${info('tilawa')}</button>${TDB_CAN?`<button type="button" class="btn btn-light" data-pk="tadabbur" style="flex:1">${has('tadabbur')?'فتح':'بدء'} ختمة تدبر${info('tadabbur')}</button>`:''}</div>
+    ${A&&!GROUPS.length?`<p class="sub" style="margin:12px 0 0">«يدُ اللهِ مع الجماعة» (رواه الترمذي). احرص على الانضمام لمجموعة تثبّتك على وِردك.</p>`:''}</div>`}
+const pkShare=()=>PKASK?`<div class="card"><p class="h"><span>شارك ختمتك مع أصدقائك</span></p>
+    <p class="sub" style="margin:0 0 10px">ستُدير هذه المجموعة، ويمكنك الرجوع لوضع العضو متى أردت.</p>
+    <div class="field"><label for="pk-name">اسم المجموعة</label><input type="text" id="pk-name" value="${G.kind==='tadabbur'?'ختمة التدبر':'ختمة الأصدقاء'}"></div>
+    <div class="row" style="margin-top:12px"><button class="btn btn-main" id="pk-go" type="button" style="flex:1">حوّلها إلى مجموعة</button><button class="btn btn-ghost sm" id="pk-no" type="button">إلغاء</button></div></div>`
+  :`<div class="card"><div class="row"><span class="grow"><b>شارك ختمتك مع أصدقائك</b><br><span class="sub">حوّلها إلى مجموعة وادعُ من تحب.</span></span><button class="btn btn-ghost sm" id="pk-ask" type="button">مشاركة</button></div></div>`;
+function bindPkShare(){const a=$('#pk-ask');if(a)a.onclick=()=>{PKASK=true;render();const i=$('#pk-name');if(i)i.focus()};
+  const n=$('#pk-no');if(n)n.onclick=()=>{PKASK=false;render()};
+  const g=$('#pk-go');if(g)g.onclick=async()=>{g.disabled=true;const id=G.id,kind=G.kind;
+    const {error}=await sb.rpc('pk_to_group',{p_group:id,p_name:$('#pk-name').value});
+    if(error){g.disabled=false;return toast(/too many/i.test(error.message)?'وصلت للحد الأقصى (٢٠ مجموعة).':errMsg(error))}
+    PKASK=false;PK=null;VIEW='home';setMode('admin');setTab(kind);setSelGroup(id);comp={mode:'continue',pick:null};tdbComp=null;loading=true;render();await refresh();scrollTo(0,0);
+    toast(G?`صارت مجموعة «${G.group}». كود الدعوة: ${G.code}`:'تم التحويل')}}
+const pkHead=()=>`<div class="gbar"><button class="back" id="pk-back" type="button">‹ رجوع للرئيسية</button><span class="sub">ختمتي · ${G.kind==='tadabbur'?'تدبر':'تلاوة'}</span></div>`;
+async function openPK(kind){PKASK=false;let pk=PKS.find(x=>x.kind===kind),id=pk&&pk.id;
+  if(!id){const {data,error}=await sb.rpc('my_khatma',{p_kind:kind});if(error)return toast(errMsg(error));id=data}
+  PK={id,kind};VIEW='home';comp={mode:'continue',pick:null};tdbComp=null;tCancel=false;cancelOpen=false;gAdd=false;showNotes=false;loading=true;render();await refresh();scrollTo(0,0)}
+async function leavePK(){PKASK=false;PK=null;VIEW='home';comp={mode:'continue',pick:null};tdbComp=null;loading=true;render();await refresh();scrollTo(0,0)}
 function render(){
   const TABE=!!(A&&getTab()==='tadabbur'&&!tabGroups('tadabbur').length&&tabAvail('tadabbur'));
   const TILE=!!(A&&getTab()==='tilawa'&&!tabGroups('tilawa').length&&showTabs());
@@ -2406,12 +2432,16 @@ function render(){
   if(VIEW==='owner'&&A.owner){$('#view').innerHTML=err+ownerView();bindOwner();return}
   if(!G&&GSET){VIEW='home';$('#view').innerHTML=err+gsetView();bindGset();return}
   if(G&&GSET)setGset(null);
-  if(TABE){VIEW='home';$('#view').innerHTML=err+joinCard()+pushBanner()+tabsBar()+tdbEmptyView()+trashCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;
+  if(PK&&G&&G.personal){const TD=G.kind==='tadabbur';
+    if(VIEW==='settings'){$('#view').innerHTML=err+settingsView();bindSettings();return}
+    $('#view').innerHTML=err+pkHead()+(TD?tdbAdminView():adminView())+pkShare()+`<div class="card">${feedbackRow()}</div>`;
+    if(TD)bindTdbAdmin();else bindAdmin();bindPkShare();toFb();return}
+  if(TABE){VIEW='home';$('#view').innerHTML=err+joinCard()+pushBanner()+tabsBar()+tdbEmptyView()+trashCard()+pkCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;
     bindTabs();bindTdbEmpty();bindJoinCard();bindPushBanner();bindTrash();bindAppCard();bindModeCard();bindShareCard();bindOwnerRow();toFb();return}
-  if(!G||TILE){VIEW='home';$('#view').innerHTML=err+joinCard()+kahfCard()+tabsBar()+noGroupView()+trashCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;bindOwnerRow();bindJoinCard();bindKahf();bindTabs();bindNoGroup();bindTrash();bindAppCard();toFb();bindShareCard();return}
+  if(!G||TILE){VIEW='home';$('#view').innerHTML=err+joinCard()+kahfCard()+tabsBar()+noGroupView()+trashCard()+pkCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;bindOwnerRow();bindJoinCard();bindKahf();bindTabs();bindNoGroup();bindTrash();bindAppCard();toFb();bindShareCard();return}
   if(VIEW==='settings'&&A.role==='admin'){$('#view').innerHTML=err+settingsView();bindSettings();return}
   const TD=G.kind==='tadabbur';
-  $('#view').innerHTML=err+joinCard()+pushBanner()+tabsBar()+groupBar()+kahfCard()+(TD?(A.role==='admin'?tdbAdminView():tdbMemberView()):(A.role==='admin'?adminView():memberView()))+trashCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;bindShareCard();bindOwnerRow();
+  $('#view').innerHTML=err+joinCard()+pushBanner()+tabsBar()+groupBar()+kahfCard()+(TD?(A.role==='admin'?tdbAdminView():tdbMemberView()):(A.role==='admin'?adminView():memberView()))+pkCard()+trashCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;bindShareCard();bindOwnerRow();
   bindJoinCard();bindPushBanner();bindTabs();bindGroupBar();bindKahf();if(TD)A.role==='admin'?bindTdbAdmin():bindTdbMember();else{A.role==='admin'?bindAdmin():bindMember();maybeTour()}bindAppCard();bindModeCard();toFb();
 }
 const THEMES=[{k:'auto',i:'◐',t:'تلقائي'},{k:'light',i:'☀',t:'فاتح'},{k:'dark',i:'☾',t:'داكن'}];
@@ -2429,7 +2459,8 @@ applyTheme();
 sb.auth.onAuthStateChange(ev=>{if(ev==='PASSWORD_RECOVERY'){recovery=true;loading=false;setTimeout(render,0)}});
 if(PJ&&!lsGet('sb-yiumqwysldbrszadizjo-auth-token'))AU={role:'member',tab:'register',err:'',info:''};
 restoreOtp();
-$('#brand').onclick=()=>{if(A)goHome()};
+$('#brand').onclick=()=>{if(PK)return leavePK();if(A)goHome()};
+$('#view').addEventListener('click',e=>{const b=e.target.closest('[data-pk]');if(b)return openPK(b.dataset.pk);if(e.target.closest('#pk-back'))leavePK()});
 const prefetched=new Set();
 function prefetchWird(){prefetchTdb();try{
   {const dy=new Date().getDay();if(A&&navigator.onLine&&(dy===4||dy===5)&&!prefetched.has('kahf')){prefetched.add('kahf');

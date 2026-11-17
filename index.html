@@ -481,7 +481,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-17e'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-17f'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -642,16 +642,16 @@ function myKh(mid){const c=cur(), asg=wirdsFor(mid).filter(inKh), rem=asg.filter
 function khatmaCard(){
   const w=cur(), last=w&&w.endRub>=240, num=last?G.khatmas:G.khatmas+1;
   const gpct=w?khPct(w.endRub):0, part=khFrom()>1, prev=last?G.khatmas-1:G.khatmas;
-  const prevTxt=prev>0?` · أتممنا ${AR(prev)} ${prev>2&&prev<11?'ختمات':'ختمة'} قبلها`:'';
+  const prevTxt=prev>0?` · ${G.personal?'تمّت':'أتممنا'} ${AR(prev)} ${prev>2&&prev<11?'ختمات':'ختمة'} قبلها`:'';
   if(A.role==='admin'){
     const ms=G.members, known=ms.filter(m=>m.kh), comp=known.filter(m=>m.kh.complete).length, clean=known.filter(m=>!m.kh.missed).length;
     if(last&&ms.length&&known.length===ms.length&&comp===ms.length)return `<div class="card khatm"><p class="h"><span>الختمة رقم ${AR(num)}</span><span>١٠٠٪</span></p>
-      <div class="big">${part?'أتمّ كل الأعضاء أوراد الختمة':'ختم كل الأعضاء القرآن الكريم'}</div><div class="q">${DUA}</div>
+      <div class="big">${G.personal?(part?'تمّت أوراد الختمة':'تمّت ختمة القرآن الكريم'):part?'أتمّ كل الأعضاء أوراد الختمة':'ختم كل الأعضاء القرآن الكريم'}</div><div class="q">${DUA}</div>
       <p class="sub" style="margin:6px 0 0">الورد القادم يبدأ ختمة جديدة من سورة الفاتحة.</p></div>`;
     return `<div class="card prog"><p class="h"><span>الختمة رقم ${AR(num)}</span><span class="num">${AR(gpct)}٪</span></p>
       <div class="bar gold"><i style="width:${gpct}%"></i></div>
-      <p class="sub" style="margin:6px 0 0">${w?`وصلت المجموعة إلى ${ref(w.end)}`:'تبدأ الختمة مع أول ورد'}${prevTxt}</p>
-      ${w&&known.length?`<p class="sub kline">${last?`🌿 ختم منهم ${AR(comp)} من ${AR(ms.length)}`:`🌿 لم يفتهم أي ورد سابق: ${AR(clean)} من ${AR(ms.length)}`}</p>`:''}</div>`;
+      <p class="sub" style="margin:6px 0 0">${w?`${G.personal?'وصل وِردك':'وصلت المجموعة'} إلى ${ref(w.end)}`:'تبدأ الختمة مع أول ورد'}${prevTxt}</p>
+      ${w&&known.length?`<p class="sub kline">${G.personal?(last&&comp?'🌿 تمّت الختمة':`🌿 ${known[0].kh.missed?`الأوراد الفائتة: ${AR(known[0].kh.missed)}`:'لا أوراد فائتة'}`):last?`🌿 ختم منهم ${AR(comp)} من ${AR(ms.length)}`:`🌿 لم يفتهم أي ورد سابق: ${AR(clean)} من ${AR(ms.length)}`}</p>`:''}</div>`;
   }
   const mk=myKh(A.mid);
   if(mk.complete)return `<div class="card khatm"><p class="h"><span>الختمة رقم ${AR(num)}</span><span>١٠٠٪</span></p>
@@ -703,7 +703,7 @@ function adminView(){
     <div class="meta"><span>صفحات ${AR(w.p1)}–${AR(w.p2)}</span><span>${left(w)}</span>${w.bonus?`<span>⭐ مكافأة المبادرين: أول ${AR(w.bonus)} ساعات</span>`:''}</div>
     <div style="margin-top:14px" class="bar"><i style="width:${pct}%"></i></div>
     <div class="meta" style="margin-top:6px"><span class="num">${G.personal?(done.length?'🌿 تم إتمام الورد':'لم يُقرأ بعد'):allDone(w)?'🌿 المجموعة كلها أتمّت الورد':`قرأ ${AR(done.length)} من ${AR(G.members.length)}`}</span></div>
-    ${cancelOpen?`<div class="cancelbox">${confirmRow(`إلغاء الورد «${ref(w.start)} ← ${ref(w.end)}»؟ ${done.length?`أتمّه ${AR(done.length)} وستُحذف قراءاتهم له. `:''}ترجع المجموعة لنفس نقطة البداية، ويصل للأعضاء تنبيه بالإلغاء.`,'cw-ok','نعم، ألغِ الورد','cw-no','تراجع')}</div>`:''}
+    ${cancelOpen?`<div class="cancelbox">${confirmRow(`إلغاء الورد «${ref(w.start)} ← ${ref(w.end)}»؟ ${G.personal?'ستُحذف قراءتك له. ترجع الختمة لنفس نقطة البداية.':`${done.length?`أتمّه ${AR(done.length)} وستُحذف قراءاتهم له. `:''}ترجع المجموعة لنفس نقطة البداية، ويصل للأعضاء تنبيه بالإلغاء.`}`,'cw-ok','نعم، ألغِ الورد','cw-no','تراجع')}</div>`:''}
     ${selfReads()?aheadBox(w):''}${selfReads()&&aheadOf(w)==='full'?'':`<div class="row" style="margin-top:14px">${selfReads()
       ?`<button class="btn btn-light" id="read">${w.done[A.mid]?'إعادة القراءة':(readPos(w)?'أكمل القراءة':'ابدأ القراءة')}</button>${paperBtn(w)}`
       :'<button class="btn btn-light" id="preview">معاينة الورد في المصحف</button>'}</div>`}
@@ -743,7 +743,7 @@ function adminView(){
     <div class="field"><label for="hours">مدة القراءة</label>
       <select id="hours">${[12,24,48,72].map(h=>`<option value="${h}" ${G.hours===h?'selected':''}>${AR(h)} ساعة</option>`).join('')}</select></div>
     <div class="preview">
-      <div class="sub">سيصل للأعضاء:</div>
+      <div class="sub">${G.personal?'وِردك القادم:':'سيصل للأعضاء:'}</div>
       <div class="q">من ${ref(pv.start)} إلى ${ref(pv.end)}</div>
       <div class="sub"><b>${AR(pages)}</b> صفحات · <b>${AR(ayahs)}</b> آية · صفحات المصحف ${AR(pv.p1)}–${AR(pv.p2)}${pv.endRub===240?' · <b>هذا الورد يختم القرآن</b>':''}${G.bonus.enabled?` · ⭐ مكافأة لأول ${AR(G.bonus.hours)} ساعات`:''}</div>
     </div>
@@ -784,7 +784,7 @@ function bindAdmin(){bindLate();
       p_start:w.start,p_end:w.end,p_p1:w.p1,p_p2:w.p2,p_hours:G.hours,p_text:`«${G.group}»: نزل الورد الجديد: من ${ref(w.start)} إلى ${ref(w.end)}`});
     if(error){toast(errMsg(error));render();return}
     comp={mode:'continue',pick:null};await refresh();scrollTo({top:0,behavior:'smooth'});
-    toast(`نُشر الورد ووصل إشعار إلى ${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}`)};
+    toast(G.personal?'نُشر الورد':`نُشر الورد ووصل إشعار إلى ${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}`)};
   const rb=$('#remind');if(rb)rb.onclick=async()=>{const w=cur();rb.disabled=true;
     const {data,error}=await sb.rpc('remind_pending',{p_wird:w.id,p_text:`«${G.group}»: تذكير لطيف، ورد اليوم في انتظارك (${ref(w.start)} ← ${ref(w.end)}). ${left(w)}`});
     rb.disabled=false;if(error){toast(errMsg(error));return}
@@ -794,14 +794,14 @@ function bindAdmin(){bindLate();
 /* ---- المشرف: إعدادات المجموعة ---- */
 function bonusCard(){const b=G.bonus;
   return `<div class="card" id="bonuscard"><p class="h"><span>مكافأة المبادرين</span><span class="chip ${b.enabled?'ok':'wait'}">${b.enabled?'مفعّلة':'متوقفة'}</span></p>
-    <div class="switch"><label for="bn-on">+٥ نقاط لكل من يتم الورد مبكراً</label><input type="checkbox" id="bn-on" ${b.enabled?'checked':''}></div>
+    <div class="switch"><label for="bn-on">${G.personal?'+٥ نقاط عند إتمام الورد مبكراً':'+٥ نقاط لكل من يتم الورد مبكراً'}</label><input type="checkbox" id="bn-on" ${b.enabled?'checked':''}></div>
     <div class="field"><label for="bn-h">المدة</label><select id="bn-h">${[3,6,12].map(h=>`<option value="${h}" ${b.hours===h?'selected':''}>أول ${AR(h)} ساعات من نزول الورد</option>`).join('')}</select></div>
-    <p class="sub" style="margin:8px 0 0">تشجّع على المبادرة من غير سباق: كل من يتم خلال المدة يأخذ المكافأة. تُطبّق على الأوراد الجديدة.</p>
+    <p class="sub" style="margin:8px 0 0">${G.personal?'تشجّع على المبادرة: تُحسب المكافأة عند الإتمام خلال المدة. تُطبّق على الأوراد الجديدة.':'تشجّع على المبادرة من غير سباق: كل من يتم خلال المدة يأخذ المكافأة. تُطبّق على الأوراد الجديدة.'}</p>
     <button class="btn btn-main" id="bn-save" style="width:100%;margin-top:12px" ${bonusDirty?"":"disabled"}>${bonusDirty?"حفظ التغييرات":"✓ تم الحفظ"}</button></div>`}
 function remindCard(){const on=G.remind;
-  return `<div class="card"><p class="h"><span>تذكير قبل نهاية الورد</span><span class="chip ${on?'ok':'wait'}">${on?'مفعّل':'متوقف'}</span></p>
+  return `<div class="card"><p class="h"><span>${G.personal?'تذكير يومي':'تذكير قبل نهاية الورد'}</span><span class="chip ${on?'ok':'wait'}">${on?'مفعّل':'متوقف'}</span></p>
     <div class="switch"><label for="rm-on">إشعار تلقائي قبل نهاية الورد بساعة</label><input type="checkbox" id="rm-on" ${on?'checked':''}></div>
-    <p class="sub" style="margin:8px 0 0">يصل فقط لمن لم يقرأ بعد، مرة واحدة لكل ورد، ولا تحتاج لإرساله بنفسك.</p></div>`}
+    <p class="sub" style="margin:8px 0 0">${G.personal?'يصلك مرة واحدة لكل ورد إن لم تقرأه بعد.':'يصل فقط لمن لم يقرأ بعد، مرة واحدة لكل ورد، ولا تحتاج لإرساله بنفسك.'}</p></div>`}
 const kindLbl=g=>gkind(g)==='tadabbur'?'تدبر':'تلاوة';
 const othersOf=()=>GROUPS.filter(g=>g.id!==G.id);
 function moveAsk(m){const g=GROUPS.find(x=>x.id===mvAsk.to)||{},mv=mvAsk.act==='move',lb=mv?'نقل':'إضافة';
@@ -1017,11 +1017,11 @@ function tdbAdminView(){
     <div class="meta"><span>${nTopics(all)} · ${nCardsT(tCardsIn(w.f,w.to))}</span></div>
     <div style="margin-top:14px" class="bar"><i style="width:${pct}%"></i></div>
     <div class="meta" style="margin-top:6px"><span class="num">${G.personal?(done.length?'🌿 تم إتمام الورد':'لم يُقرأ بعد'):mem.length&&done.length===mem.length?'🌿 المجموعة كلها أتمّت الورد':`أتمّه ${AR(done.length)} من ${AR(mem.length)}`}</span></div>
-    ${tCancel?`<div class="cancelbox">${confirmRow(`إلغاء ورد «${esc(tLabel(w.f,w.to))}»؟ تُحذف قراءات الأعضاء له، ويرجع النشر لنفس الموضوع، ويصل للأعضاء تنبيه بالإلغاء.`,'tcw-ok','نعم، ألغِ الورد','tcw-no','تراجع')}</div>`:''}
+    ${tCancel?`<div class="cancelbox">${confirmRow(`إلغاء ورد «${esc(tLabel(w.f,w.to))}»؟ ${G.personal?'تُحذف قراءتك له، ويرجع النشر لنفس الموضوع.':'تُحذف قراءات الأعضاء له، ويرجع النشر لنفس الموضوع، ويصل للأعضاء تنبيه بالإلغاء.'}`,'tcw-ok','نعم، ألغِ الورد','tcw-no','تراجع')}</div>`:''}
     <div class="row" style="margin-top:14px"><button class="btn btn-light" id="t-prev">${tCanRead()?(tDoneW(w,A.mid)?'إعادة القراءة':'ابدأ القراءة'):'معاينة البطاقات'}</button></div>
     ${tCancel?'':'<button class="back cancel-link" id="tcw-open">نُشر بالخطأ؟ إلغاء هذا الورد</button>'}
   </div>
-  <div class="card">
+  <div class="card${G.personal?' pk-hide':''}">
     <p class="h"><span>متابعة الورد الحالي</span>
       <button class="btn btn-ghost" id="t-remind" style="padding:6px 12px;font-size:13px" ${pend.length?'':'disabled'}>تذكير من لم يُتمّ (${AR(pend.length)})</button></p>
     ${mem.length?'':'<p class="empty">لا يوجد أعضاء بعد. ادعُهم برابط الختمة.</p>'}
@@ -1041,7 +1041,7 @@ function tdbAdminView(){
       ${tPickBtn('t-from',f)}</div>
     ${f?`<div class="field"><label for="t-to">إلى موضوع</label>
       ${tPickBtn('t-to',to)}</div>
-    <div class="preview"><div class="sub">سيصل للأعضاء:</div><div class="q">${esc(tLabel(f,to))}</div>
+    <div class="preview"><div class="sub">${G.personal?'وِردك القادم:':'سيصل للأعضاء:'}</div><div class="q">${esc(tLabel(f,to))}</div>
       <div class="sub"><b>${nTopics(to-f+1)}</b> · <b>${nCardsT(tCardsIn(f,to))}</b></div></div>
     <div class="field" style="margin-top:12px"><label for="t-hours">مدة القراءة</label>
       <select id="t-hours">${[12,24,48,72].map(h=>`<option value="${h}" ${(tdbComp.h||24)===h?'selected':''}>${AR(h)} ساعة</option>`).join('')}</select></div>
@@ -1076,7 +1076,7 @@ async function tdbPublish(f,to,h){
   const {error}=await sb.rpc('tdb_publish',{p_group:G.id,p_from:f,p_to:to,p_hours:h||(tdbComp&&tdbComp.h)||24});
   if(error){toast(/not ready/i.test(error.message)?'بعض هذه المواضيع لم تُجهَّز بعد.':errMsg(error));render();return false}
   tdbComp=null;await refresh();scrollTo({top:0,behavior:'smooth'});
-  toast(`نُشر الورد ووصل إشعار إلى ${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}`);return true}
+  toast(G.personal?'نُشر الورد':`نُشر الورد ووصل إشعار إلى ${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}`);return true}
 // معاينة الورد كاملاً قبل نشره: بطاقات كل المواضيع متتالية
 async function openRange(f,to){if(opening)return;opening=true;const seq=[];
   try{for(let n=f;n<=to;n++){const t=TT(n);if(!t||!t.c)continue;const cs=await tdbCards(t);cs.forEach((c,k)=>seq.push({t,c,k,of:cs.length}))}}
@@ -1302,7 +1302,7 @@ function tdbAutoCard(){
     <div class="field"><span class="lbl">الأيام</span><div class="days">${DAYS.map((d,i)=>`<button type="button" data-day="${i}" aria-pressed="${a.days.includes(i)}" aria-label="${d[1]}" title="${d[1]}">${d[0]}</button>`).join('')}</div></div>
     <div class="field"><span class="lbl">عدد المواضيع في كل ورد</span><div class="opts">${[1,2,3].map(u=>`<button type="button" data-aunit="${u}" aria-pressed="${a.unit===u}">${u===1?'موضوع':u===2?'موضوعان':'٣ مواضيع'}</button>`).join('')}</div></div>
     <div class="preview"><div class="sub">الورد التلقائي القادم: <b>${nextRunText(a)}</b></div>
-      ${e?`<div class="q" style="font-size:18px">${esc(tLabel(s,e))}</div><div class="sub">يكمل من حيث توقفت الختمة، ويصل إشعار لكل الأعضاء.</div>`
+      ${e?`<div class="q" style="font-size:18px">${esc(tLabel(s,e))}</div><div class="sub">${G.personal?'يكمل من حيث انتهى وِردك السابق، ويصلك إشعار.':'يكمل من حيث توقفت الختمة، ويصل إشعار لكل الأعضاء.'}</div>`
         :'<div class="sub">لا توجد مواضيع جاهزة بعد آخر ورد. سيُنشر تلقائياً عند إضافة مواضيع جديدة.</div>'}</div>
     <button class="btn btn-main" id="au-save" style="width:100%;margin-top:14px" ${autoDirty?"":"disabled"}>${autoDirty?"حفظ التغييرات":"✓ تم الحفظ"}</button>
   </div>`;
@@ -1727,7 +1727,7 @@ function autoCard(){
     <div class="field"><label for="au-hours">مدة القراءة</label><select id="au-hours">${[12,24,48,72].map(h=>`<option value="${h}" ${a.hours===h?'selected':''}>${AR(h)} ساعة</option>`).join('')}</select></div>
     <div class="preview"><div class="sub">الورد التلقائي القادم: <b>${nextRunText(a)}</b></div>
       <div class="q" style="font-size:18px">من ${ref(rubStart(r))} إلى ${ref(rubEnd(e))}</div>
-      <div class="sub">يكمل من حيث توقفت المجموعة، ويصل إشعار لكل الأعضاء.</div></div>
+      <div class="sub">${G.personal?'يكمل من حيث انتهى وِردك السابق، ويصلك إشعار.':'يكمل من حيث توقفت المجموعة، ويصل إشعار لكل الأعضاء.'}</div></div>
     <button class="btn btn-main" id="au-save" style="width:100%;margin-top:14px" ${autoDirty?"":"disabled"}>${autoDirty?"حفظ التغييرات":"✓ تم الحفظ"}</button>
   </div>`;
 }
@@ -2397,18 +2397,6 @@ function pkCard(){if(!A||PK||!PKON)return '';const f=k=>PKS.find(p=>p.kind===k),
     return `<button type="button" class="pkrow" data-pk="${k}"><span class="pkt"><b>${t}</b><small>${sub}</small></span><span class="pkgo" aria-hidden="true">${x?'فتح':'بدء'} ‹</span></button>`};
   return `<div class="card pkc" id="pkcard"><h2 class="pkh">ختمتي</h2>
     <div class="pkrows">${row('tilawa','ختمة تلاوة')}${TDB_CAN?row('tadabbur','ختمة تدبر'):''}</div></div>`}
-const pkShare=()=>PKASK?`<div class="card"><p class="h"><span>شارك ختمتك مع أصدقائك</span></p>
-    <p class="sub" style="margin:0 0 10px">ستُدير هذه المجموعة، ويمكنك الرجوع لوضع العضو متى أردت.</p>
-    <div class="field"><label for="pk-name">اسم المجموعة</label><input type="text" id="pk-name" value="${G.kind==='tadabbur'?'ختمة التدبر':'ختمة الأصدقاء'}"></div>
-    <div class="row" style="margin-top:12px"><button class="btn btn-main" id="pk-go" type="button" style="flex:1">حوّلها إلى مجموعة</button><button class="btn btn-ghost sm" id="pk-no" type="button">إلغاء</button></div></div>`
-  :`<div class="card"><div class="row"><span class="grow"><b>شارك ختمتك مع أصدقائك</b><br><span class="sub">حوّلها إلى مجموعة وادعُ من تحب.</span></span><button class="btn btn-ghost sm" id="pk-ask" type="button">مشاركة</button></div></div>`;
-function bindPkShare(){const a=$('#pk-ask');if(a)a.onclick=()=>{PKASK=true;render();const i=$('#pk-name');if(i)i.focus()};
-  const n=$('#pk-no');if(n)n.onclick=()=>{PKASK=false;render()};
-  const g=$('#pk-go');if(g)g.onclick=async()=>{g.disabled=true;const id=G.id,kind=G.kind;
-    const {error}=await sb.rpc('pk_to_group',{p_group:id,p_name:$('#pk-name').value});
-    if(error){g.disabled=false;return toast(/too many/i.test(error.message)?'وصلت للحد الأقصى (٢٠ مجموعة).':errMsg(error))}
-    PKASK=false;PK=null;VIEW='home';setMode('admin');setTab(kind);setSelGroup(id);comp={mode:'continue',pick:null};tdbComp=null;loading=true;render();await refresh();scrollTo(0,0);
-    toast(G?`صارت مجموعة «${G.group}». كود الدعوة: ${G.code}`:'تم التحويل')}}
 const pkHead=()=>`<div class="gbar"><button class="back" id="pk-back" type="button">‹ رجوع للرئيسية</button><span class="sub">ختمتي · ${G.kind==='tadabbur'?'تدبر':'تلاوة'}</span></div>`;
 const pkMsgKey=()=>'khatma-pkmsg-'+(USER?USER.id:'');
 function pkDue(){const t=+(lsGet(pkMsgKey())||0);return !t||(!GROUPS.length&&Date.now()-t>7*864e5)}
@@ -2450,8 +2438,8 @@ function render(){
   if(G&&GSET)setGset(null);
   if(PK&&G&&G.personal){const TD=G.kind==='tadabbur';
     if(VIEW==='settings'){$('#view').innerHTML=err+settingsView();bindSettings();return}
-    $('#view').innerHTML=err+pkHead()+(TD?tdbAdminView():adminView())+pkShare()+`<div class="card">${feedbackRow()}</div>`;
-    if(TD)bindTdbAdmin();else bindAdmin();bindPkShare();toFb();return}
+    $('#view').innerHTML=err+pkHead()+(TD?tdbAdminView():adminView())+`<div class="card">${feedbackRow()}</div>`;
+    if(TD)bindTdbAdmin();else bindAdmin();toFb();return}
   if(TABE){VIEW='home';$('#view').innerHTML=err+joinCard()+pushBanner()+tabsBar()+tdbEmptyView()+trashCard()+pkCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;
     bindTabs();bindTdbEmpty();bindJoinCard();bindPushBanner();bindTrash();bindAppCard();bindModeCard();bindShareCard();bindOwnerRow();toFb();return}
   if(!G||TILE){VIEW='home';$('#view').innerHTML=err+joinCard()+kahfCard()+tabsBar()+noGroupView()+trashCard()+pkCard()+appCard()+modeCard()+shareCard()+ownerRow()+`<div class="card">${feedbackRow()}</div>`;bindOwnerRow();bindJoinCard();bindKahf();bindTabs();bindNoGroup();bindTrash();bindAppCard();toFb();bindShareCard();return}

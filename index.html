@@ -481,7 +481,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-17d'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-17e'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -532,9 +532,10 @@ async function load(){
   if(!getMode())setMode(st.mode);
   A={u:st.profile.email,name:st.profile.name,role:st.mode,mid:me.id,owner:!!st.owner};
   GROUPS=st.groups||[];TRASH=st.trash||[];TDB_CAN=!!st.tdb_create;
-  if(!tabAvail(getTab()))setTab(getTab()==='tilawa'?'tadabbur':'tilawa');
+  if(!PK&&!tabAvail(getTab()))setTab(getTab()==='tilawa'?'tadabbur':'tilawa');
   // مجموعة من النوع الآخر طُلبت صراحة (انضمام/اختيار): انتقل لتبويبها
-  if(st.group&&gkind(st.group)!==getTab()&&tabGroups(getTab()).length){if(getSelGroup()===st.group.id)setSelGroup('');setTab(gkind(st.group));setSelGroup(st.group.id)}
+  if(!PK&&st.group&&st.group.personal){setSelGroup('');return load()}
+  if(!PK&&st.group&&gkind(st.group)!==getTab()&&tabGroups(getTab()).length){if(getSelGroup()===st.group.id)setSelGroup('');setTab(gkind(st.group));setSelGroup(st.group.id)}
   NOTES=(st.notes||[]).map(n=>({id:n.id,t:Date.parse(n.t),text:n.text,read:n.read}));
   if(!st.group){G=null;return}
   const grp=st.group;

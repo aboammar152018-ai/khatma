@@ -474,7 +474,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-16h'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-17a'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -542,7 +542,7 @@ async function load(){
      bonus:keep&&bonusDirty?G.bonus:{enabled:!!grp.bonus_enabled,hours:grp.bonus_hours||6},
      kind:gkind(grp),nextTopic:grp.next_topic||1,tdb:null};
   if(!keep){tdbComp=null;tCancel=false}
-  if(st.tdb){const T=st.tdb,tw=(T.wirds||[]).map(w=>({id:w.id,f:w.f,to:w.to,at:Date.parse(w.at),rd:{}})),by=Object.fromEntries(tw.map(w=>[w.id,w]));
+  if(st.tdb){const T=st.tdb,tw=(T.wirds||[]).map(w=>({id:w.id,f:w.f,to:w.to,at:Date.parse(w.at),h:w.h==null?null:w.h,bn:w.bn||0,rd:{}})),by=Object.fromEntries(tw.map(w=>[w.id,w]));
     (T.reads||[]).forEach(x=>{const w=by[x.w];if(w)(w.rd[x.n]=w.rd[x.n]||{})[x.u]=Date.parse(x.t)});
     G.tdb={topics:(T.topics||[]).map(t=>({n:t.n,s:t.s,a:t.a,b:t.b,l:t.l,t:t.t,r:t.r,c:t.c})),wirds:tw}}
   applyQueue();
@@ -803,7 +803,7 @@ function moveRow(m){
     <div class="row"><button class="btn btn-main sm" id="mv-ok">نقل</button><button class="btn btn-light sm" id="mv-add">إضافة</button><button class="btn btn-ghost sm" id="mv-no">إلغاء</button></div></div>`}
 function settingsView(){
   const tdb=G.kind==='tadabbur', pubN=tdb?G.tdb.topics.filter(t=>tPublished(t.n)).length:0;
-  const board=tdb?[...G.members]:[...G.members].sort((a,b)=>pointsFor(b.id)-pointsFor(a.id));
+  const ptsOf=id=>tdb?tPoints(id):pointsFor(id), board=[...G.members].sort((a,b)=>ptsOf(b.id)-ptsOf(a.id));
   const sub=m=>tdb?`قرأ ${AR(G.tdb.topics.filter(t=>tPublished(t.n)&&tReadAny(t.n,m.id)).length)} من ${AR(pubN)}`
     :`التزام ${AR(commit(m.id))}٪ · ${AR(streak(m.id))} أوراد متتالية${m.kh&&m.kh.missed?` · <b class="late">فاته ${numW(m.kh.missed)}</b>`:''}`;
   return screenHead(`إعدادات «${esc(G.group)}»`)+`
@@ -819,16 +819,16 @@ function settingsView(){
       :'<button class="back" id="regen" style="margin-top:10px">تغيير كود الدعوة</button>'}
   </div>
   <div class="card">
-    <p class="h"><span>${tdb?'الأعضاء':'الأعضاء والنقاط'}</span><span>${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}</span></p>
+    <p class="h"><span>الأعضاء والنقاط</span><span>${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}</span></p>
     ${G.members.length?pushSummary():'<p class="empty">لا يوجد أعضاء بعد.</p>'}
     <ul class="list">${board.map(m=>mvId===m.id?`<li>${mvAsk&&mvAsk.id===m.id?moveAsk(m):moveRow(m)}</li>`:rmId===m.id?`<li>${confirmRow(`حذف <b>${esc(m.name)}</b> من المجموعة؟ قراءاته السابقة تبقى في الإحصائيات.`,'rm-ok','حذف','rm-no')}</li>`:`<li><span class="av">${initials(m.name)}</span>
       <span class="grow"><span class="name">${esc(m.name)}${m.id===A.mid?' <span class="tag">المشرف</span>':''}${pushIcon(m)}</span><br><span class="sub num">${sub(m)}</span></span>
-      ${tdb?'':`<span class="pts num">${AR(pointsFor(m.id))} نقطة</span>`}${m.id===A.mid?'':`${GROUPS.length>1?`<button class="rm mv" data-mv="${m.id}" aria-label="نقل ${esc(m.name)} لمجموعة أخرى" title="نقل لمجموعة أخرى">⇄</button>`:''}<button class="rm" data-rm="${m.id}" aria-label="حذف ${esc(m.name)}" title="حذف من المجموعة">✕</button>`}</li>`).join('')}</ul>
-    ${tdb?'':`<div class="switch" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><label for="pts-on">إظهار النقاط للأعضاء</label><input type="checkbox" id="pts-on" ${G.showPoints?'checked':''}></div>
+      <span class="pts num">${AR(ptsOf(m.id))} نقطة</span>${m.id===A.mid?'':`${GROUPS.length>1?`<button class="rm mv" data-mv="${m.id}" aria-label="نقل ${esc(m.name)} لمجموعة أخرى" title="نقل لمجموعة أخرى">⇄</button>`:''}<button class="rm" data-rm="${m.id}" aria-label="حذف ${esc(m.name)}" title="حذف من المجموعة">✕</button>`}</li>`).join('')}</ul>
+    ${`<div class="switch" style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><label for="pts-on">إظهار النقاط للأعضاء</label><input type="checkbox" id="pts-on" ${G.showPoints?'checked':''}></div>
     <div class="switch" style="margin-top:10px"><label for="board">إظهار ترتيب النقاط للأعضاء</label><input type="checkbox" id="board" ${G.showBoard&&G.showPoints?'checked':''} ${G.showPoints?'':'disabled'}></div>
     <p class="sub" style="margin:8px 0 0">عند إخفاء النقاط يرى العضو التزامه وأوراده المتتالية فقط، وأنت ترى كل شيء.</p>`}
   </div>
-  ${tdb?tdbAutoCard():autoCard()+bonusCard()+remindCard()+`
+  ${tdb?tdbAutoCard()+bonusCard():autoCard()+bonusCard()+remindCard()+`
   <div class="card"><div class="row"><span class="grow"><b>الجولة التعريفية</b><br><span class="sub">شرح سريع لأهم أزرار المشرف</span></span><button class="btn btn-ghost sm" id="tour-again">إعادة الجولة</button></div></div>`}
   <div class="card dz"><p class="h"><span>حذف المجموعة</span></p>
     ${delOpen?`<p class="sub" style="margin:0">تُحذف ${tdb?'الختمة':'المجموعة'} بأورادها وقراءاتها، ويصل للأعضاء إشعار بإغلاقها. يمكنك استعادتها كما هي خلال ٧ أيام، وبعدها تُحذف نهائياً. للتأكيد اكتب اسم المجموعة: <b style="color:var(--ink)">${esc(G.group)}</b></p>
@@ -964,6 +964,8 @@ const tReadBy=(w,n,u)=>!!(w&&w.rd[n]&&w.rd[n][u]);
 const tCountW=(w,u)=>tRange(w).filter(n=>tReadBy(w,n,u)).length;
 const tDoneW=(w,u)=>tCountW(w,u)===w.to-w.f+1;
 const tReadAny=(n,u)=>G.tdb.wirds.some(w=>tReadBy(w,n,u));
+const tPtsR=(w,t)=>(w.h==null||t<=w.at+w.h*H?10:5)+(w.bn&&t<=w.at+w.bn*H?5:0);
+function tPoints(u){const seen=new Set();let p=0;G.tdb.wirds.forEach(w=>tRange(w).forEach(n=>{const t=w.rd[n]&&w.rd[n][u];if(t&&!seen.has(n)){seen.add(n);p+=tPtsR(w,t)}}));return p}
 const tPublished=n=>G.tdb.wirds.some(w=>n>=w.f&&n<=w.to);
 const tWirdOf=n=>[...G.tdb.wirds].reverse().find(w=>n>=w.f&&n<=w.to);
 const tReady=n=>{const t=TT(n);return !!(t&&t.c>0)};
@@ -996,7 +998,7 @@ function tdbAdminView(){
   const T=G.tdb, w=tCur(), mem=G.members, all=w?w.to-w.f+1:0;
   const done=w?mem.filter(m=>tDoneW(w,m.id)):[], pend=w?mem.filter(m=>!tDoneW(w,m.id)):[];
   const pct=mem.length?Math.round(100*done.length/mem.length):0;
-  if(!tdbComp){const f=tReady(G.nextTopic)?G.nextTopic:null;tdbComp={f,to:f}}
+  if(!tdbComp){const f=tReady(G.nextTopic)?G.nextTopic:null;tdbComp={f,to:f,h:24}}
   const ready=T.topics.filter(t=>t.c>0), f=tdbComp.f, to=f?Math.min(Math.max(tdbComp.to||f,f),tLastReady(f)):null;
   const pubCount=T.topics.filter(t=>tPublished(t.n)).length;
   return (w?`<div class="card wird">
@@ -1031,6 +1033,8 @@ function tdbAdminView(){
       ${tPickBtn('t-to',to)}</div>
     <div class="preview"><div class="sub">سيصل للأعضاء:</div><div class="q">${esc(tLabel(f,to))}</div>
       <div class="sub"><b>${nTopics(to-f+1)}</b> · <b>${nCardsT(tCardsIn(f,to))}</b></div></div>
+    <div class="field" style="margin-top:12px"><label for="t-hours">مدة القراءة</label>
+      <select id="t-hours">${[12,24,48,72].map(h=>`<option value="${h}" ${(tdbComp.h||24)===h?'selected':''}>${AR(h)} ساعة</option>`).join('')}</select></div>
     <div class="row" style="margin-top:14px"><button class="btn btn-ghost" id="t-pv">معاينة الورد</button><button class="btn btn-main" id="t-pub">نشر الورد وإشعار ${AR(mem.length)} ${mem.length>2&&mem.length<11?'أعضاء':'عضو'}</button></div>`
     :`<p class="sub" style="margin:10px 0 0">نُشرت كل المواضيع الجاهزة. تُضاف مواضيع جديدة تباعاً بإذن الله، أو اختر موضوعاً سابقاً لتعيد نشره.</p>`}`
     :'<p class="empty">لا توجد مواضيع جاهزة بعد.</p>'}
@@ -1051,14 +1055,15 @@ function bindTdbAdmin(){bindTopicRows();bindSelfRead();
     tdbComp=null;await refresh();toast('أُلغي الورد. يمكنك نشر الورد الصحيح الآن.')};
   const rb=$('#t-remind');if(rb)rb.onclick=async()=>{rb.disabled=true;const {data,error}=await sb.rpc('tdb_remind',{p_wird:w.id});rb.disabled=false;
     if(error)return toast(errMsg(error));toast(`أُرسل التذكير إلى ${AR(data||0)} ${data>2&&data<11?'أعضاء':'عضو'}`)};
+  const th=$('#t-hours');if(th)th.onchange=e=>{tdbComp.h=+e.target.value};
   const fs=$('#t-from');if(fs)fs.onclick=()=>tPickOpen('from');
   const ts=$('#t-to');if(ts)ts.onclick=()=>tPickOpen('to');
   const pick=()=>{const f=tdbComp.f;return [f,Math.min(Math.max(tdbComp.to||f,f),tLastReady(f))]};
-  const pb=$('#t-pub');if(pb)pb.onclick=()=>{pb.disabled=true;pb.textContent='جارٍ النشر…';tdbPublish(...pick())};
+  const pb=$('#t-pub');if(pb)pb.onclick=()=>{pb.disabled=true;pb.textContent='جارٍ النشر…';tdbPublish(...pick(),tdbComp.h)};
   const rp=$('#t-pv');if(rp)rp.onclick=()=>openRange(...pick());
 }
-async function tdbPublish(f,to){
-  const {error}=await sb.rpc('tdb_publish',{p_group:G.id,p_from:f,p_to:to});
+async function tdbPublish(f,to,h){
+  const {error}=await sb.rpc('tdb_publish',{p_group:G.id,p_from:f,p_to:to,p_hours:h||(tdbComp&&tdbComp.h)||24});
   if(error){toast(/not ready/i.test(error.message)?'بعض هذه المواضيع لم تُجهَّز بعد.':errMsg(error));render();return false}
   tdbComp=null;await refresh();scrollTo({top:0,behavior:'smooth'});
   toast(`نُشر الورد ووصل إشعار إلى ${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}`);return true}
@@ -1073,16 +1078,22 @@ async function openRange(f,to){if(opening)return;opening=true;const seq=[];
 function tdbMemberView(){
   const me=G.members.find(m=>m.id===A.mid)||{id:A.mid,name:A.name}, T=G.tdb, w=tCur();
   const pub=T.topics.filter(t=>tPublished(t.n)), readN=pub.filter(t=>tReadAny(t.n,me.id)).length;
-  const all=w?w.to-w.f+1:0, k=w?tCountW(w,me.id):0, done=w&&k===all, nx=w?tRange(w).find(n=>!tReadBy(w,n,me.id)):null;
+  let dl;const all=w?w.to-w.f+1:0, k=w?tCountW(w,me.id):0, done=w&&k===all, nx=w?tRange(w).find(n=>!tReadBy(w,n,me.id)):null;
   return `<div><h2>السلام عليكم يا ${esc(me.name)}</h2></div>
   ${w?`<div class="card wird">
     <p class="h"><span>${done?'وردك لهذه المرة':'ورد التدبر'}</span><span>${ago(w.at)}</span></p>
     <div class="range trange">${esc(tLabel(w.f,w.to))}</div>
     <div class="meta"><span>${nTopics(all)} · ${nCardsT(tCardsIn(w.f,w.to))}</span><span>${done?'أتممته':k?`قرأت ${AR(k)} من ${AR(all)}`:'لم تبدأ بعد'}</span></div>
+    ${G.showPoints&&w.h!=null&&!done?(dl=>`<div class="meta" style="margin-top:4px"><span>${dl>0?`⏳ ١٠ نقاط إذا أتممته خلال ${AR(Math.max(1,Math.ceil(dl/H)))} ${Math.ceil(dl/H)>2&&Math.ceil(dl/H)<11?'ساعات':'ساعة'}`:'انتهت مدة الورد · تُحسب ٥ نقاط للموضوع'}</span></div>`)(w.at+w.h*H-Date.now()):''}
     ${all>1?`<ul class="list tlist inw">${tRange(w).map(n=>tRow(n,{state:tReadBy(w,n,me.id)?'ok':'pend'})).join('')}</ul>`:''}
     <div class="row" style="margin-top:16px"><button class="btn btn-light" id="t-read">${done?'إعادة القراءة':k?'أكمل القراءة':'ابدأ القراءة'}</button></div>
   </div>`:`<div class="card wird"><p class="h"><span>ورد التدبر</span></p>
     <div class="range trange">لم يُنشر ورد بعد</div><div class="meta"><span>سيصلك إشعار عندما ينشر المشرف الورد الأول.</span></div></div>`}
+  ${G.showPoints?`<div class="card"><p class="h"><span>إنجازك</span></p><div class="stats">
+    <div class="stat"><b class="num">${AR(tPoints(me.id))}</b><span>نقطة</span></div>
+    <div class="stat"><b class="num">${AR(readN)}</b><span>موضوع مقروء</span></div></div></div>`:''}
+  ${G.showBoard&&G.showPoints?`<div class="card"><p class="h"><span>ترتيب الختمة</span></p><ul class="list">${[...G.members].sort((a,b)=>tPoints(b.id)-tPoints(a.id)).map((m,i)=>`<li><span class="av">${AR(i+1)}</span>
+    <span class="grow name">${esc(m.name)}${m.id===me.id?' <span class="sub">(أنت)</span>':''}${G.adminId===m.id&&m.id!==me.id?' <span class="tag">المشرف</span>':''}</span><span class="pts num">${AR(tPoints(m.id))}</span></li>`).join('')}</ul></div>`:''}
   ${pub.length?tIndex(pub.map(t=>tRow(t.n,{state:tReadAny(t.n,me.id)?'ok':'pend'})).join(''),`قرأت ${AR(readN)} من ${AR(pub.length)}`):''}
   ${leaving?`<div class="card">${confirmRow(`الخروج من «${esc(G.group)}»؟ لن يصلك وردها بعد ذلك، ويمكنك العودة بكود الختمة.`,'lv-ok','خروج من الختمة','lv-no')}</div>`
     :'<button class="back danger" id="leave" style="align-self:center">الخروج من هذه الختمة</button>'}`;

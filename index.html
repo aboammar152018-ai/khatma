@@ -481,7 +481,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-17f'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-18g'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -2223,7 +2223,7 @@ function ownerView(){const o=OWN;
   if(!o)return h+`<div class="card"><p class="sub" style="margin:0">${ownErr?esc(ownErr):'جارٍ التحميل…'}</p>${ownErr?'<button class="btn btn-ghost sm" id="own-re" style="margin-top:10px">إعادة المحاولة</button>':''}</div>`;
   const st=(n,l)=>`<div class="stat"><b class="num">${AR(n)}</b><span>${l}</span></div>`;
   h+=`<div class="card"><p class="h"><span>الأرقام</span><button class="back" id="own-re" type="button">↻ تحديث</button></p>
-    <div class="ostats">${st(o.users,'كل المسجلين')}${st(o.members,'أعضاء')}${st(o.admins,'مشرفين')}${st(o.groups,'مجموعات')}
+    <div class="ostats">${st(o.users,'كل المسجلين')}${st(o.members,'أعضاء')}${st(o.admins,'مشرفين')}${st(o.groups,'مجموعات')}${st(o.pk||0,'ختمات شخصية نشطة')}
     ${st(o.active7,'قرأوا آخر ٧ أيام')}${st(o.reads7,'قراءة آخر ٧ أيام')}${st(o.push,'مفعّلين الإشعارات')}${st(o.users-o.confirmed,'غير مفعّلين')}</div></div>`;
   h+=usageCard();
   {const ago=t=>{const d=Math.floor((Date.now()-t)/864e5);return d<=0?'اليوم':d===1?'أمس':d===2?'منذ يومين':'منذ '+AR(d)+(d<11?' أيام':' يوماً')};

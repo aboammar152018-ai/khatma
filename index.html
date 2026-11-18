@@ -481,7 +481,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-18h'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-18i'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -2372,12 +2372,15 @@ function deviceInfo(){return {v:DIAG.v,view:VIEW,mode:A&&A.role,group:G&&G.group
 function feedbackView(){return screenHead('إرسال ملاحظة')+`<div class="card">
   <p class="sub" style="margin:0 0 10px">اكتب أي مشكلة واجهتك أو أي اقتراح عندك. ستصلني مباشرة ومعها نوع جهازك وإصدار التطبيق، حتى أستطيع حلها.</p>
   <div class="field" style="margin-top:0"><label for="fb-text">ملاحظتك</label><textarea id="fb-text" rows="6" maxlength="3000" placeholder="مثلاً: زر «تم» لا يظهر لي في آخر الورد…"></textarea></div>
+  ${USER?'':`<div class="field"><label for="fb-re">إيميل للرد عليك (اختياري)</label><input id="fb-re" type="email" dir="ltr" autocomplete="email" maxlength="200" placeholder="name@example.com"></div>`}
   <button class="btn btn-main" id="fb-send" style="width:100%;margin-top:12px">إرسال</button></div>`}
 function bindFeedback(){$('#sback').onclick=back;
   $('#fb-send').onclick=async e=>{const t=$('#fb-text').value.trim();if(t.length<2){$('#fb-text').focus();return toast('اكتب ملاحظتك أولاً.')}
     if(!navigator.onLine)return toast('تحتاج اتصالاً بالإنترنت لإرسال الملاحظة.');
+    const re=USER?'':(($('#fb-re')||{}).value||'').trim();
+    if(re&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(re)){$('#fb-re').focus();return toast('اكتب الإيميل بشكل صحيح أو اتركه فارغاً.')}
     const b=e.currentTarget;b.disabled=true;b.textContent='جارٍ الإرسال…';
-    const {error}=await sb.rpc('submit_feedback',{p_text:t,p_info:deviceInfo()});
+    const {error}=await sb.rpc('submit_feedback',{p_text:t,p_info:re?{...deviceInfo(),re}:deviceInfo()});
     if(error){b.disabled=false;b.textContent='إرسال';return toast(errMsg(error))}
     back();toast('وصلت ملاحظتك، جزاك الله خيراً 🌿')}}
 const feedbackRow=()=>`<div class="row fbrow"><span class="grow sub">عندك ملاحظة أو واجهتك مشكلة؟</span><button class="btn btn-ghost sm" id="to-fb">💬 إرسال ملاحظة</button></div>`;
@@ -2404,7 +2407,8 @@ function pkDue(){const t=+(lsGet(pkMsgKey())||0);return !t||(!GROUPS.length&&Dat
 function pkAsk(kind){const alone=!GROUPS.length;lsSet(pkMsgKey(),String(Date.now()));
   $('#layer').innerHTML=`<div class="modal"><div class="dlg">
     <div class="big">«يدُ اللهِ مع الجماعة»</div>
-    <div class="sub">${alone?'رواه الترمذي. احرص على الانضمام لمجموعة تثبّتك على وِردك.':'رواه الترمذي. ختمتك الخاصة إلى جانب مجموعتك، فاحرص عليهما معاً.'}</div>
+    <div class="sub" style="font-size:12px">رواه الترمذي</div>
+    <div class="sub">${alone?'احرص على الانضمام لمجموعة تثبّتك على وِردك.':'لا تنسَ ختمتك مع أحبابك.'}</div>
     ${alone?'<button class="btn btn-main" id="pka-join">الانضمام لمجموعة</button>':''}
     <button class="btn ${alone?'btn-ghost':'btn-main'}" id="pka-go">أكمل ختمتي</button></div></div>`;
   const j=$('#pka-join');if(j)j.onclick=()=>{$('#layer').innerHTML='';scrollTo({top:0,behavior:'smooth'})};

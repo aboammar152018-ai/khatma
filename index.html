@@ -39,6 +39,11 @@
 .pkrow .pkt{display:flex;flex-direction:column;gap:3px}.pkrow .pkt b{font-size:18px}.pkrow .pkt small{font-size:14px;color:var(--muted)}
 .pkrow .pkgo{color:var(--lapis);font-weight:600;white-space:nowrap}
 .pk-hide{display:none!important}
+.updbar{display:flex;align-items:center;gap:10px;background:var(--lapis-soft);color:var(--lapis);font-size:14px;padding:9px 14px;border-bottom:1px solid var(--line)}
+.updbar{border-radius:12px;margin:0 0 10px;border:1px solid var(--line)}
+.updbar .btn{width:auto;min-height:0;padding:5px 16px;font-size:13px;line-height:1.4}
+.updbar span{flex:1}.updbar button:not(.btn){background:none;border:0;color:inherit;font:inherit;cursor:pointer;opacity:.8}
+.updbar.fix{position:fixed;inset-inline:12px;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:70;border:1px solid var(--line);border-radius:12px;font-size:13px;padding:8px 12px}
 @font-face{font-family:"Honorifics";src:url(/honorifics.woff2) format("woff2");unicode-range:U+FD47-FD4D;font-display:swap}
 @font-face{font-family:"KFGQPC Hafs";src:url(/kfgqpc-hafs.woff2) format("woff2");font-display:swap}
 /* Layout: one-column phone app shell, sticky header with role switch; mushaf opens as a full-screen reading sheet */
@@ -482,7 +487,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-19k'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-19l'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1589,7 +1594,26 @@ const inApp=/FBAN|FBAV|FB_IAB|FBIOS|Instagram|Messenger|Line\/|Snapchat|TikTok|m
 try{if(navigator.getInstalledRelatedApps)navigator.getInstalledRelatedApps().then(a=>{appInstalled=a.length>0;if(appInstalled&&A&&!R)render()}).catch(()=>{})}catch(e){}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;if(A&&!R)render()});
 window.addEventListener('appinstalled',()=>{installEvt=null;toast('تم تثبيت التطبيق');if(A&&!R)render()});
+// شريط «يوجد تحديث جديد»: يظهر لما ينزل إصدار جديد، والعضو هو من يقرر وقت التحديث
+let UPD=false,updLater=false;
+function updBar(){let b=document.getElementById('updbar');
+  if(!UPD||updLater){if(b)b.remove();return}
+  const busy=!!(R||TR),m=busy?'b':'a';
+  if(b&&b.dataset.m===m)return;
+  if(b)b.remove();
+  b=document.createElement('div');b.id='updbar';b.dataset.m=m;b.setAttribute('role','status');b.className='updbar'+(busy?' fix':'');
+  b.innerHTML=busy?'<span>تحديث جديد جاهز، يُطبَّق بعد إنهاء القراءة.</span><button type="button" id="upd-later">لاحقاً</button>'
+    :'<span>يوجد تحديث جديد للتطبيق</span><button type="button" class="btn btn-main sm" id="upd-go">تحديث</button><button type="button" id="upd-later">لاحقاً</button>';
+  if(busy)document.body.appendChild(b);else{const v=document.getElementById('view');v.parentNode.insertBefore(b,v)}
+  const g=b.querySelector('#upd-go');if(g)g.onclick=()=>location.reload();
+  b.querySelector('#upd-later').onclick=()=>{updLater=true;updBar()}}
+const showUpd=()=>{UPD=true;updBar()};
+window.__upd={show:showUpd,busy:v=>{R=v}};
+setInterval(updBar,1500);
 if('serviceWorker' in navigator){
+  const hadCtl=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadCtl)showUpd()});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&swReg)swReg.update().catch(()=>{})});
   navigator.serviceWorker.register('/sw.js').then(r=>{swReg=r;checkPush()}).catch(()=>{pushState='unsupported'});
   navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='push'){fromPush=true;if(A&&!R&&!TR)refresh().then(pushJump)}else if(e.data==='refresh'&&A&&!R)refresh()});
 }else pushState='unsupported';

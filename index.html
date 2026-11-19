@@ -482,7 +482,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-19j'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-19k'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -2226,7 +2226,8 @@ function ownerView(){const o=OWN;
   const st=(n,l)=>`<div class="stat"><b class="num">${AR(n)}</b><span>${l}</span></div>`;
   h+=`<div class="card"><p class="h"><span>الأرقام</span><button class="back" id="own-re" type="button">↻ تحديث</button></p>
     <div class="ostats">${st(o.users,'كل المسجلين')}${st(o.members,'أعضاء')}${st(o.admins,'مشرفين')}${st(o.groups,'مجموعات')}${st(o.pk||0,'ختمات شخصية نشطة')}
-    ${st(o.active7,'قرأوا آخر ٧ أيام')}${st(o.reads7,'قراءة آخر ٧ أيام')}${st(o.push,'مفعّلين الإشعارات')}${st(o.users-o.confirmed,'غير مفعّلين')}</div></div>`;
+    ${st(o.active7,'قرأوا آخر ٧ أيام')}${st(o.reads7,'قراءة آخر ٧ أيام')}${st(o.push,'مفعّلين الإشعارات')}${st(o.users-o.confirmed,'غير مفعّلين')}</div>
+    <p class="sub" style="margin:10px 0 0">نسخة التطبيق: <bdi dir="ltr">${esc(DIAG.v)}</bdi></p></div>`;
   h+=usageCard();
   {const ago=t=>{const d=Math.floor((Date.now()-t)/864e5);return d<=0?'اليوم':d===1?'أمس':d===2?'منذ يومين':'منذ '+AR(d)+(d<11?' أيام':' يوماً')};
   const last=+lsGet('khatma-backup-at')||0,auto=OWNBK&&OWNBK.last?Date.parse(OWNBK.last):0,due=(Date.now()-Math.max(last,auto))>=8*864e5;

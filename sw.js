@@ -1,5 +1,5 @@
 // ختمة: عامل الخدمة (فتح سريع + العمل بدون إنترنت + الإشعارات)
-const CACHE = 'khatma-v5';
+const CACHE = 'khatma-v6';
 const SB_LIB = '/supabase-2.117.3.js';
 const TEXT = '/quran-text-v1.js';
 const QCF_CACHE = 'khatma-qcf-v1'; // صفحات وخطوط مصحف المدينة (تُحفظ عشان تفتح بدون إنترنت)
@@ -8,7 +8,7 @@ const isQcf = (u) => u.host === 'cdn.jsdelivr.net' && u.pathname.startsWith('/np
 self.addEventListener('install', (e) => {
   self.skipWaiting();
   e.waitUntil(caches.open(CACHE).then(async (c) => {
-    await c.addAll(['/', '/manifest.json', '/icon-192.png', '/badge-96.png', '/kfgqpc-hafs.woff2']).catch(() => {});
+    await c.addAll(['/', '/manifest.json', '/icon-192.png', '/badge-96.png', '/kfgqpc-hafs.woff2', '/honorifics.woff2']).catch(() => {});
     await c.add(SB_LIB).catch(() => {});
   }));
 });

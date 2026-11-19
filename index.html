@@ -39,6 +39,7 @@
 .pkrow .pkt{display:flex;flex-direction:column;gap:3px}.pkrow .pkt b{font-size:18px}.pkrow .pkt small{font-size:14px;color:var(--muted)}
 .pkrow .pkgo{color:var(--lapis);font-weight:600;white-space:nowrap}
 .pk-hide{display:none!important}
+@font-face{font-family:"Honorifics";src:url(/honorifics.woff2) format("woff2");unicode-range:U+FD47-FD4D;font-display:swap}
 @font-face{font-family:"KFGQPC Hafs";src:url(/kfgqpc-hafs.woff2) format("woff2");font-display:swap}
 /* Layout: one-column phone app shell, sticky header with role switch; mushaf opens as a full-screen reading sheet */
 :root{
@@ -47,10 +48,10 @@
   --gold:#a07c26; --gold-soft:#f5ecd6;
   --ok:#2b774b; --ok-soft:#e0f0e6; --warn:#a85d18; --warn-soft:#f7eadb;
   --page:#fffdf7; --page-edge:#e8dfc6; --shade:rgba(19,34,44,.45);
-  --f-quran:"Amiri Quran","Amiri","Traditional Arabic",serif;
-  --f-hafs:"KFGQPC Hafs","Amiri Quran","Amiri","Traditional Arabic",serif;
+  --f-quran:"Honorifics","Amiri Quran","Amiri","Traditional Arabic",serif;
+  --f-hafs:"Honorifics","KFGQPC Hafs","Amiri Quran","Amiri","Traditional Arabic",serif;
   --f-brand:"Aref Ruqaa","Amiri",serif;
-  --f-ui:"Readex Pro","Segoe UI","Tahoma",sans-serif;
+  --f-ui:"Honorifics","Readex Pro","Segoe UI","Tahoma",sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0e1418; --surface:#162027; --ink:#e4eaee; --muted:#93a3ad; --line:#26333b;
@@ -481,7 +482,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-18i'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-19j'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

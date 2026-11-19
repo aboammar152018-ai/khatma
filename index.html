@@ -487,7 +487,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-19l'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-20a'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -764,6 +764,14 @@ function bindLate(){document.querySelectorAll('[data-rq]').forEach(b=>b.onclick=
     if(/nothing/i.test(t)){await refresh();return toast(`لا توجد أوراد فائتة عند ${m.name} الآن.`)}
     b.disabled=false;b.textContent='🔔 تذكير';return toast(errMsg(error))}
   m.qr=true;render();toast(`تم إرسال التذكير إلى ${m.name}${m.push===false?'، وسيجده في التنبيهات عندما يفتح التطبيق':''}`)})}
+function pubAsk(go){if((G&&G.personal)||(navigator.webdriver&&!window.__pubAskForce))return go();const n=(G&&G.members?G.members.length:0);
+  $('#layer').innerHTML=`<div class="modal"><div class="dlg">
+    <div class="big">تأكيد النشر</div>
+    <div class="sub">${n?`سيصل الورد الآن إلى ${AR(n)} ${n>2&&n<11?'أعضاء':'عضو'} بإشعار.`:'سيُنشر الورد الآن بإشعار.'} هل تريد المتابعة؟</div>
+    <button class="btn btn-main" id="pa-ok">نشر</button>
+    <button class="btn btn-ghost" id="pa-no">إلغاء</button></div></div>`;
+  $('#pa-no').onclick=()=>{$('#layer').innerHTML=''};
+  $('#pa-ok').onclick=()=>{$('#layer').innerHTML='';go()}}
 function bindAdmin(){bindLate();
   const pv=$('#preview');if(pv)pv.onclick=()=>openReader(cur());
   const co=$('#cw-open');if(co)co.onclick=()=>{cancelOpen=true;render()};
@@ -782,15 +790,15 @@ function bindAdmin(){bindLate();
   document.querySelectorAll('input[name=mode]').forEach(r=>r.onchange=()=>{comp.mode=r.value;if(r.value==='pick'&&!comp.pick)comp.pick=G.nextRub;render()});
   const pk=$('#pick');if(pk)pk.onchange=()=>{comp.pick=+pk.value;render()};
   $('#hours').onchange=e=>{G.hours=+e.target.value;render()};
-  $('#publish').onclick=async e=>{
-    const btn=e.currentTarget;btn.disabled=true;btn.textContent='جارٍ النشر…';
+  $('#publish').onclick=e=>{const btn=e.currentTarget;pubAsk(async()=>{
+    btn.disabled=true;btn.textContent='جارٍ النشر…';
     const start=comp.mode==='continue'?G.nextRub:(comp.pick||1);
     const w=makeWird(start,G.unit,G.hours,Date.now());
     const {error}=await sb.rpc('publish_wird',{p_group:G.id,p_start_rub:w.startRub,p_end_rub:w.endRub,p_count:w.count,
       p_start:w.start,p_end:w.end,p_p1:w.p1,p_p2:w.p2,p_hours:G.hours,p_text:`«${G.group}»: نزل الورد الجديد: من ${ref(w.start)} إلى ${ref(w.end)}`});
     if(error){toast(errMsg(error));render();return}
     comp={mode:'continue',pick:null};await refresh();scrollTo({top:0,behavior:'smooth'});
-    toast(G.personal?'نُشر الورد':`نُشر الورد ووصل إشعار إلى ${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}`)};
+    toast(G.personal?'نُشر الورد':`نُشر الورد ووصل إشعار إلى ${AR(G.members.length)} ${G.members.length>2&&G.members.length<11?'أعضاء':'عضو'}`)})};
   const rb=$('#remind');if(rb)rb.onclick=async()=>{const w=cur();rb.disabled=true;
     const {data,error}=await sb.rpc('remind_pending',{p_wird:w.id,p_text:`«${G.group}»: تذكير لطيف، ورد اليوم في انتظارك (${ref(w.start)} ← ${ref(w.end)}). ${left(w)}`});
     rb.disabled=false;if(error){toast(errMsg(error));return}
@@ -1075,7 +1083,7 @@ function bindTdbAdmin(){bindTopicRows();bindSelfRead();
   const fs=$('#t-from');if(fs)fs.onclick=()=>tPickOpen('from');
   const ts=$('#t-to');if(ts)ts.onclick=()=>tPickOpen('to');
   const pick=()=>{const f=tdbComp.f;return [f,Math.min(Math.max(tdbComp.to||f,f),tLastReady(f))]};
-  const pb=$('#t-pub');if(pb)pb.onclick=()=>{pb.disabled=true;pb.textContent='جارٍ النشر…';tdbPublish(...pick(),tdbComp.h)};
+  const pb=$('#t-pub');if(pb)pb.onclick=()=>pubAsk(()=>{pb.disabled=true;pb.textContent='جارٍ النشر…';tdbPublish(...pick(),tdbComp.h)});
   const rp=$('#t-pv');if(rp)rp.onclick=()=>openRange(...pick());
 }
 async function tdbPublish(f,to,h){
@@ -1180,7 +1188,7 @@ function drawTR(){if(!TR)return;if(TR.seq)TR.t=TR.seq[TR.i].t;const {t,cards,i,w
   const rs=$('#rep-send');if(rs)rs.onclick=()=>sendReport(rs);
   const sh=$('#tr-share');if(sh)sh.onclick=()=>shareTCard(sh);
   document.querySelectorAll('[data-tfs]').forEach(b=>b.onclick=()=>tfsSet(+b.dataset.tfs*0.1));
-  const tp=$('#tr-pub');if(tp)tp.onclick=async()=>{tp.disabled=true;tp.textContent='جارٍ النشر…';const {f,to}=TR.pv;trBack();await tdbPublish(f,to)};
+  const tp=$('#tr-pub');if(tp)tp.onclick=()=>pubAsk(async()=>{tp.disabled=true;tp.textContent='جارٍ النشر…';const {f,to}=TR.pv;trBack();await tdbPublish(f,to)});
   const b=$('#tr-body');if(b){let x0=0,y0=0,t0=0;b.addEventListener('touchstart',e=>{const p=e.touches[0];x0=p.clientX;y0=p.clientY;t0=Date.now()},{passive:true});
     b.addEventListener('touchend',e=>{const p=e.changedTouches[0],dx=p.clientX-x0,dy=p.clientY-y0;
       // من اليمين للشمال: السحب لليمين = البطاقة التالية

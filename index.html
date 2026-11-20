@@ -45,7 +45,7 @@
 .updbar span{flex:1}.updbar button:not(.btn){background:none;border:0;color:inherit;font:inherit;cursor:pointer;opacity:.8}
 .updbar.fix{position:fixed;inset-inline:12px;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:70;border:1px solid var(--line);border-radius:12px;font-size:13px;padding:8px 12px}
 @font-face{font-family:"Honorifics";src:url(/honorifics.woff2) format("woff2");unicode-range:U+FD47-FD4D;font-display:swap}
-@font-face{font-family:"KFGQPC Hafs";src:url(/kfgqpc-hafs.woff2) format("woff2");font-display:swap}
+@font-face{font-family:"KFGQPC Hafs";src:url(/kfgqpc-hafs-v22.ttf) format("truetype");font-display:swap}
 /* Layout: one-column phone app shell, sticky header with role switch; mushaf opens as a full-screen reading sheet */
 :root{
   --bg:#eef2f4; --surface:#ffffff; --ink:#13222c; --muted:#5a6a74; --line:#d9e1e5;
@@ -487,7 +487,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-20b'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-20c'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1436,7 +1436,7 @@ const posKey=w=>'khatma-pos-'+w.id;
 function readPos(w){try{return JSON.parse(localStorage.getItem(posKey(w))||'null')}catch(e){return null}}
 let QT_P=null;
 function ensureText(){if(window.QT)return Promise.resolve();if(QT_P)return QT_P;
-  QT_P=new Promise((res,rej)=>{const s=document.createElement('script');s.src='/quran-text-v1.js';s.onload=()=>window.QT?res():rej();s.onerror=()=>{QT_P=null;s.remove();rej()};document.head.appendChild(s)});return QT_P}
+  QT_P=new Promise((res,rej)=>{const s=document.createElement('script');s.src='/quran-text-v2.js';s.onload=()=>window.QT?res():rej();s.onerror=()=>{QT_P=null;s.remove();rej()};document.head.appendChild(s)});return QT_P}
 // بدون إنترنت: نجرب صفحات المدينة من المحفوظ، ولو مش موجودة نعرض النص
 const mdReady=(w,ms)=>Promise.race([Promise.all(readerPages(w,'madinah').map(loadPage4)).then(()=>true,()=>false),new Promise(r=>setTimeout(()=>r(false),ms||3000))]);
 let opening=false;

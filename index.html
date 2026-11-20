@@ -488,7 +488,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-20d'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-20e'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -2157,13 +2157,22 @@ function bindAuth(){
   };
 }
 
+/* ---------- فحص تحميل خط المصحف الرسمي (يُسجَّل كخطأ لو فشل على جهاز) ---------- */
+const HAFS_URL='/kfgqpc-hafs-v22.ttf';
+function hafsFace(){let f=null;try{document.fonts.forEach(x=>{if(x.family.replace(/["']/g,'')==='KFGQPC Hafs')f=x})}catch(e){}return f}
+function hafsState(){const f=hafsFace();if(!f)return 'غير معروف';return {loaded:'محمّل ✓',error:'فشل التحميل ✗',loading:'جارٍ التحميل…',unloaded:'لم يُطلب بعد'}[f.status]||f.status}
+async function hafsCheck(){try{await document.fonts.load('26px "KFGQPC Hafs"','بِسۡمِ');const f=hafsFace();if(!f||f.status!=='error')return;
+  let info={};try{const r=await fetch(HAFS_URL,{cache:'no-store'});info={http:r.status,type:r.headers.get('content-type'),len:r.headers.get('content-length')};
+    const b=await r.arrayBuffer();info.bytes=b.byteLength;try{await new FontFace('HafsProbe',b).load();info.probe='ok'}catch(e){info.probe=(e&&e.name)+': '+(e&&e.message)}}catch(e){info.fetch=String(e)}
+  reportError('font: KFGQPC Hafs failed',info)}catch(e){}}
+setTimeout(hafsCheck,4000);
 /* ---------- قياس السرعة (افتح الرابط مع #diag في آخره) ---------- */
 function diagCard(){if(location.hash!=='#diag')return '';
   const ms=v=>v==null?'—':`${AR(v)} ملّي ثانية`, c=navigator.connection;
   const rows=[['فتح الصفحة وتشغيلها',ms(DIAG.t0)],['أول ظهور للمحتوى',ms(DIAG.first)],['ظهر من النسخة المحفوظة',DIAG.cached?'نعم':'لا'],
     ['التحقق من الدخول',ms(DIAG.session)],['تحميل البيانات من السيرفر',ms(DIAG.state)],['زمن الوصول للسيرفر',DIAG.ping?ms(DIAG.ping):'اضغط «قياس الاتصال»'],
     ['عامل الخدمة',navigator.serviceWorker&&navigator.serviceWorker.controller?'يعمل':'لا يعمل'],['التطبيق مثبّت',standalone()?'نعم':'لا'],
-    ['نوع الشبكة',c&&c.effectiveType?c.effectiveType:'غير معروف'],['الإصدار',DIAG.v]];
+    ['نوع الشبكة',c&&c.effectiveType?c.effectiveType:'غير معروف'],['خط المصحف',hafsState()],['الإصدار',DIAG.v]];
   return `<div class="card diag"><p class="h"><span>قياس السرعة</span></p><ul class="list">${rows.map(r=>`<li><span class="grow">${r[0]}</span><b class="num">${r[1]}</b></li>`).join('')}</ul>
     <div class="row" style="margin-top:10px"><button class="btn btn-ghost sm" id="dg-ping">قياس الاتصال</button><button class="btn btn-ghost sm" id="dg-copy">نسخ النتائج</button></div></div>`}
 function bindDiag(){const p=$('#dg-ping');if(!p)return;

@@ -1,5 +1,5 @@
 // ختمة: عامل الخدمة (فتح سريع + العمل بدون إنترنت + الإشعارات)
-const CACHE = 'khatma-v6';
+const CACHE = 'khatma-v7';
 const SB_LIB = '/supabase-2.117.3.js';
 const TEXT = '/quran-text-v1.js';
 const QCF_CACHE = 'khatma-qcf-v1'; // صفحات وخطوط مصحف المدينة (تُحفظ عشان تفتح بدون إنترنت)

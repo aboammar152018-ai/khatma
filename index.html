@@ -488,7 +488,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-20e'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-21a'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -2232,7 +2232,7 @@ function kahfCard(){if(!A||!kahfDay())return '';const d=kahfDone();
       :`<div class="kq">${KAHF_H}</div>
     <div class="row" style="margin-top:12px;gap:8px"><button class="btn btn-main" id="kahf-read" style="flex:1">اقرأ سورة الكهف</button><button class="btn btn-ghost" id="kahf-ok">تم بحمد الله</button></div>`}</div>`}
 function bindKahf(){const r=$('#kahf-read');if(r)r.onclick=()=>openReader(kahfW());const o=$('#kahf-ok');if(o)o.onclick=()=>kahfFinish(false)}
-function kahfFinish(fromR){lsSet(kahfKey(),'1');try{localStorage.removeItem('khatma-pos-kahf')}catch(e){}
+function kahfFinish(fromR){lsSet(kahfKey(),'1');try{const d=new Date(),ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;if(sb&&A)sb.rpc('kahf_mark',{p_day:ds}).then(()=>{},()=>{})}catch(e){}try{localStorage.removeItem('khatma-pos-kahf')}catch(e){}
   if(R&&R.w.kahf)R.w.done[A.mid]=1;
   $('#layer').innerHTML=`<div class="modal"><div class="dlg"><div class="big">تقبّل الله منك</div>
     <div class="sub">✓ قرأت سورة الكهف</div><div class="q">${KAHF_H}</div>
@@ -2269,7 +2269,7 @@ function ownerView(){const o=OWN;
   if(!o)return h+`<div class="card"><p class="sub" style="margin:0">${ownErr?esc(ownErr):'جارٍ التحميل…'}</p>${ownErr?'<button class="btn btn-ghost sm" id="own-re" style="margin-top:10px">إعادة المحاولة</button>':''}</div>`;
   const st=(n,l)=>`<div class="stat"><b class="num">${AR(n)}</b><span>${l}</span></div>`;
   h+=`<div class="card"><p class="h"><span>الأرقام</span><button class="back" id="own-re" type="button">↻ تحديث</button></p>
-    <div class="ostats">${st(o.users,'كل المسجلين')}${st(o.members,'أعضاء')}${st(o.admins,'مشرفين')}${st(o.groups,'مجموعات')}${st(o.pk||0,'ختمات شخصية نشطة')}
+    <div class="ostats">${st(o.users,'كل المسجلين')}${st(o.members,'أعضاء')}${st(o.admins,'مشرفين')}${st(o.groups,'مجموعات')}${st(o.pk||0,'ختمات شخصية نشطة')}${st(o.kahf||0,'قرأوا الكهف آخر جمعة')}
     ${st(o.active7,'قرأوا آخر ٧ أيام')}${st(o.reads7,'قراءة آخر ٧ أيام')}${st(o.push,'مفعّلين الإشعارات')}${st(o.users-o.confirmed,'غير مفعّلين')}</div>
     <p class="sub" style="margin:10px 0 0">نسخة التطبيق: <bdi dir="ltr">${esc(DIAG.v)}</bdi></p></div>`;
   h+=usageCard();

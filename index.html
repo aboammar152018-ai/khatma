@@ -46,6 +46,8 @@
 .updbar.fix{position:fixed;inset-inline:12px;bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:70;border:1px solid var(--line);border-radius:12px;font-size:13px;padding:8px 12px}
 @font-face{font-family:"Honorifics";src:url(/honorifics.woff2) format("woff2");unicode-range:U+FD47-FD4D;font-display:swap}
 @font-face{font-family:"KFGQPC Hafs";src:url(/kfgqpc-hafs-v22.ttf) format("truetype");font-display:swap}
+/* بديل احتياطي لخط الواجهة: نفس ملف خط المصحف، بدون الأرقام (أرقامه دوائر آيات) */
+@font-face{font-family:"Hafs UI";src:url(/kfgqpc-hafs-v22.ttf) format("truetype");font-display:swap;unicode-range:U+0600-065F,U+066A-06EF,U+06FA-06FF,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF}
 /* Layout: one-column phone app shell, sticky header with role switch; mushaf opens as a full-screen reading sheet */
 :root{
   --bg:#eef2f4; --surface:#ffffff; --ink:#13222c; --muted:#5a6a74; --line:#d9e1e5;
@@ -56,7 +58,7 @@
   --f-quran:"Honorifics","Amiri Quran","Amiri","Traditional Arabic",serif;
   --f-hafs:"Honorifics","KFGQPC Hafs","Amiri Quran","Amiri","Traditional Arabic",serif;
   --f-brand:"Aref Ruqaa","Amiri",serif;
-  --f-ui:"Honorifics","Readex Pro","KFGQPC Hafs","Segoe UI","Tahoma",sans-serif;
+  --f-ui:"Honorifics","Readex Pro","Hafs UI","Segoe UI","Tahoma",sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0e1418; --surface:#162027; --ink:#e4eaee; --muted:#93a3ad; --line:#26333b;
@@ -441,6 +443,7 @@ input.bad{border-color:#c0392b!important}
 .ts-head{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
 .ts-legend{margin:8px 16px 4px;font-size:13px;color:var(--muted)}.ts-legend .ok{color:var(--ok);font-weight:600}
 .ts-list{overflow:auto;padding:4px 8px 12px}
+.ts-jz{display:flex;flex-direction:column;gap:6px;margin:8px 16px 0}.ts-jz select{width:100%}.ts-jz .lbl{font-size:13px;color:var(--muted)}
 .ts-it{width:100%;display:flex;gap:10px;align-items:flex-start;text-align:start;background:none;border:0;border-bottom:1px solid var(--line);padding:12px 8px;font:inherit;color:var(--ink)}
 .ts-it.ok .ts-t{color:var(--ok)}.ts-it.pend .ts-t{color:var(--gold)}.ts-it.sel{background:var(--bg);outline:2px solid var(--line);border-radius:10px}
 .ts-mk{flex:0 0 18px;font-weight:700;color:var(--ok)}.ts-it.pend .ts-mk{color:var(--gold)}
@@ -488,7 +491,7 @@ const Q={"s":[["الفاتحة",1,7],["البقرة",8,286],["آل عمران",2
 <script src="/supabase-2.117.3.js"></script>
 <script>
 (function(){
-const DIAG={t0:Math.round(performance.now()),v:'2026-11-23a'};
+const DIAG={t0:Math.round(performance.now()),v:'2026-11-25a'};
 const N=6236, H=3600e3;
 const AR=n=>String(n).replace(/\d/g,d=>'٠١٢٣٤٥٦٧٨٩'[d]);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1217,11 +1220,11 @@ async function sendReport(b){const x=(TR.repText||'').trim();if(x.length<2){cons
 function wrapLines(ctx,text,maxW){const out=[];String(text||'').split('\n').forEach(par=>{let line='';
   par.split(/\s+/).filter(Boolean).forEach(w=>{const t=line?line+' '+w:w;if(ctx.measureText(t).width>maxW&&line){out.push(line);line=w}else line=t});if(line)out.push(line)});return out}
 async function shareTCard(b){const t=TR.t,c=TR.cards[TR.i];if(!c)return;b.disabled=true;
-  try{try{await Promise.race([Promise.all(['700 40px "Aref Ruqaa"','44px "Amiri Quran"','44px "KFGQPC Hafs"','44px "Honorifics"','500 30px "Readex Pro"','30px "Readex Pro"'].map(f=>document.fonts.load(f))),new Promise(r=>setTimeout(r,2000))])}catch(e){}
+  try{try{await Promise.race([Promise.all(['700 40px "Aref Ruqaa"','44px "Amiri Quran"','44px "KFGQPC Hafs"','44px "Honorifics"','500 30px "Readex Pro"','30px "Readex Pro"','30px "Hafs UI"'].map(f=>document.fonts.load(f,'بِسۡمِ ﵇ ﷺ'))),new Promise(r=>setTimeout(r,2000))])}catch(e){}
     const P={bg:'#fbf7ec',edge:'#e6d9b8',ink:'#1f2a37',gold:'#a8741a',lapis:'#1f4e79',soft:'#f3e9cf',muted:'#6b7280'};
     const W=1080,pad=80,inner=W-pad*2,cv=document.createElement('canvas'),ctx=cv.getContext('2d');
-    const F={brand:'700 46px "Aref Ruqaa","Amiri",serif',title:'500 40px "Honorifics","Readex Pro","KFGQPC Hafs",Tahoma,sans-serif',sub:'30px "Honorifics","Readex Pro","KFGQPC Hafs",Tahoma,sans-serif',
-      q:'46px "Honorifics","KFGQPC Hafs","Amiri Quran","Amiri",serif',h:'600 34px "Honorifics","Readex Pro","KFGQPC Hafs",Tahoma,sans-serif',body:'34px "Honorifics","Readex Pro","KFGQPC Hafs",Tahoma,sans-serif',foot:'26px "Readex Pro",Tahoma,sans-serif'};
+    const F={brand:'700 46px "Aref Ruqaa","Amiri",serif',title:'500 40px "Honorifics","Readex Pro","Hafs UI",Tahoma,sans-serif',sub:'30px "Honorifics","Readex Pro","Hafs UI",Tahoma,sans-serif',
+      q:'46px "Honorifics","KFGQPC Hafs","Amiri Quran","Amiri",serif',h:'600 34px "Honorifics","Readex Pro","Hafs UI",Tahoma,sans-serif',body:'34px "Honorifics","Readex Pro","Hafs UI",Tahoma,sans-serif',foot:'26px "Readex Pro",Tahoma,sans-serif'};
     const pts=c.h&&c.h.length?{h:'هداية الآيات',l:c.h}:c.m?{h:'المعنى',l:[c.m]}:c.w&&c.w.length?{h:'شرح الكلمات',l:c.w.slice(0,4).map(x=>x[0]+': '+x[1])}:null;
     // قياس الارتفاع
     const lay=[];const add=(font,text,lh,color,opt)=>{ctx.font=font;const max=opt&&opt.w||inner;wrapLines(ctx,text,max).forEach(l=>lay.push({font,l,lh,color,...opt}))};
@@ -1297,18 +1300,30 @@ function timeSel(t){
 function timeVal(){const h=+$('#au-h').value%12+(+$('#au-ap').value?12:0), m=+$('#au-m').value;return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')}
 // اختيار الموضوع من قائمة التطبيق (قائمة أندرويد لا تقبل الألوان): أخضر ✓ = نُشر، ذهبي = لم يُنشر
 function tPickBtn(id,n){const t=n&&TT(n);return `<button type="button" class="tpick" id="${id}" aria-haspopup="dialog">${t?`<span class="${tPublished(n)?'ok':'pend'}">${tPublished(n)?'✓ ':''}${AR(n)}. ${esc(tName(t))}</span>`:'<span class="sub">اختر الموضوع</span>'}<span class="tp-ar" aria-hidden="true">▾</span></button>`}
+// بدايات أجزاء المصحف [سورة، آية] لتقسيم الموضوعات حسب الجزء
+const JUZ_START=[[1,1],[2,142],[2,253],[3,93],[4,24],[4,148],[5,82],[6,111],[7,88],[8,41],[9,93],[11,6],[12,53],[15,1],[17,1],[18,75],[21,1],[23,1],[25,21],[27,56],[29,46],[33,31],[36,28],[39,32],[41,47],[46,1],[51,31],[58,1],[67,1],[78,1]];
+const JUZ_NAME=['الأول','الثاني','الثالث','الرابع','الخامس','السادس','السابع','الثامن','التاسع','العاشر','الحادي عشر','الثاني عشر','الثالث عشر','الرابع عشر','الخامس عشر','السادس عشر','السابع عشر','الثامن عشر','التاسع عشر','العشرون','الحادي والعشرون','الثاني والعشرون','الثالث والعشرون','الرابع والعشرون','الخامس والعشرون','السادس والعشرون','السابع والعشرون','الثامن والعشرون','التاسع والعشرون','الثلاثون'];
+function tJuz(t){let j=1;JUZ_START.forEach(([su,ay],k)=>{if(t.s>su||(t.s===su&&t.a>=ay))j=k+1});return j}
+// تقسيم الأجزاء يظهر للمالك فقط حتى يُعتمد للجميع
+const juzPick=()=>!!(A&&A.owner);
 function tPickOpen(which){const f=tdbComp.f;
   const list=which==='from'?TT_ALL().filter(t=>tReady(t.n)):TT_ALL().filter(t=>t.n>=f&&t.n<=tLastReady(f));
   const sel=which==='from'?f:tdbComp.to, nxt=G.nextTopic;
+  const jz=juzPick()?[...new Set(list.map(tJuz))].sort((x,y)=>x-y):[];
+  const at=TT(sel)||TT(nxt)||list[0];let curJ=jz.length?(at&&jz.includes(tJuz(at))?tJuz(at):jz[0]):0;
+  const items=()=>list.filter(t=>!curJ||tJuz(t)===curJ).map(t=>{const pub=tPublished(t.n);return `<button type="button" class="ts-it ${pub?'ok':'pend'}${t.n===sel?' sel':''}" data-pick="${t.n}">
+      <span class="ts-mk">${pub?'✓':t.n===nxt?'●':''}</span><span class="ts-t">${AR(t.n)}. ${esc(tName(t))}<span class="sub ts-l">${esc(t.l)} · ${nCardsT(t.c)}</span></span></button>`}).join('');
   const m=document.createElement('div');m.className='modal tsheet-bg';m.innerHTML=`<div class="tsheet" role="dialog" aria-label="${which==='from'?'من موضوع':'إلى موضوع'}">
     <div class="ts-head"><b>${which==='from'?'من موضوع':'إلى موضوع'}</b><button class="x" id="ts-x" aria-label="إغلاق">✕</button></div>
+    ${jz.length?`<div class="ts-jz"><label for="ts-jz" class="lbl">اختر الجزء</label><select id="ts-jz">${jz.map(k=>`<option value="${k}" ${k===curJ?'selected':''}>الجزء ${JUZ_NAME[k-1]}</option>`).join('')}</select><span class="lbl" style="margin-top:10px">الموضوعات</span></div>`:''}
     <p class="ts-legend"><span class="ok">✓ أخضر</span> = نُشر قبل ذلك</p>
-    <div class="ts-list">${list.map(t=>{const pub=tPublished(t.n);return `<button type="button" class="ts-it ${pub?'ok':'pend'}${t.n===sel?' sel':''}" data-pick="${t.n}">
-      <span class="ts-mk">${pub?'✓':t.n===nxt?'●':''}</span><span class="ts-t">${AR(t.n)}. ${esc(tName(t))}<span class="sub ts-l">${esc(t.l)} · ${nCardsT(t.c)}</span></span></button>`}).join('')}</div></div>`;
+    <div class="ts-list">${items()}</div></div>`;
   document.body.append(m);const close=()=>m.remove();
   m.onclick=e=>{if(e.target===m)close()};$('#ts-x').onclick=close;
-  m.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{const v=+b.dataset.pick;close();
+  const bindItems=()=>m.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{const v=+b.dataset.pick;close();
     if(which==='from')tdbComp={f:v,to:v};else tdbComp.to=v;render()});
+  bindItems();
+  const js=m.querySelector('#ts-jz');if(js)js.onchange=()=>{curJ=+js.value;const L=m.querySelector('.ts-list');L.innerHTML=items();L.scrollTop=0;bindItems()};
   const cur=m.querySelector('.ts-it.sel')||m.querySelector(`[data-pick="${nxt}"]`);if(cur)cur.scrollIntoView({block:'center'})}
 function tdbAutoCard(){
   const a=G.auto, s=G.nextTopic, e=tReady(s)?Math.min(s+Math.max(1,a.unit)-1,tLastReady(s)):null;
